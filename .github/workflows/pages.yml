@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - projects/**
-      - site/**
+      - docs/**
       - src/card_translator/**
       - pyproject.toml
       - uv.lock
@@ -31,13 +31,13 @@ jobs:
           version: latest-known
           enable-cache: true
       - run: uv sync --locked --no-dev
-      - run: uv run --no-sync unspeakable-translations status --library . --output site/data/projects.json --repository-url "$REPOSITORY_URL"
+      - run: uv run --no-sync unspeakable-translations status --library . --output docs/data/projects.json --repository-url "$REPOSITORY_URL"
         env:
           REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: docs
 
   deploy:
     environment:

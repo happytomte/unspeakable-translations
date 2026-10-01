@@ -5,7 +5,7 @@ from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).parents[1]
-SITE = ROOT / "site"
+SITE = ROOT / "docs"
 PAGES = tuple(SITE / name for name in ("index.html", "guide.html", "projects.html"))
 I18N_ATTRIBUTES = (
     "data-i18n",
