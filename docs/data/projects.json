@@ -1,0 +1,60 @@
+{
+  "format": "card-translator-status",
+  "format_version": 1,
+  "projects": [
+    {
+      "id": "lotr/A-Shadow-of-the-Past",
+      "game": "lotr",
+      "slug": "A-Shadow-of-the-Past",
+      "title": "A Shadow of the Past",
+      "layout": "shared",
+      "base": {
+        "cards_total": 26,
+        "source_text_present": 26,
+        "source_reviewed": 0,
+        "extraction_percent": 100,
+        "shoggoth_base_exists": false,
+        "graphics_reviewed": false
+      },
+      "translations": {
+        "de": {
+          "cards_translated": 0,
+          "cards_reviewed": 0,
+          "cards_total": 26,
+          "translation_percent": 0,
+          "shoggoth_project_exists": false,
+          "shoggoth_export_generated": false,
+          "rendered_images": 0,
+          "final_reviewed": false
+        }
+      }
+    },
+    {
+      "id": "lotr/Passage-Through-Mirkwood-Campaign",
+      "game": "lotr",
+      "slug": "Passage-Through-Mirkwood-Campaign",
+      "title": "Passage Through Mirkwood (Campaign)",
+      "layout": "shared",
+      "base": {
+        "cards_total": 26,
+        "source_text_present": 26,
+        "source_reviewed": 0,
+        "extraction_percent": 100,
+        "shoggoth_base_exists": false,
+        "graphics_reviewed": false
+      },
+      "translations": {
+        "de": {
+          "cards_translated": 1,
+          "cards_reviewed": 0,
+          "cards_total": 26,
+          "translation_percent": 4,
+          "shoggoth_project_exists": false,
+          "shoggoth_export_generated": false,
+          "rendered_images": 0,
+          "final_reviewed": false
+        }
+      }
+    }
+  ]
+}
