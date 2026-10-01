@@ -10,6 +10,17 @@ __pycache__/
 .env.*
 !.env.example
 
+# Local credentials and private key material
+.envrc
+.direnv/
+credentials.json
+service-account*.json
+secrets.*
+*.pem
+*.p12
+*.pfx
+*.key
+
 # Local working library / generated builds
 library/*/*/builds/
 library/*/*/snapshots/
