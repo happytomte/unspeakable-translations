@@ -616,6 +616,25 @@ an absolute waiver of all civil liability in connection with the
 Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 
+  18. Exception for Game Content, Data, and Release Packages
+
+  The AGPLv3 license applies strictly to the source code and software 
+architecture of this repository.
+
+All card data, game assets, sample content, and generated packages stored 
+within the projects/ directory, as well as compiled assets or release bundles 
+(e.g., in releases/, dist/, or GitHub Releases), 
+are EXCLUDED from the AGPLv3 license.
+
+Game content and trademarks belong to their respective copyright holders.
+
+User-generated translations and fan scenarios remain the intellectual 
+property of their respective creators.
+
+Releasing software under AGPLv3 does not convey or imply any transfer of 
+copyright or ownership regarding the game assets processed or generated 
+by this tool.
+
                      END OF TERMS AND CONDITIONS
 
             How to Apply These Terms to Your New Programs

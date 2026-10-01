@@ -281,3 +281,8 @@ uv run unspeakable-translations release-bundles --library . --output release
 uv run pytest
 uv run ruff check .
 ```
+
+
+# Disclaimer:
+
+Arkham Horror: The Card Game and The Lord of the Rings: The Card Game are trademarks of Fantasy Flight Publishing, Inc. / Fantasy Flight Games. This project is an unofficial, non-commercial fan creation and is not endorsed, sponsored, affiliated with, or approved by Fantasy Flight Games, Asmodee, or any of their respective affiliates. All card images, names, and trademarked game content remain the property of their respective copyright and trademark owners.
