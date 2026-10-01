@@ -1,6 +1,6 @@
 
 <p align="center">
-   <img src="site/assets/brand/unspeakabletranslations.png">
+   <img src="site/assets/brand/largelogo.svg" width="50%">
 </p>
 
 # Unspeakable Translations
@@ -13,13 +13,6 @@ separately for each target language. The workbench supports structured data impo
 AI-assisted card recognition and translation, manual editing, field-level review
 states, Shoggoth import/export, and Git-backed project publication.
 
-The interface defaults to English. German remains available from the language selector.
-
-The Python import package remains `card_translator`, and existing serialized project
-format identifiers are unchanged so current libraries stay compatible. The former
-`card-translator` command and `CARD_TRANSLATOR_*` environment variables are accepted as
-legacy aliases; new setups should use `unspeakable-translations` and
-`UNSPEAKABLE_TRANSLATIONS_*`.
 
 ## Quick start
 
@@ -30,22 +23,16 @@ uv sync
 uv run unspeakable-translations serve
 ```
 
-Open <http://127.0.0.1:8000>. During development, enable automatic reloads with:
+Open <http://127.0.0.1:8000>. 
 
-```bash
-uv run unspeakable-translations serve --reload
-```
 
-The server may be started from the repository root or any of its subdirectories. The
-application locates the nearest parent `pyproject.toml` for this project. To use a
-different workspace explicitly, set `UNSPEAKABLE_TRANSLATIONS_ROOT` or
-`UNSPEAKABLE_TRANSLATIONS_LIBRARY`.
+## Overview
 
-The ASGI application can also be started directly:
 
-```bash
-uv run uvicorn card_translator.web.app:create_app --factory --reload
-```
+<p align="center">
+   <img src="site/assets/brand/function.svg" width="50%">
+</p>
+
 
 ## Workflow
 
@@ -68,12 +55,13 @@ uv run uvicorn card_translator.web.app:create_app --factory --reload
 `library/` is the local, Git-ignored workspace. The application creates normal project
 directories itself; manually preparing a scenario folder is not required.
 
+
 ## Project layout
 
 ```text
-library/projects/ah/dark-matter/
+library/projects/ah/my-campaign/
 ├── campaign.json                   # Name, author, URL, and source language
-└── scenarios/the-tatterdemalion/
+└── scenarios/my-first-scenario/
     ├── project.json                # Scenario settings
     ├── source/
     │   ├── cards/                  # Source card images
@@ -92,6 +80,8 @@ library/projects/ah/dark-matter/
             ├── cards/
             │   └── <card-key>.json # Translated text and review state for one card
             └── builds/shoggoth.json
+            └── renders/
+                └── <card-key>.png  # Exported images from shoggoth
 ```
 
 At read time, the workbench composes the card files referenced by
@@ -106,18 +96,6 @@ through the workbench. The file is stored under `source/art/` and used by Shoggo
 the illustration while the complete source card remains available for capture and
 review.
 
-### Migrating older libraries
-
-The legacy layout under `library/<game>/<language>/<scenario>/` is still readable. To
-create shared projects without changing the old directories:
-
-```bash
-uv run unspeakable-translations migrate-library --dry-run
-uv run unspeakable-translations migrate-library
-```
-
-Migration stops when card images or source data that should be shared differ between
-language directories.
 
 ## Translation and card recognition
 
@@ -191,27 +169,6 @@ accepted, while location connections remain structured canonical IDs.
 
 ## Structured data and Shoggoth
 
-Under **Settings → Arkham Horror → ArkhamDB data and translation references**, source
-and target databases can be downloaded into `library/ah/data/`. The workbench builds
-the compact multilingual index `arkham.references.json` and can add matching official
-examples to translation prompts.
-
-The project page can preview and import configured JSON sources up to 10 MB. Matching
-uses an external identifier first and a normalized card name second. Ambiguous records
-remain available for manual assignment. Uploaded source files are retained in
-`snapshots/`.
-
-The convenience action that fills an entire scenario from locally downloaded ArkhamDB
-data is intentionally hidden by default. It also hides the built-in `arkham-json`
-source from the generic importer. Enable both at process startup only when needed:
-
-```bash
-UNSPEAKABLE_TRANSLATIONS_ENABLE_ARKHAMDB_SCENARIO_IMPORT=true \
-  uv run unspeakable-translations serve
-```
-
-Restart the server after changing startup flags.
-
 Arkham projects can import a Shoggoth project JSON. Rendered card images named
 `<id>_<name>_front_0.png` and `<id>_<name>_back_0.png` are grouped and matched by the
 full Shoggoth card ID. The importer falls back to the filename in `illustration` and
@@ -231,56 +188,6 @@ and the currently opened language from `library/projects/` into the tracked
 `projects/` directory. Other already-published languages are preserved. Publication
 is blocked when the destination project contains uncommitted changes.
 
-Generate the static catalog from the published projects and preview the site with:
-
-```bash
-uv run unspeakable-translations status --library . --output site/data/projects.json
-uv run python -m http.server 8010 --directory site
-```
-
-The site is available at <http://127.0.0.1:8010/> and its catalog page at
-<http://127.0.0.1:8010/projects.html>. `site/data/projects.json` is generated and
-Git-ignored. The Pages workflow rebuilds the same file from tracked projects.
-
-A shared project source is optional and disabled by default. Configure the dashboard's
-**Remotely available projects** section with:
-
-```dotenv
-UNSPEAKABLE_TRANSLATIONS_PROJECTS_REPOSITORY=https://github.com/example/card-projects.git
-UNSPEAKABLE_TRANSLATIONS_PROJECTS_BRANCH=main
-UNSPEAKABLE_TRANSLATIONS_PROJECTS_CATALOG_URL=https://example.github.io/card-projects/data/projects.json
-```
-
-When the repository URL is empty, the workbench remains local-only and does not run a
-Git refresh.
-
-A translation can be marked **Translation fully reviewed** on its project page. Only
-reviewed languages are included in release bundles:
-
-```bash
-uv run unspeakable-translations release-bundles --library . --output release \
-  --project ah/the-case-of-charles-dexter-ward --languages de --version 1.1.0
-```
-
-The **Publish reviewed translations** workflow performs the same build for one project
-ID and publishes the reproducible ZIP files as a GitHub Release.
-
-## Additional commands
-
-```bash
-# Use another local workspace
-UNSPEAKABLE_TRANSLATIONS_LIBRARY=/path/to/library uv run unspeakable-translations serve
-
-# Migrate one legacy project
-uv run unspeakable-translations migrate-library --game ah --slug my-scenario
-
-# Package every fully reviewed translation
-uv run unspeakable-translations release-bundles --library . --output release
-
-# Run tests and lint checks
-uv run pytest
-uv run ruff check .
-```
 
 
 # Disclaimer:
