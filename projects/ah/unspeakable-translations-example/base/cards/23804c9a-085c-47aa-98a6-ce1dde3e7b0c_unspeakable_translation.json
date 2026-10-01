@@ -1,0 +1,330 @@
+{
+  "format": "card-translator-card-extraction",
+  "format_version": 1,
+  "card": {
+    "id": "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation",
+    "key": "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation",
+    "images": {
+      "front": "source/cards/23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation_front_0.png",
+      "back": null
+    },
+    "game_data": {
+      "encounter_set": "",
+      "card_number": null,
+      "printed_quantity": null,
+      "pack_name": "",
+      "artist": "happy tomte",
+      "copyright": "",
+      "project_number": "0",
+      "encounter_number": "-1",
+      "stage": null,
+      "index": "",
+      "doom": null,
+      "shroud": null,
+      "clues": null,
+      "clues_per_investigator": "",
+      "health": null,
+      "sanity": null,
+      "fight": null,
+      "damage": null,
+      "horror": null,
+      "evade": null,
+      "cost": null,
+      "xp": null,
+      "slot": "",
+      "willpower": null,
+      "intellect": null,
+      "combat": null,
+      "agility": null,
+      "wild": null,
+      "connection": "",
+      "connections": [],
+      "victory": null,
+      "vengeance": null,
+      "classes": []
+    },
+    "card_type": "treachery",
+    "text": {
+      "en": {
+        "sides": {
+          "front": {
+            "title": "Unspeakable Translation",
+            "subname": "",
+            "traits": [],
+            "rules": "<b>Revelation</b> — Test {intellect} (4). For each point you fail by, choose and discard 1 card from your hand. For each card you cannot discard, take 1 horror.",
+            "flavor": "<i>The symbols were meaningless at first. You wish they had stayed that way.</i>"
+          }
+        },
+        "title": "Unspeakable Translation",
+        "subname": "",
+        "traits": [],
+        "rules": "<b>Revelation</b> — Test {intellect} (4). For each point you fail by, choose and discard 1 card from your hand. For each card you cannot discard, take 1 horror.",
+        "flavor": "<i>The symbols were meaningless at first. You wish they had stayed that way.</i>"
+      }
+    }
+  },
+  "_meta": {
+    "fields": {
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.card_type": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.encounter_set": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.card_number": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.printed_quantity": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.pack_name": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.artist": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.copyright": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.project_number": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.encounter_number": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.stage": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.index": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.doom": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.shroud": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.clues": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.clues_per_investigator": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.health": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.sanity": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.fight": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.damage": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.horror": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.evade": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.cost": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.xp": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.slot": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.willpower": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.intellect": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.combat": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.agility": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.wild": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.connection": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.connections": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.victory": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.vengeance": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.sides.front.title": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.title": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.sides.front.subname": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.subname": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.sides.front.traits": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.traits": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.sides.front.rules": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false,
+            "previous": {
+              "source": "manual_source_edit",
+              "confidence": 1.0,
+              "review_required": false
+            }
+          }
+        }
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.rules": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false,
+            "previous": {
+              "source": "manual_source_edit",
+              "confidence": 1.0,
+              "review_required": false
+            }
+          }
+        }
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.sides.front.flavor": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false
+        }
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.en.flavor": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false
+        }
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.game_data.classes": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      }
+    }
+  }
+}

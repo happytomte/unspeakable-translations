@@ -1,0 +1,28 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.argos/
+.DS_Store
+*.ses
+.env
+.env.*
+!.env.example
+
+# Local working library / generated builds
+library/*/*/builds/
+library/*/*/snapshots/
+
+
+library/
+
+# Generated local status projection; Pages will build this from project data.
+site/data/projects.json
+
+# Locally generated GitHub Release artifacts.
+release/
+feat.md
+lotr.md
+uv.lock
+tmp/

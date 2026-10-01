@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.library') }} · Unspeakable Translations{% endblock %}
+{% block content %}
+{% macro remote_project_card(project, downloaded=false) %}
+<div class="scenario-card remote-project-card">
+  <div class="scenario-card-top">
+    <div><span class="small muted">{{ project.game|upper }}</span><h3>{{ project.title }}</h3></div>
+    {% if downloaded %}<span class="badge badge-ok">{{ t('dashboard.downloaded_project') }}</span>{% endif %}
+  </div>
+  <div class="remote-project-progress"><span>{{ t('dashboard.extraction') }}</span><strong>{{ project.base.extraction_percent or 0 }}%</strong></div>
+  {% if downloaded %}
+  <p class="project-language-heading">{{ t('dashboard.translations') }}</p>
+  <div class="mirrored-language-links">
+    {% for language in project.installed_languages %}
+    <a class="scenario-language-link" href="/{{ project.game }}/{{ language }}/{{ project.slug }}"><span class="small">{{ language|upper }}</span><span>{{ t('dashboard.continue_work') }}</span><strong>→</strong></a>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if project.remote_status and project.remote_status.update_available %}
+  <p class="remote-update-warning">{{ t('dashboard.remote_update', count=project.remote_status.remote_changed|length) }}{% if project.remote_status.conflicts %} {{ t('dashboard.remote_conflicts', count=project.remote_status.conflicts|length) }}{% endif %}</p>
+  {% if not project.remote_status.conflicts %}<form method="post" action="/remote-projects/update" class="remote-update-form">
+    <input type="hidden" name="game" value="{{ project.game }}"><input type="hidden" name="slug" value="{{ project.slug }}">
+    {% if project.campaign %}<input type="hidden" name="campaign" value="{{ project.campaign }}">{% endif %}
+    <button type="submit" class="button-secondary">{{ t('dashboard.apply_update') }}</button>
+  </form>{% endif %}
+  {% endif %}
+  <form method="post" action="/remote-projects/download" class="remote-download-form">
+    <input type="hidden" name="game" value="{{ project.game }}">
+    <input type="hidden" name="slug" value="{{ project.slug }}">
+    {% if project.campaign %}<input type="hidden" name="campaign" value="{{ project.campaign }}">{% endif %}
+    <fieldset><legend>{{ t('dashboard.languages') }}</legend><div class="remote-language-options">
+      {% for language, status in project.translations.items() %}
+      <label><input type="checkbox" name="languages" value="{{ language }}" {% if language in project.installed_languages %}checked disabled{% endif %}><span>{{ language|upper }} · {{ status.translation_percent }}%</span></label>
+      {% endfor %}
+    </div></fieldset>
+    {% for language in project.installed_languages %}<input type="hidden" name="languages" value="{{ language }}">{% endfor %}
+    <button type="submit">{{ t('dashboard.add_languages') if downloaded else t('dashboard.download') }}</button>
+  </form>
+</div>
+{% endmacro %}
+
+<section class="dashboard-heading">
+  <h1>{{ t('dashboard.title') }}</h1>
+</section>
+
+{% if dashboard_error %}<div class="settings-message settings-message-error" role="alert">{{ dashboard_error }}</div>{% endif %}
+{% if dashboard_updated and dashboard_updated != 'none' %}<div class="settings-message settings-message-ok" role="status">{{ t('dashboard.updated', project=dashboard_updated) }}</div>{% endif %}
+{% if dashboard_created %}<div class="settings-message settings-message-ok" role="status">{{ t('project.scenario_created', project=dashboard_created) }}</div>{% endif %}
+{% if dashboard_campaign_created %}<div class="settings-message settings-message-ok" role="status">{{ t('campaign.created', campaign=dashboard_campaign_created) }}</div>{% endif %}
+
+<details class="panel create-project-panel">
+  <summary class="panel-summary">
+    <span class="panel-summary-heading">
+      <span class="eyebrow">{{ t('campaign.new_eyebrow') }}</span>
+      <strong class="panel-summary-title">{{ t('campaign.new_title') }}</strong>
+    </span>
+    <span class="panel-summary-description muted">{{ t('campaign.new_summary') }}</span>
+  </summary>
+  <p class="muted">{{ t('campaign.new_help') }}</p>
+  <form method="post" action="/campaigns/create" data-legacy-action="/projects/create" class="form-grid create-project-form">
+    <fieldset class="wide create-project-step">
+      <legend>{{ t('campaign.data') }}</legend>
+      <div class="create-project-step-grid">
+        <label>{{ t('project.game') }}
+          <select name="game" required>{% for game in games %}<option value="{{ game.slug }}">{{ game.name }}</option>{% endfor %}</select>
+        </label>
+        <label>{{ t('campaign.id') }}
+          <input name="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="dark-matter">
+          <span class="muted">{{ t('project.id_help') }}</span>
+        </label>
+        <label>{{ t('campaign.name') }}<input name="title" required></label>
+        <label>{{ t('field.author') }}<input name="author"></label>
+        <label class="wide">{{ t('field.source_url') }}<input name="source_url" type="url" placeholder="https://…"></label>
+        <label>{{ t('project.source_language') }}
+          <select name="source_language" required>{% for code, label in target_languages.items() %}<option value="{{ code }}" {% if code == 'en' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        </label>
+        <label class="checkbox-field wide">
+          <input type="checkbox" name="private_only" value="true">
+          <span>{{ t('project.private_only') }}</span>
+        </label>
+        <p class="small muted wide private-only-help">{{ t('project.private_only_help') }}</p>
+      </div>
+    </fieldset>
+    <div class="form-actions"><button type="submit">{{ t('campaign.create') }}</button></div>
+  </form>
+</details>
+
+<details class="panel create-project-panel">
+  <summary class="panel-summary">
+    <span class="panel-summary-heading"><span class="eyebrow">{{ t('project.new_eyebrow') }}</span><strong class="panel-summary-title">{{ t('project.new_title') }}</strong></span>
+    <span class="panel-summary-description muted">{{ t('project.new_summary') }}</span>
+  </summary>
+  {% if campaigns %}
+  <p class="muted">{{ t('project.new_help') }}</p>
+  <form method="post" action="/scenarios/create" class="form-grid create-project-form">
+    <fieldset class="wide create-project-step">
+      <legend>{{ t('project.scenario_section') }}</legend>
+      <div class="create-project-step-grid">
+        <label>{{ t('campaign.campaign') }}
+          <select name="campaign_id" required>{% for campaign in campaigns %}<option value="{{ campaign.game }}/{{ campaign.slug }}">{{ campaign.title }} · {{ campaign.game|upper }}</option>{% endfor %}</select>
+        </label>
+        <label>{{ t('project.id') }}<input name="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="scenario-one"><span class="muted">{{ t('project.id_help') }}</span></label>
+        <label>{{ t('project.original_title') }}<input name="title" required></label>
+        <label class="checkbox-field wide">
+          <input type="checkbox" name="private_only" value="true">
+          <span>{{ t('project.private_only') }}</span>
+        </label>
+        <p class="small muted wide private-only-help">{{ t('project.private_only_help') }}</p>
+      </div>
+    </fieldset>
+    <div class="form-actions"><button type="submit">{{ t('project.create') }}</button></div>
+  </form>
+  {% else %}<fieldset class="wide create-project-step"><legend>{{ t('project.scenario_section') }}</legend><div class="empty-state">{{ t('campaign.no_campaign') }}</div></fieldset>{% endif %}
+</details>
+
+{% if campaigns %}
+<section class="game-section campaign-section">
+  <div class="section-heading"><div><p class="eyebrow">{{ t('campaign.overview_eyebrow') }}</p><h2>{{ t('campaign.overview_title') }}</h2></div><span class="count">{{ campaigns|length }}</span></div>
+  <div class="scenario-grid">
+    {% for campaign in campaigns %}
+    <div class="scenario-card">
+      <div class="scenario-card-top"><div><span class="small muted">{{ campaign.game|upper }} · {{ campaign.slug }}</span><h3>{{ campaign.title }}</h3></div><div class="scenario-card-badges">{% if campaign.private_only %}<span class="badge badge-private">{{ t('project.private_only_badge') }}</span>{% endif %}<span class="badge">{{ campaign.scenario_count }} {{ t('campaign.scenarios') }}</span></div></div>
+      {% if campaign.author %}<p class="muted">{{ t('field.author') }}: {{ campaign.author }}</p>{% endif %}
+      {% if campaign.source_url %}<p><a href="{{ campaign.source_url }}" target="_blank" rel="noreferrer">{{ t('field.source_url') }} ↗</a></p>{% endif %}
+      {% if campaign.scenarios %}<p class="small muted">{{ campaign.scenarios|join(' · ') }}</p>{% endif %}
+      <form method="post" action="/campaigns/{{ campaign.game }}/{{ campaign.slug }}/private-only" class="private-only-form">
+        <input type="hidden" name="private_only" value="false">
+        <label class="checkbox-field">
+          <input type="checkbox" name="private_only" value="true" {% if campaign.private_only %}checked{% endif %} onchange="this.form.requestSubmit()">
+          <span>{{ t('project.private_only') }}</span>
+        </label>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<details class="panel create-project-panel" id="create-translation">
+  <summary class="panel-summary">
+    <span class="panel-summary-heading">
+      <span class="eyebrow">{{ t('translation.new_eyebrow') }}</span>
+      <strong class="panel-summary-title">{{ t('translation.new_title') }}</strong>
+    </span>
+    <span class="panel-summary-description muted">{{ t('translation.new_summary') }}</span>
+  </summary>
+  {% if shared_projects %}
+  <p class="muted">{{ t('translation.new_help') }}</p>
+  <form method="post" action="/projects/translations/create" class="form-grid">
+    <label>{{ t('translation.scenario') }}
+      <select name="project_id" required>
+        {% for project in shared_projects %}<option value="{{ project.game }}/{% if project.campaign %}{{ project.campaign }}/{% endif %}{{ project.slug }}">{% if project.campaign_title %}{{ project.campaign_title }} · {% endif %}{{ project.title }} · {{ project.game|upper }}{% if project.languages %} · {{ project.languages|map('upper')|join(', ') }} {{ t('translation.existing') }}{% endif %}</option>{% endfor %}
+      </select>
+    </label>
+    <label>{{ t('translation.target_language') }}
+      <select name="target_language" required>{% for code, label in target_languages.items() %}<option value="{{ code }}" {% if code == 'de' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    <div class="form-actions"><button type="submit">{{ t('translation.create') }}</button></div>
+  </form>
+  {% else %}<div class="empty-state">{{ t('translation.no_scenario') }}</div>{% endif %}
+</details>
+
+<section class="game-section local-project-section">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">{{ t('dashboard.local_eyebrow') }}</p>
+      <h2>{{ t('dashboard.local_projects') }}</h2>
+      <p class="muted game-description">{{ t('dashboard.local_help') }}</p>
+    </div>
+    <span class="count">{{ local_project_count }} {{ t('dashboard.projects') }}</span>
+  </div>
+
+  {% if local_project_count %}
+  <div class="contribution-legend" aria-label="{{ t('project.progress_legend') }}">
+    <strong>{{ t('project.progress_legend') }}</strong>
+    <span><i class="legend-swatch progress-contributed"></i>{{ t('project.legend_contributed') }}</span>
+    <span><i class="legend-swatch progress-ready"></i>{{ t('project.legend_ready') }}</span>
+    <span><i class="legend-swatch progress-local"></i>{{ t('project.legend_local') }}</span>
+    <span><i class="legend-swatch progress-missing"></i>{{ t('project.legend_missing') }}</span>
+  </div>
+  <div class="scenario-grid">
+  {% for game in games %}
+    {% for project_group in game.scenarios|groupby('slug') %}
+    {% set first = project_group.list[0] %}
+    <div class="scenario-card">
+      <div class="scenario-card-top">
+        <div>{% if first.campaign_title %}<span class="small muted">{{ first.campaign_title }}</span>{% endif %}<h3>{{ first.title }}</h3></div>
+        <div class="scenario-card-badges">
+          <span class="badge">{{ t('dashboard.local_project') }}</span>
+          {% if first.private_only %}<span class="badge badge-private">{{ t('project.private_only_badge') }}</span>{% endif %}
+          {% if first.initialized %}<span class="badge badge-ok">{{ t('dashboard.ready') }}</span>{% else %}<span class="badge badge-warn">{{ t('dashboard.discovered') }}</span>{% endif %}
+        </div>
+      </div>
+      {% if first.card_source_needs_selection %}<p class="muted">{{ first.card_source_candidates|length }} {{ t('dashboard.image_collections') }}</p>
+      {% else %}<p class="muted">{{ first.card_count }} {{ t('dashboard.card_images') }}</p>{% endif %}
+      <p class="project-language-heading">{{ t('dashboard.workspaces') }}</p>
+      {% for scenario in project_group.list %}
+      <a class="scenario-language-link" href="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}">
+        <span class="small">{% if scenario.source_only %}{{ t('dashboard.source_data') }} · {{ scenario.target_language|upper }}{% else %}{{ scenario.target_language|upper }}{% if not scenario.initialized %} · {{ t('dashboard.metadata_missing') }}{% endif %}{% endif %}</span>
+        {% if scenario.initialized %}<span class="progress contribution-progress" aria-label="{{ t('project.contribution_status') }}"><span class="progress-contributed" style="width: {{ scenario.publication.contributed_percent }}%" title="{{ t('project.progress_contributed', count=scenario.publication.contributed_count) }}"></span><span class="progress-ready" style="width: {{ scenario.publication.ready_completed_percent }}%" title="{{ t('project.progress_ready', count=scenario.publication.ready_completed_count) }}"></span><span class="progress-local" style="width: {{ scenario.publication.local_completed_percent }}%" title="{{ t('project.progress_local', count=scenario.publication.local_completed_count) }}"></span></span><strong>{{ scenario.translation_percent }}%</strong>{% endif %}
+        {% if scenario.private_only or scenario.workbench.missing_cards or scenario.workbench.missing_documents or scenario.publication.changed_count or scenario.publication.ready_for_pull_request %}<span class="contribution-status-badges">{% if scenario.private_only %}<span class="badge badge-private">{{ t('project.private_only_badge') }}</span>{% endif %}{% if scenario.workbench.missing_cards %}<span class="badge badge-warn">{{ t('workbench.cards_missing', count=scenario.workbench.missing_cards) }}</span>{% endif %}{% if scenario.workbench.missing_documents %}<span class="badge badge-warn">{{ t('workbench.documents_missing', count=scenario.workbench.missing_documents) }}</span>{% endif %}{% if scenario.publication.changed_count %}<span class="badge badge-changed">{{ t('project.local_pending', count=scenario.publication.changed_count) }}</span>{% endif %}{% if scenario.publication.ready_for_pull_request and not scenario.private_only %}<span class="badge badge-ready">{% if scenario.publication.repository_changed_card_count %}{{ t('project.ready_for_pr', count=scenario.publication.repository_changed_card_count) }}{% else %}{{ t('project.ready_files_for_pr', count=scenario.publication.repository_changed_file_count) }}{% endif %}</span>{% endif %}</span>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  {% endfor %}
+  {% for project in project_shells %}
+    <div class="scenario-card">
+      <div class="scenario-card-top">
+        <h3>{{ project.title }}</h3>
+        <span class="badge{% if project.linked %} badge-ok{% endif %}">{{ t('dashboard.downloaded_project') if project.linked else t('dashboard.local_project') }}</span>
+      </div>
+      <p class="muted">{{ project.card_count }} {{ t('dashboard.card_images') }}</p>
+      <p class="project-language-heading">{{ t('dashboard.translations') }}</p>
+      <p class="muted project-no-translations">{{ t('dashboard.no_translations') }}</p>
+      <a class="button-secondary project-start-translation" href="#create-translation">{{ t('translation.new_title') }}</a>
+    </div>
+  {% endfor %}
+  {% for project in mirrored_projects %}{{ remote_project_card(project, true) }}{% endfor %}
+  </div>
+  {% else %}<div class="empty-state">{{ t('dashboard.local_empty') }}</div>{% endif %}
+</section>
+
+<section class="game-section remote-project-section">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">{{ t('dashboard.available_eyebrow') }}</p>
+      <h2>{{ t('dashboard.available_projects') }}</h2>
+      <p class="muted game-description">{{ t('dashboard.available_help') }}</p>
+    </div>
+    {% if remote_repository.available %}<span class="count">{{ available_remote_projects|length }} {{ t('dashboard.projects') }}</span>{% endif %}
+  </div>
+  {% if not remote_repository.configured %}<div class="empty-state">{{ t('dashboard.repository_not_configured') }} <a href="/settings">{{ t('nav.settings') }}</a></div>
+  {% elif not remote_repository.available %}<div class="empty-state">{{ t('dashboard.repository_unavailable') }} {{ remote_repository.error or '' }}</div>
+  {% elif available_remote_projects %}<div class="scenario-grid remote-project-grid">{% for project in available_remote_projects %}{{ remote_project_card(project) }}{% endfor %}</div>
+  {% else %}<div class="empty-state">{{ t('dashboard.available_empty') }}</div>{% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" data-i18n-content="home.meta" content="Unspeakable Translations is a local workbench and public catalog for collaboratively translated fan projects.">
+  <title data-i18n-title="home.title">Unspeakable Translations · Translate, review, share</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css">
+  <script src="site.js" defer></script>
+</head>
+<body data-page="home">
+  <a class="skip-link" href="#content" data-i18n="common.skip">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Unspeakable Translations home" data-i18n-aria="common.home_label">
+      <img class="brand-mark" src="assets/brand/unspeakable-mark.png" alt="" width="54" height="45">
+      <!-- <img class="textlogo" src="assets/brand/textlogo.png" alt="" > -->
+      <span class="brand-name"><strong>Unspeakable</strong><small>Translations</small></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-i18n="common.menu">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-i18n-aria="common.nav_label">
+      <a href="index.html" data-nav="home" data-i18n="common.overview">Overview</a>
+      <a href="guide.html" data-nav="guide" data-i18n="common.guide">Guide</a>
+      <a href="projects.html" data-nav="projects" data-i18n="common.projects">Projects</a>
+      <label class="site-language">
+        <span class="visually-hidden" data-i18n="common.language">Language</span>
+        <select data-language-select aria-label="Language" data-i18n-aria="common.language">
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </label>
+      <a class="nav-github" href="https://github.com/" data-repository-link>GitHub <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="content">
+    <section class="hero shell">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> Community Translation Workbench</p>
+        <h1 data-i18n-html="home.hero_title">Translate cards.<br><em>Together.</em></h1>
+        <p class="hero-lead" data-i18n="home.hero_lead">Unspeakable Translations connects a local translation workbench with a public project catalog. Capture source material once, maintain translations per language, and share reviewed packages through GitHub Releases.</p>
+        <div class="button-row">
+          <a class="button button-primary" href="guide.html"><span data-i18n="home.get_started">Get started</span> <span aria-hidden="true">→</span></a>
+          <a class="button button-secondary" href="projects.html" data-i18n="home.discover">Discover projects</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-label="From source cards to a reviewed translation" data-i18n-aria="home.process_label">
+        <div class="hero-seal" aria-hidden="true"><img src="assets/brand/unspeakable-mark.png" alt=""></div>
+        <figure class="hero-card">
+          <img src="assets/brand/unspeakable-card.webp" alt="Unspeakable Translation card showing an annotated book full of mysterious glyphs" width="680" height="947">
+        </figure>
+        <div class="translation-note">
+          <span class="note-index">01—03</span>
+          <p><strong data-i18n="home.process_source">Source cards</strong><span aria-hidden="true"> → </span><strong data-i18n="home.process_translation">Translation</strong><span aria-hidden="true"> → </span><strong data-i18n="home.process_release">Release</strong></p>
+          <small data-i18n="home.process_translation_detail">Edit · review · export</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell intro-grid" aria-labelledby="why-title">
+      <div>
+        <p class="eyebrow"><span></span> <span data-i18n="home.shared_state">One shared state</span></p>
+        <h2 id="why-title" data-i18n="home.why_title">More than a loose collection of files.</h2>
+      </div>
+      <div class="prose large-prose">
+        <p data-i18n="home.why_text">The repository records what has actually been completed. The website exposes that state, while the local app makes the work accessible without requiring contributors to understand Git.</p>
+      </div>
+    </section>
+
+    <section class="section shell pillars" aria-label="The three parts of the project" data-i18n-aria="home.pillars_label">
+      <article class="pillar">
+        <span class="pillar-number">01</span>
+        <div class="pillar-icon" aria-hidden="true">⌘</div>
+        <h3 data-i18n="home.pillar_repository_title">GitHub is the published source</h3>
+        <p data-i18n="home.pillar_repository_text">Published source data, translations, and review states are versioned in the repository. Progress is calculated from those files instead of being maintained twice.</p>
+      </article>
+      <article class="pillar">
+        <span class="pillar-number">02</span>
+        <div class="pillar-icon" aria-hidden="true">◫</div>
+        <h3 data-i18n="home.pillar_app_title">The app is the workbench</h3>
+        <p data-i18n="home.pillar_app_text">Create or download projects, capture card data, translate, and review locally while the app keeps storage details out of the way.</p>
+      </article>
+      <article class="pillar">
+        <span class="pillar-number">03</span>
+        <div class="pillar-icon" aria-hidden="true">◇</div>
+        <h3 data-i18n="home.pillar_site_title">The website is the catalog</h3>
+        <p data-i18n="home.pillar_site_text">Visitors can inspect real progress for each language and download a release when a reviewed package is available.</p>
+      </article>
+    </section>
+
+    <section class="section shell split-panel">
+      <div class="split-panel-copy">
+        <p class="eyebrow light"><span></span> <span data-i18n="home.prepare_once">Prepare once</span></p>
+        <h2 data-i18n-html="home.one_base_title">One foundation.<br>Many languages.</h2>
+        <p data-i18n="home.one_base_text">Source images, captured text, metadata, and reusable Shoggoth layout data belong to the shared project. Every translation builds on that work without copying it.</p>
+        <a class="text-link" href="guide.html#original-data"><span data-i18n="home.understand_model">Follow the tutorial</span> <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="dependency-map" aria-label="Project structure" data-i18n-aria="home.map_label">
+        <div class="map-node map-root"><small data-i18n="home.map_scenario">Scenario</small><strong data-i18n="home.map_base">Shared foundation</strong></div>
+        <div class="map-line"></div>
+        <div class="map-branches">
+          <div class="map-node"><span>DE</span><strong>Deutsch</strong><small data-i18n="home.map_example_one">38 / 42 cards</small></div>
+          <div class="map-node"><span>FR</span><strong>Français</strong><small data-i18n="home.map_example_two">12 / 42 cards</small></div>
+          <div class="map-node muted"><span>+</span><strong data-i18n="home.map_more">Another language</strong><small data-i18n="home.map_anytime">at any time</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell cta-panel">
+      <div>
+        <p class="eyebrow"><span></span> <span data-i18n="home.ready">Ready?</span></p>
+        <h2 data-i18n="home.cta_title">Open a project and contribute.</h2>
+      </div>
+      <div class="button-row">
+        <a class="button button-primary" href="projects.html" data-i18n="home.open_catalog">Open project catalog</a>
+        <a class="button button-secondary" href="guide.html" data-i18n="home.view_installation">View installation guide</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer shell">
+    <div class="brand footer-brand"><img class="brand-mark" src="assets/brand/unspeakable-mark.png" alt="" width="54" height="45"><span class="brand-name"><strong>Unspeakable</strong><small>Translations</small></span></div>
+    <p data-i18n="common.disclaimer">A community tool for fan translations. Not affiliated with the respective rights holders.</p>
+    <a href="https://github.com/" data-repository-link><span data-i18n="common.source">Source code on GitHub</span> <span aria-hidden="true">↗</span></a>
+  </footer>
+</body>
+</html>

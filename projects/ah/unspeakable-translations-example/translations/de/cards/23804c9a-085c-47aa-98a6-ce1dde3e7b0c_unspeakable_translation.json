@@ -1,0 +1,57 @@
+{
+  "format": "card-translator-card-translation",
+  "format_version": 1,
+  "card": {
+    "id": "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation",
+    "key": "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation",
+    "text": {
+      "de": {
+        "sides": {
+          "front": {
+            "title": "Unaussprechliche Übersetzung",
+            "subname": "",
+            "traits": [],
+            "rules": "<b>Enthüllung</b> — Lege eine {intellect}-Probe (4) ab. Für jeden Punkt, um den die Probe misslingt, wähle 1 Karte von deiner Hand und lege sie ab. Für jede Karte, die du nicht ablegen kannst, nimm 1 Horror.",
+            "flavor": "<i>Die Symbole waren zunächst bedeutungslos. Du wünschst, sie wären es geblieben.</i>"
+          }
+        },
+        "title": "Unaussprechliche Übersetzung",
+        "subname": "",
+        "traits": [],
+        "rules": "<b>Enthüllung</b> — Lege eine {intellect}-Probe (4) ab. Für jeden Punkt, um den die Probe misslingt, wähle 1 Karte von deiner Hand und lege sie ab. Für jede Karte, die du nicht ablegen kannst, nimm 1 Horror.",
+        "flavor": "<i>Die Symbole waren zunächst bedeutungslos. Du wünschst, sie wären es geblieben.</i>"
+      }
+    }
+  },
+  "_meta": {
+    "fields": {
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.title": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.subname": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.traits": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.rules": {
+        "source": "manual",
+        "confidence": 1.0,
+        "source_hash": "31ec23fa3cf7b10ac7d44ce29a4afd40f0e944aa57c4698af2a1f32d02598103",
+        "source_value": "<b>Revelation</b> — Test {intellect} (4). For each point you fail by, choose and discard 1 card from your hand. For each card you cannot discard, take 1 horror."
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.flavor": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.rules": {
+        "source": "unknown",
+        "review_required": true,
+        "review_reason": "source_text_changed"
+      }
+    }
+  }
+}

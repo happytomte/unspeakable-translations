@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Hall of Beorn · Unspeakable Translations{% endblock %}
+{% block content %}
+<a class="back-link" href="/">← {{ t('nav.library') }}</a>
+<section class="hero online-hero">
+  <p class="eyebrow">{{ t('online.eyebrow') }}</p>
+  <h1>{{ t('online.title') }}</h1>
+  <p>{{ t('online.description') }}</p>
+</section>
+
+<nav class="browser-tabs" aria-label="Hall of Beorn">
+  <a href="/lotr/online?view=scenarios" class="browser-tab {% if view == 'scenarios' %}is-active{% endif %}">{{ t('online.tab_scenarios') }}</a>
+  <a href="/lotr/online?view=sets" class="browser-tab {% if view == 'sets' %}is-active{% endif %}">{{ t('online.tab_sets') }}</a>
+</nav>
+
+<datalist id="target-language-options">
+  {% for code, label in target_languages.items() %}
+  <option value="{{ code }}">{{ label }}</option>
+  {% endfor %}
+</datalist>
+
+{% if error %}
+<div class="empty-state warning-text">{{ t('online.error', error=error) }}</div>
+{% elif view == 'sets' %}
+  <p class="small muted online-note">{{ t('online.sets_note') }}</p>
+  {% if sets %}
+  <div class="online-scenario-list">
+    {% set ns = namespace(group='') %}
+    {% for item in sets %}
+      {% if item.group != ns.group %}
+        {% set ns.group = item.group %}
+        {% if item.group %}<h2 class="online-group-heading">{{ item.group }}</h2>{% endif %}
+      {% endif %}
+      <article class="online-scenario-row online-set-row">
+        <div>
+          <p class="eyebrow">{{ item.group or t('online.group') }}</p>
+          <h3>{{ item.title }}</h3>
+        </div>
+        <a class="button-link button-secondary-link" href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ t('online.open_hob') }}</a>
+      </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">{{ t('online.no_sets') }}</div>
+  {% endif %}
+{% else %}
+  <p class="small muted online-note">{{ t('online.importing_note') }}</p>
+  {% if scenarios %}
+  <div class="online-scenario-list">
+    {% for scenario in scenarios %}
+    <article class="online-scenario-row">
+      <div>
+        <p class="eyebrow">{{ scenario.group or t('online.group') }}</p>
+        <h3>{{ scenario.title }}</h3>
+        <p class="small muted scenario-products" data-product-list="{{ scenario.slug }}">
+          {% if scenario.products %}{{ t('online.in_products') }} {{ scenario.products | join(' · ') }}{% endif %}
+        </p>
+        <button type="button" class="button-link-inline product-lookup-button" data-scenario-slug="{{ scenario.slug }}" data-idle-label="{{ t('online.load_products') }}" data-busy-label="{{ t('online.loading_products') }}">{{ t('online.load_products') }}</button>
+      </div>
+      {% if local_projects.get(scenario.slug) %}
+        <div class="online-local-actions">
+          {% for local in local_projects.get(scenario.slug, []) %}
+          <a class="button-link button-secondary-link" href="/lotr/{{ local.storage_language }}/{{ scenario.slug }}">{{ t('online.open_project') }} · {{ local.target_language|upper }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+        <form method="post" action="/lotr/online/{{ scenario.slug }}/import" class="online-import-form">
+          <label>{{ t('field.target_language') }}
+            <input name="target_language" list="target-language-options" value="de" required pattern="[A-Za-z][A-Za-z0-9_-]*">
+          </label>
+          <button type="submit" data-idle-label="{{ t('online.import') }}" data-busy-label="{{ t('online.importing') }}">
+            <span class="import-spinner" aria-hidden="true"></span>
+            <span class="import-button-label">{{ t('online.import') }}</span>
+          </button>
+        </form>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">{{ t('online.no_scenarios') }}</div>
+  {% endif %}
+{% endif %}
+
+<script>
+(() => {
+  document.querySelectorAll(".product-lookup-button").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const slug = button.dataset.scenarioSlug;
+      if (!slug) return;
+      button.disabled = true;
+      button.textContent = button.dataset.busyLabel || button.textContent;
+      try {
+        const response = await fetch(`/lotr/online/${encodeURIComponent(slug)}/products`);
+        if (!response.ok) throw new Error(await response.text());
+        const data = await response.json();
+        const target = document.querySelector(`[data-product-list="${CSS.escape(slug)}"]`);
+        if (target && Array.isArray(data.products) && data.products.length) {
+          target.textContent = {{ t('online.in_products')|tojson }} + " " + data.products.join(" · ");
+        }
+        button.remove();
+      } catch (error) {
+        console.error(error);
+        button.disabled = false;
+        button.textContent = button.dataset.idleLabel || button.textContent;
+      }
+    });
+  });
+
+  document.querySelectorAll(".online-import-form").forEach((form) => {
+    form.addEventListener("submit", () => {
+      const button = form.querySelector('button[type="submit"]');
+      if (!button) return;
+      button.disabled = true;
+      button.classList.add("is-importing");
+      const label = button.querySelector(".import-button-label");
+      if (label) label.textContent = button.dataset.busyLabel || label.textContent;
+      form.querySelectorAll("select").forEach((select) => select.disabled = true);
+    });
+  });
+})();
+</script>
+{% endblock %}

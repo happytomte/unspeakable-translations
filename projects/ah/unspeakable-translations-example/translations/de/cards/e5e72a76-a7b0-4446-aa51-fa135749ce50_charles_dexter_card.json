@@ -1,0 +1,56 @@
+{
+  "format": "card-translator-card-translation",
+  "format_version": 1,
+  "card": {
+    "id": "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card",
+    "key": "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card",
+    "text": {
+      "de": {
+        "sides": {
+          "front": {
+            "title": "Charles Dexter Card",
+            "subname": "Wortspiel beabsichtigt!",
+            "traits": [
+              "Verbündeter",
+              "Gelehrter"
+            ],
+            "rules": "{reaction} Nachdem dir eine Fertigkeitsprobe auf einer Verratskarte gelungen ist, erschöpfe Charles Dexter Card: Ziehe 1 Karte. Falls dir die Probe um 2 oder mehr gelungen ist, darfst du stattdessen 1 Hinweis an deinem Ort entdecken.",
+            "flavor": "<i>„Ich versichere dir, die Zeichensetzung ist von Bedeutung.“</i>"
+          }
+        },
+        "title": "Charles Dexter Card",
+        "subname": "Wortspiel beabsichtigt!",
+        "traits": [
+          "Verbündeter",
+          "Gelehrter"
+        ],
+        "rules": "{reaction} Nachdem dir eine Fertigkeitsprobe auf einer Verratskarte gelungen ist, erschöpfe Charles Dexter Card: Ziehe 1 Karte. Falls dir die Probe um 2 oder mehr gelungen ist, darfst du stattdessen 1 Hinweis an deinem Ort entdecken.",
+        "flavor": "<i>„Ich versichere dir, die Zeichensetzung ist von Bedeutung.“</i>"
+      }
+    }
+  },
+  "_meta": {
+    "fields": {
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.de.sides.front.title": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.de.sides.front.subname": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.de.sides.front.traits": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.de.sides.front.rules": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.de.sides.front.flavor": {
+        "source": "manual",
+        "confidence": 1.0
+      }
+    }
+  }
+}

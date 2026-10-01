@@ -1,0 +1,54 @@
+{
+  "format": "card-translator-card-translation",
+  "format_version": 1,
+  "card": {
+    "id": "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink",
+    "key": "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink",
+    "text": {
+      "de": {
+        "sides": {
+          "front": {
+            "title": "Seltsame Tinte",
+            "subname": "",
+            "traits": [
+              "Gefahr"
+            ],
+            "rules": "<b>Enthüllung</b> — Lege Seltsame Tinte in deine Bedrohungszone.\n<b>Erzwungen</b> — Lege am Ende deines Zuges 1 zufällige Karte von deiner Hand ab. Falls du dies nicht kannst, nimm 1 Horror.\n{action}: Lege eine {agility}-Probe (3) ab. Falls die Probe gelingt, lege Seltsame Tinte ab.",
+            "flavor": "<i>Vielleicht hätte ich die Flasche geschlossen lassen sollen.</i>"
+          }
+        },
+        "title": "Seltsame Tinte",
+        "subname": "",
+        "traits": [
+          "Gefahr"
+        ],
+        "rules": "<b>Enthüllung</b> — Lege Seltsame Tinte in deine Bedrohungszone.\n<b>Erzwungen</b> — Lege am Ende deines Zuges 1 zufällige Karte von deiner Hand ab. Falls du dies nicht kannst, nimm 1 Horror.\n{action}: Lege eine {agility}-Probe (3) ab. Falls die Probe gelingt, lege Seltsame Tinte ab.",
+        "flavor": "<i>Vielleicht hätte ich die Flasche geschlossen lassen sollen.</i>"
+      }
+    }
+  },
+  "_meta": {
+    "fields": {
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.de.sides.front.title": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.de.sides.front.subname": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.de.sides.front.traits": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.de.sides.front.rules": {
+        "source": "manual",
+        "confidence": 1.0
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.de.sides.front.flavor": {
+        "source": "manual",
+        "confidence": 1.0
+      }
+    }
+  }
+}

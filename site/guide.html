@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" data-i18n-content="guide.meta" content="Install Unspeakable Translations and use it for a translation project.">
+  <title data-i18n-title="guide.title">Guide · Unspeakable Translations</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css">
+  <script src="site.js" defer></script>
+</head>
+<body data-page="guide">
+  <a class="skip-link" href="#content" data-i18n="common.skip">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Unspeakable Translations home" data-i18n-aria="common.home_label"><img class="brand-mark" src="assets/brand/unspeakable-mark.png" alt="" width="54" height="45"><span class="brand-name"><strong>Unspeakable</strong><small>Translations</small></span></a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-i18n="common.menu">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-i18n-aria="common.nav_label">
+      <a href="index.html" data-nav="home" data-i18n="common.overview">Overview</a>
+      <a href="guide.html" data-nav="guide" data-i18n="common.guide">Guide</a>
+      <a href="projects.html" data-nav="projects" data-i18n="common.projects">Projects</a>
+      <label class="site-language">
+        <span class="visually-hidden" data-i18n="common.language">Language</span>
+        <select data-language-select aria-label="Language" data-i18n-aria="common.language">
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </label>
+      <a class="nav-github" href="https://github.com/" data-repository-link>GitHub <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="content">
+    <header class="page-hero shell">
+      <p class="eyebrow"><span></span> <span data-i18n="guide.eyebrow">Guide</span></p>
+      <h1 data-i18n-html="guide.hero_title">From zero to your first<br><em>edited card.</em></h1>
+      <p data-i18n="guide.hero_text">The workbench runs locally. Start with shared original card data, extract it when needed, translate it, and create a Shoggoth-ready export.</p>
+    </header>
+
+    <div class="guide-layout shell">
+      <aside class="guide-toc" aria-label="On this page" data-i18n-aria="guide.toc_label">
+        <strong data-i18n="guide.toc_label">On this page</strong>
+        <a href="#installation" data-i18n="guide.toc_installation">Installation</a>
+        <a href="#original-data" data-i18n="guide.toc_original">Get original card data</a>
+        <a href="#extract-data" data-i18n="guide.toc_extract">Extract card data</a>
+        <a href="#prepare-data" data-i18n="guide.toc_extract">Prepare card data translation</a>
+        <a href="#translate-data" data-i18n="guide.toc_translate">Translate card data</a>
+        <a href="#export-shoggoth" data-i18n="guide.toc_export">Export to Shoggoth</a>
+      </aside>
+
+      <div class="guide-content prose">
+        <section id="installation" class="guide-section">
+          <p class="step-label" data-i18n="guide.prerequisite">Prerequisite</p>
+          <h2 data-i18n="guide.install_title">Install the workbench</h2>
+          <p data-i18n-html="guide.install_text">You need <a href="https://docs.astral.sh/uv/" rel="noreferrer">uv</a> and Python 3.12 or newer. Clone the repository, install its dependencies, and start the local server.</p>
+          <div class="code-block"><button type="button" class="copy-button" data-i18n="common.copy">Copy</button><pre><code data-clone-command>git clone &lt;repository-url&gt;
+cd unspeakable-translations
+uv sync
+uv run unspeakable-translations serve</code></pre></div>
+          <div class="callout"><strong data-i18n="guide.open_after">Then open</strong><span><a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> <span data-i18n="guide.in_browser">in your browser.</span></span></div>
+          <p data-i18n="guide.translation_optional">Automatic translation is optional. The repository README explains TranslateGemma and the supported cloud providers for structured card recognition.</p>
+        </section>
+
+        <section id="original-data" class="guide-section">
+          <p class="step-label" data-i18n="guide.part1">Part 1</p>
+          <h2 data-i18n="guide.original_title">Get original card data</h2>
+          <p data-i18n="guide.original_intro">Original images, extracted source text, and card metadata are shared by every translation. First decide whether that shared project already exists.</p>
+          <div class="decision-prompt"><strong data-i18n="guide.original_question">Does the original project already exist in Unspeakable Translations?</strong></div>
+
+          <details class="guide-path">
+            <summary><span class="path-answer path-yes" data-i18n="guide.answer_yes">Yes</span><strong data-i18n="guide.existing_title">Download it for local editing</strong></summary>
+            <div class="guide-path-body">
+              <ol class="instruction-list compact">
+                <li><span>1</span><div><strong data-i18n="guide.existing_step1_title">Open the shared projects</strong><p data-i18n="guide.existing_step1_text">On the dashboard, find the scenario in the list of available projects.</p></div></li>
+                <li><span>2</span><div><strong data-i18n="guide.existing_step2_title">Choose languages</strong><p data-i18n="guide.existing_step2_text">Select the translations you want locally. The shared original data is downloaded with the project.</p></div></li>
+                <li><span>3</span><div><strong data-i18n="guide.existing_step3_title">Download the project</strong><p data-i18n="guide.existing_step3_text">Choose Download project. Afterwards it appears under Projects on this device and can be opened for editing.</p></div></li>
+                <li><span>4</span><div><strong data-i18n="guide.existing_step4_title">Check for updates later</strong><p data-i18n="guide.existing_step4_text">The dashboard indicates remote changes. Review conflicts before replacing locally edited data.</p></div></li>
+              </ol>
+            </div>
+          </details>
+
+          <details class="guide-path" open>
+            <summary><span class="path-answer path-no" data-i18n="guide.answer_no">No</span><strong data-i18n="guide.new_title">Create a new original project</strong></summary>
+            <div class="guide-path-body">
+              <p data-i18n="guide.new_intro">Create the scenario locally and add the original card images. Target-language translations are added separately.</p>
+              <div class="tutorial-sequence">
+                <figure class="tutorial-shot"><a href="assets/tutorial/00-empty.png"><img src="assets/tutorial/00-empty.png" alt="Empty project dashboard" data-i18n-alt="guide.image_00_alt" loading="lazy"></a><figcaption><span>01</span><p data-i18n-html="guide.image_00_caption">On the dashboard, choose <strong>Create scenario</strong>.</p></figcaption></figure>
+                <figure class="tutorial-shot"><a href="assets/tutorial/02-new-filled.png"><img src="assets/tutorial/02-new-filled.png" alt="Completed new scenario form" data-i18n-alt="guide.image_02_alt" loading="lazy"></a><figcaption><span>02</span><p data-i18n="guide.image_02_caption">Fill in the project details. The project ID becomes part of the folder name and should not be changed later.</p></figcaption></figure>
+                <figure class="tutorial-shot"><a href="assets/tutorial/03-created.png"><img src="assets/tutorial/03-created.png" alt="Dashboard after creating the project" data-i18n-alt="guide.image_03_alt" loading="lazy"></a><figcaption><span>03</span><p data-i18n-html="guide.image_03_caption">After creation, the project appears under <strong>Projects on this device</strong>. The green notice shows where its source cards belong.</p></figcaption></figure>
+                <figure class="tutorial-shot"><a href="assets/tutorial/04-created-copy-cards.png"><img src="assets/tutorial/04-created-copy-cards.png" alt="Card images copied into the project folder" data-i18n-alt="guide.image_04_alt" loading="lazy"></a><figcaption><span>04</span><p data-i18n-html="guide.image_04_caption">Copy the original card images into the displayed <code>source/cards</code> folder. Match sides either as <code>&lt;filename&gt;-1.png</code> for the front and <code>&lt;filename&gt;-2.png</code> for the back, or as <code>&lt;filename&gt;-front.png</code> and <code>&lt;filename&gt;-back.png</code>.</p></figcaption></figure>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <section id="extract-data" class="guide-section">
+          <p class="step-label" data-i18n="guide.part2">Part 2 · optional</p>
+          <h2 data-i18n="guide.extract_title">Extract card data separately</h2>
+          <p data-i18n="guide.extract_intro">Extraction captures the printed source-language text and metadata. It does not translate anything when started from the original-data page.</p>
+          <div class="decision-prompt"><strong data-i18n="guide.extract_question">Have the original card data already been extracted?</strong></div>
+
+          <details class="guide-path">
+            <summary><span class="path-answer path-yes" data-i18n="guide.answer_yes">Yes</span><strong data-i18n="guide.extract_done_title">Nothing else is required</strong></summary>
+            <div class="guide-path-body"><p data-i18n="guide.extract_done_text">Review the source fields against the card images. If they are correct, continue with the translation.</p></div>
+          </details>
+
+          <details class="guide-path" open>
+            <summary><span class="path-answer path-no-dont-extract" data-i18n="guide.answer_yes">No</span><strong data-i18n="guide.extract_done_title">Extract them during the translation process</strong></summary>
+            <div class="guide-path-body"><p data-i18n="guide.extract_done_text">Initial card data extraction can be done in one single step together with the translation.</p></div>
+          </details>
+
+          <details class="guide-path">
+            <summary><span class="path-answer path-no-do-extract" data-i18n="guide.answer_no">No</span><strong data-i18n="guide.extract_missing_title">Extract them with an LLM</strong></summary>
+            <div class="guide-path-body">
+              <ol class="instruction-list compact">
+                <li><span>1</span><div><strong data-i18n="guide.extract_step1_title">Open the original-data project</strong><p data-i18n="guide.extract_step1_text">Use this view when you want extraction only, without creating a translation.</p></div></li>
+                <li><span>2</span><div><strong data-i18n="guide.extract_step2_title">Choose single-card or batch extraction</strong><p data-i18n-html="guide.extract_step2_text">Use <strong>Prepare for LLM (single)</strong> on one card, or <strong>Prepare for LLM (batch)</strong> for many cards.</p></div></li>
+                <li><span>3</span><div><strong data-i18n="guide.extract_step3_title">Apply and review the result</strong><p data-i18n="guide.extract_step3_text">Compare names, traits, rules, flavor, and metadata with the image before marking the card complete.</p></div></li>
+              </ol>
+              <div class="callout"><strong data-i18n="guide.alternative">Alternative</strong><span data-i18n="guide.extract_translation_note">You can also extract missing original data while translating. The workbench then keeps the extracted source values as a proposal for explicit review.</span></div>
+            </div>
+          </details>
+        </section>
+
+
+        <section id="prepare-data" class="guide-section">
+          <p class="step-label" data-i18n="guide.part3">Part 3</p>
+          <h2 data-i18n="guide.translate_title">Prepare card data translation (once)</h2>
+          <p data-i18n="guide.translate_intro">In order to create LLM-translations with official in-game wordings, you have to download the examples once for the languages you work with.</p>
+          <figure class="tutorial-shot"><a href="assets/tutorial/translation-examples.png"><img src="assets/tutorial/translation-examples.png" alt="Download card example data" data-i18n-alt="guide.translation-examples_alt" loading="lazy"></a><figcaption><span>01</span><p data-i18n-html="guide.translation-examples_caption">In the Settings, open <strong>ArkhamDB data and translation references</strong> to download the needed language packs.</p></figcaption></figure>
+        </section>
+
+        <section id="translate-data" class="guide-section">
+          <p class="step-label" data-i18n="guide.part3">Part 4</p>
+          <h2 data-i18n="guide.translate_title">Translate card data</h2>
+          <p data-i18n="guide.translate_intro">Create a target-language workspace. The available LLM workflow depends on whether the shared source fields are already available.</p>
+          <div class="decision-prompt"><strong data-i18n="guide.translate_question">Have the original card data already been extracted?</strong></div>
+
+          <details class="guide-path" open>
+            <summary><span class="path-answer path-yes" data-i18n="guide.answer_yes">Yes</span><strong data-i18n="guide.translate_ready_title">Translate from already-extracted-data only</strong></summary>
+            <div class="guide-path-body">
+              <ol class="instruction-list compact">
+                <div class="guide-path-body tutorial-sequence">
+                <figure class="tutorial-shot"><a href="assets/tutorial/batch-llm.png"><img src="assets/tutorial/batch-llm.png" alt="Batch LLM buttons" data-i18n-alt="guide.batch-llm_alt" loading="lazy"></a><figcaption><span>01</span><p data-i18n="guide.batch-llm_caption">Batch-LLM buttons</p></figcaption></figure>
+                <figure class="tutorial-shot"><a href="assets/tutorial/single-llm.png"><img src="assets/tutorial/single-llm.png" alt="Single Card LLM functionality" data-i18n-alt="guide.single-llm_alt" loading="lazy"></a><figcaption><span>02</span><p data-i18n-html="guide.single-llm_caption">Single-Card LLM functionality</p></figcaption></figure>
+              </div>
+                <li><span>1</span><div><strong data-i18n="guide.translation_step1_title">Create or open the translation</strong><p data-i18n="guide.translation_step1_text">Open the translation workspace for a scenario.</p></div></li>
+                <li><span>2</span><div><strong data-i18n="guide.translation_step2_title">Choose a workflow</strong><p data-i18n="guide.translation_step2_text">Translate one card with `Prepare for LLM (single)`, or use the batch-button `Prepare for LLM using only extracted data` prepare a batch. Working on extracted data does not require the LLM to read card images and save tokens.</p></div></li>
+                <li><span>3</span><div><strong data-i18n="guide.translation_step3_title">Apply</strong><p data-i18n="guide.translation_step3_text">With the single-card-workflow, the LLM result must be pasted into the JSON textfield below the card and be applied (see example below). After a successful batch run, the button `Apply batch results` must be used.</p></div></li>
+                <li><span>4</span><div><strong data-i18n="guide.translation_step4_title">Review</strong><p data-i18n="guide.translation_step3_text">Check terminology, formatting, protected tokens, and warnings. The imported values remain editable.</p></div></li>
+              </ol>
+            </div>
+          </details>
+
+          <details class="guide-path">
+            <summary><span class="path-answer path-no" data-i18n="guide.answer_no">No</span><strong data-i18n="guide.translate_missing_title">Extract and translate in one pass</strong></summary>
+            <div class="guide-path-body">
+              <ol class="instruction-list compact">
+                <li><span>1</span><div><strong data-i18n="guide.allinone_step1_title">Start from the translation workspace</strong><p data-i18n="guide.allinone_step1_text">Prepare a single card or a batch. Jobs with missing source fields include the card image and request extraction plus translation.</p></div></li>
+                <li><span>2</span><div><strong data-i18n="guide.allinone_step2_title">Apply the translated fields</strong><p data-i18n="guide.allinone_step2_text">Translation values are written to this language workspace. Newly detected original values remain separate proposals.</p></div></li>
+                <li><span>3</span><div><strong data-i18n="guide.allinone_step3_title">Review the original-data proposal</strong><p data-i18n-html="guide.allinone_step3_text">Use <strong>Show diff</strong> to compare the card image, existing shared values, and the proposal. Only choose <strong>Overwrite original data</strong> after verification.</p></div></li>
+              </ol>
+            </div>
+          </details>
+
+          <details class="guide-path guide-screenshots">
+            <summary><span class="path-answer" data-i18n="guide.example">Example</span><strong data-i18n="guide.single_card_title">Single-card LLM hand-off</strong></summary>
+            <div class="guide-path-body tutorial-sequence">
+              <figure class="tutorial-shot"><a href="assets/tutorial/08-one-card.png"><img src="assets/tutorial/08-one-card.png" alt="A card in the translation workbench" data-i18n-alt="guide.image_08_alt" loading="lazy"></a><figcaption><span>01</span><p data-i18n="guide.image_08_caption">Open a card and first check the captured source text and metadata against the image.</p></figcaption></figure>
+              <figure class="tutorial-shot"><a href="assets/tutorial/09-prepare-llm.png"><img src="assets/tutorial/09-prepare-llm.png" alt="Prepared translation prompt" data-i18n-alt="guide.image_09_alt" loading="lazy"></a><figcaption><span>02</span><p data-i18n-html="guide.image_09_caption">Choose <strong>Prepare for LLM chat</strong>. The workbench builds a prompt containing the card data, formatting rules, target language, and expected JSON structure.</p></figcaption></figure>
+              <figure class="tutorial-shot"><a href="assets/tutorial/10-gemini.png"><img src="assets/tutorial/10-gemini.png" alt="Prepared prompt pasted into Gemini" data-i18n-alt="guide.image_10_alt" loading="lazy"></a><figcaption><span>03</span><p data-i18n="guide.image_10_caption">Paste the copied prompt into your LLM chat. Include the image only when the job requests image extraction.</p></figcaption></figure>
+              <figure class="tutorial-shot"><a href="assets/tutorial/11-gemini-response.png"><img src="assets/tutorial/11-gemini-response.png" alt="JSON response from Gemini" data-i18n-alt="guide.image_11_alt" loading="lazy"></a><figcaption><span>04</span><p data-i18n="guide.image_11_caption">Copy the complete JSON response from the model without changing its field names.</p></figcaption></figure>
+              <figure class="tutorial-shot"><a href="assets/tutorial/12-paste-response.png"><img src="assets/tutorial/12-paste-response.png" alt="Dialog for pasting the LLM response" data-i18n-alt="guide.image_12_alt" loading="lazy"></a><figcaption><span>05</span><p data-i18n="guide.image_12_caption">Back in the workbench, paste the response into the import dialog.</p></figcaption></figure>
+              <figure class="tutorial-shot"><a href="assets/tutorial/13-apply-json.png"><img src="assets/tutorial/13-apply-json.png" alt="Translated JSON ready to apply" data-i18n-alt="guide.image_13_alt" loading="lazy"></a><figcaption><span>06</span><p data-i18n="guide.image_13_caption">Apply the JSON. The translated values remain editable and should still be reviewed.</p></figcaption></figure>
+            </div>
+          </details>
+        </section>
+
+        <section id="export-shoggoth" class="guide-section">
+          <p class="step-label" data-i18n="guide.part5">Part 5</p>
+          <h2 data-i18n="guide.export_title">Export to Shoggoth</h2>
+          <p data-i18n="guide.export_intro">Finish the content review before creating the file that Shoggoth consumes.</p>
+          <ul class="export-checklist">
+            <li data-i18n="guide.export_check_text">Review names, traits, rules, flavor text, and card metadata.</li>
+            <li data-i18n-html="guide.export_check_icons">Check that game icons use canonical tokens such as <code>{action}</code>, <code>{fast}</code>, and <code>{bullet}</code>.</li>
+            <li data-i18n="guide.export_check_formatting">Check bold, italic, blockquotes, paragraphs, and protected placeholders.</li>
+            <li data-i18n="guide.export_check_sides">Check front/back assignments and any deliberately hidden standard backs.</li>
+            <li data-i18n="guide.export_check_notes">Resolve relevant review warnings and local notes; comments themselves are not exported.</li>
+          </ul>
+          <p data-i18n-html="guide.export_text">When the cards are ready, choose <strong>Export Shoggoth JSON</strong> on the project page and open the resulting file in Shoggoth for a final visual check.</p>
+          <div class="tutorial-sequence">
+            <figure class="tutorial-shot"><a href="assets/tutorial/16-export-shoggoth.png"><img src="assets/tutorial/16-export-shoggoth.png" alt="Button for exporting the Shoggoth JSON" data-i18n-alt="guide.image_16_alt" loading="lazy"></a><figcaption><span>01</span><p data-i18n="guide.image_16_caption">Open the exported JSON in Shoggoth. It contains the translated card data and references to the card images.</p></figcaption></figure>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer shell">
+    <div class="brand footer-brand"><img class="brand-mark" src="assets/brand/unspeakable-mark.png" alt="" width="54" height="45"><span class="brand-name"><strong>Unspeakable</strong><small>Translations</small></span></div>
+    <p data-i18n="common.disclaimer">A community tool for fan translations. Not affiliated with the respective rights holders.</p>
+    <a href="https://github.com/" data-repository-link><span data-i18n="common.source">Source code on GitHub</span> <span aria-hidden="true">↗</span></a>
+  </footer>
+</body>
+</html>

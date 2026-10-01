@@ -1,0 +1,22 @@
+{
+  "format": "card-translator-base",
+  "format_version": 2,
+  "game": "ah",
+  "scenario": "unspeakable-translations-example",
+  "source_language": "en",
+  "_meta": {},
+  "card_files": [
+    {
+      "key": "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card",
+      "path": "cards/e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.json"
+    },
+    {
+      "key": "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation",
+      "path": "cards/23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.json"
+    },
+    {
+      "key": "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink",
+      "path": "cards/fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.json"
+    }
+  ]
+}

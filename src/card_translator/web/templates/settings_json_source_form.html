@@ -1,0 +1,34 @@
+{% set source_fields = source.get('fields', {}) %}
+<form method="post" action="/settings/games/{{ game.id }}/json-sources" class="json-source-form">
+  <h3>{{ source.label if source.label else t('settings.new_json_source') }}</h3>
+  <div class="form-grid">
+    <label>{{ t('settings.source_id') }}<input name="source_id" value="{{ source.id or '' }}" placeholder="arkhamdb-json" required {% if source.id %}readonly{% endif %}></label>
+    <label>{{ t('settings.source_label') }}<input name="label" value="{{ source.label or '' }}" placeholder="ArkhamDB JSON" required></label>
+    <label>{{ t('settings.records_path') }}<input name="records_path" value="{{ source.records_path or '$' }}" placeholder="cards" required></label>
+    <label>{{ t('settings.identifier_namespace') }}<input name="identifier_namespace" value="{{ source.identifier_namespace or source.id or '' }}" placeholder="arkhamdb"></label>
+    <label>{{ t('settings.map_internal_id') }}<input name="identifier" value="{{ source.identifier or 'id' }}" placeholder="IDENTIFIKATOR" required></label>
+    {% for field in game.card_schema.translatable_fields %}
+    <label>{{ field.label or field.id|replace('_', ' ')|title }} ← JSON
+      <input name="field.{{ field.id }}" value="{{ source_fields.get(field.id, '') }}" {% if field.id == 'title' %}required{% endif %}>
+    </label>
+    {% endfor %}
+    {% for field in game.card_schema.translatable_fields %}
+    {% set internal_path = 'sides.back.' ~ field.id %}
+    <label>{{ t('field.back') }} · {{ field.label or field.id|replace('_', ' ')|title }} ← JSON
+      <input name="field.{{ internal_path }}" value="{{ source_fields.get(internal_path, '') }}">
+    </label>
+    {% endfor %}
+    {% for field in game.card_schema.metadata_fields %}
+    {% set internal_path = field.id if field.id == 'card_type' else 'game_data.' ~ field.id %}
+    <label>{{ field.label or field.id|replace('_', ' ')|title }} ← JSON
+      <input name="field.{{ internal_path }}" value="{{ source_fields.get(internal_path, '') }}">
+    </label>
+    {% endfor %}
+    <div class="form-actions"><button type="submit">{{ t('settings.save_source') }}</button></div>
+  </div>
+</form>
+{% if source.id %}
+<form method="post" action="/settings/games/{{ game.id }}/json-sources/{{ source.id }}/delete" class="json-source-delete-form" onsubmit="return confirm({{ t('settings.confirm_delete_source')|tojson }});">
+  <button type="submit" class="button-danger">{{ t('settings.delete_source') }}</button>
+</form>
+{% endif %}

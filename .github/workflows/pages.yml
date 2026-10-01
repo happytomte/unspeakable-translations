@@ -1,0 +1,51 @@
+name: Build and deploy project catalog
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - projects/**
+      - site/**
+      - src/card_translator/**
+      - pyproject.toml
+      - uv.lock
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: latest-known
+          enable-cache: true
+      - run: uv sync --locked --no-dev
+      - run: uv run --no-sync unspeakable-translations status --library . --output site/data/projects.json --repository-url "$REPOSITORY_URL"
+        env:
+          REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

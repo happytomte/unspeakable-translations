@@ -1,0 +1,2980 @@
+{% extends "base.html" %}
+{% block title %}{{ scenario.title }} · Unspeakable Translations{% endblock %}
+{% block content %}
+<a class="back-link" href="/">← {{ t('nav.library') }}</a>
+
+{% if project_created %}<div class="settings-message settings-message-ok" role="status">{{ t('project.created') }}</div>{% endif %}
+{% if project_published %}<div class="settings-message settings-message-ok" role="status">{{ t('project.source_published') if scenario.source_only else t('project.published') }}</div>{% endif %}
+{% if project_publish_error %}<div class="settings-message settings-message-error" role="alert">{{ project_publish_error }}</div>{% endif %}
+{% if document_updated %}<div class="settings-message settings-message-ok" role="status">{{ t('documents.updated') }}</div>{% endif %}
+
+<section class="scenario-header">
+  <div>
+    <p class="eyebrow">{{ scenario.game|upper }} · {% if scenario.campaign_title %}{{ scenario.campaign_title }} · {% endif %}{% if scenario.source_only %}{{ t('source.workspace') }} · {{ scenario.target_language|upper }}{% else %}{{ scenario.target_language|upper }}{% endif %} · {{ scenario.slug }}</p>
+    <h1>{{ scenario.title }}</h1>
+    {% if scenario.card_source %}
+      <p class="muted">{{ scenario.card_count }} {{ t('setup.local_images') }} · {{ t('setup.source') }}: <code>{{ scenario.card_source }}</code></p>
+    {% elif scenario.card_source_needs_selection %}
+      <p class="warning-text">{{ t('setup.multiple_sources') }}</p>
+    {% else %}
+      <p class="muted">{{ t('setup.no_source') }}</p>
+    {% endif %}
+  </div>
+  {% if not scenario.initialized %}
+  <span class="badge badge-warn large">{{ t('setup.status_missing') }}</span>
+  {% endif %}
+</section>
+
+{% if scenario.initialized and scenario.shared_layout %}
+{% if scenario.source_only %}
+<section class="panel project-documents-panel" id="documents">
+  <div class="section-heading">
+    <div><p class="eyebrow">{{ t('documents.eyebrow') }}</p><h2>{{ t('documents.title') }}</h2><p class="muted">{{ t('documents.help') }}</p></div>
+  </div>
+{% else %}
+<details class="panel project-documents-panel project-documents-collapsible" id="documents">
+  <summary class="project-documents-summary">
+    <span><span class="eyebrow">{{ t('documents.eyebrow') }}</span><strong>{{ t('documents.title') }}</strong><span class="muted">{{ t('documents.help') }}</span></span>
+  </summary>
+{% endif %}
+  <div class="project-document-scopes">
+    {% for level, label in [('campaign', t('documents.campaign')), ('scenario', t('documents.scenario'))] %}
+    {% if scenario.documents[level] is defined %}
+    {% set scope = scenario.documents[level] %}
+    <section class="project-document-scope">
+      <div class="project-document-scope-heading">
+        <h3>{{ label }}</h3>
+        {% if not scenario.source_only and scope.missing_count %}<span class="badge badge-warn">{{ t('documents.missing_count', count=scope.missing_count) }}</span>{% endif %}
+      </div>
+      {% if scope.entries %}
+      <div class="project-document-list">
+        {% for document in scope.entries %}
+        <article class="project-document-row">
+          <div class="project-document-name"><strong>{{ document.name }}</strong>
+            <span class="document-links">
+              {% if document.source_exists %}<a href="{{ document.source_url }}" target="_blank">{{ t('documents.open_source') }} ↗</a>{% endif %}
+              {% if document.translation_exists %}<a href="{{ document.translation_url }}" target="_blank">{{ t('documents.open_translation') }} ↗</a>{% endif %}
+            </span>
+          </div>
+          {% if scenario.source_only %}
+          <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/documents/delete" onsubmit="return confirm({{ t('documents.confirm_delete_source')|tojson }});">
+            <input type="hidden" name="level" value="{{ level }}"><input type="hidden" name="name" value="{{ document.name }}">
+            <button type="submit" class="button-danger">{{ t('action.delete') }}</button>
+          </form>
+          {% else %}
+            {% if document.source_exists %}
+            <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/documents/upload" enctype="multipart/form-data" class="document-translation-upload">
+              <input type="hidden" name="level" value="{{ level }}"><input type="hidden" name="source_name" value="{{ document.name }}">
+              <label class="document-file-picker"><span>{{ t('documents.replace_translation') if document.translation_exists else t('documents.add_translation') }}</span><input type="file" name="document_file" accept="application/pdf,.pdf" required></label>
+              <button type="submit" class="button-secondary">{{ t('action.upload') }}</button>
+            </form>
+            {% endif %}
+            {% if document.translation_exists %}
+            <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/documents/delete" onsubmit="return confirm({{ t('documents.confirm_delete_translation')|tojson }});">
+              <input type="hidden" name="level" value="{{ level }}"><input type="hidden" name="name" value="{{ document.name }}">
+              <button type="submit" class="button-danger">{{ t('action.delete') }}</button>
+            </form>
+            {% else %}<span class="badge badge-warn">{{ t('documents.translation_missing') }}</span>{% endif %}
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+      {% elif not scenario.source_only %}<div class="empty-state">{{ t('documents.no_source') }}</div>{% endif %}
+
+      {% if scenario.source_only %}
+      <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/documents/upload" enctype="multipart/form-data" class="document-source-upload">
+        <input type="hidden" name="level" value="{{ level }}">
+        <label>{{ t('documents.source_pdf') }}<input type="file" name="document_file" accept="application/pdf,.pdf" required></label>
+        <button type="submit">{{ t('documents.add_source') }}</button>
+      </form>
+      {% endif %}
+    </section>
+    {% endif %}
+    {% endfor %}
+  </div>
+{% if scenario.source_only %}
+</section>
+{% else %}
+</details>
+{% endif %}
+{% endif %}
+
+{% if not scenario.initialized %}
+<section class="panel setup-panel">
+  <p class="eyebrow">{{ t('setup.eyebrow') }}</p>
+  <h2>{{ t('setup.title') }}</h2>
+  <p>{{ t('setup.help') }}</p>
+  <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/initialize" class="form-grid">
+    <label>{{ t('field.english_title') }}<input name="title" value="{{ scenario.title }}"></label>
+    <label>{{ t('field.translated_title') }}<input name="translated_title"></label>
+    <label>{{ t('field.author') }}<input name="author"></label>
+    <label>{{ t('field.version') }}<input name="version" placeholder="z. B. 1.0"></label>
+    <label class="wide">{{ t('field.source_url') }}<input name="source_url" type="url" placeholder="https://…"></label>
+    <label>{{ t('field.target_language') }}
+      <input name="target_language" value="{{ scenario.storage_language }}" list="scenario-target-language-options" required pattern="[A-Za-z][A-Za-z0-9_-]*" {% if not scenario.legacy_layout %}readonly{% endif %}>
+      <datalist id="scenario-target-language-options">
+        {% for code, label in target_languages.items() %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+      </datalist>
+    </label>
+
+    {% if scenario.card_source_candidates %}
+    <label class="wide">{{ t('field.card_source') }}
+      <select name="card_source" {% if scenario.card_source_needs_selection %}required{% endif %}>
+        {% if scenario.card_source_needs_selection %}<option value="">{{ t('action.choose') }}</option>{% endif %}
+        {% for source in scenario.card_source_candidates %}
+          <option value="{{ source.relative_path }}" {% if source.relative_path == scenario.card_source %}selected{% endif %}>
+            {{ source.label }} · {{ source.image_count }} {{ t('dashboard.card_images') }}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+    {% endif %}
+
+    <div class="form-actions"><button type="submit">{{ t('action.create_project') }}</button></div>
+  </form>
+</section>
+{% else %}
+{% if scenario.private_only %}
+<div class="settings-message settings-message-warning private-only-notice" role="status">
+  <strong>{{ t('project.private_only_active_title') }}</strong>
+  <span>{{ t('project.private_only_campaign_help') if scenario.campaign_private_only else t('project.private_only_active_help') }}</span>
+</div>
+{% endif %}
+<section class="stats-row">
+  <div class="stat"><span>{{ t('project.source_language') if scenario.source_only else t('field.target_language') }}</span><strong>{{ scenario.target_language|upper }}</strong></div>
+  <div class="stat"><span>{{ t('source.progress') if scenario.source_only else t('field.translation') }}</span><strong>{{ scenario.translation_percent }}%</strong></div>
+  <div class="stat"><span>{{ t('dashboard.card_images') }}</span><strong>{{ scenario.card_count }}</strong></div>
+  <div class="stat"><span>{{ t('project.changed_cards_since_publication') }}</span><strong>{{ publication.changed_count }}</strong></div>
+  <div class="stat"><span>{{ t('project.ready_cards_files') }}</span><strong>{{ publication.repository_changed_card_count }} / {{ publication.repository_changed_file_count }}</strong></div>
+</section>
+
+{% if scenario.shared_layout %}
+<section class="panel contribution-panel">
+  <div>
+    <p class="eyebrow">{{ t('project.contribution_eyebrow') }}</p>
+    {% if scenario.private_only %}
+      <h2>{{ t('project.private_only_active_title') }}</h2>
+      <p class="muted">{{ t('project.private_only_active_help') }}</p>
+    {% elif publication.ready_for_pull_request %}
+      <h2>{{ t('project.pull_request_ready_title') }}</h2>
+      <p class="muted">{{ t('project.pull_request_ready_help', card_count=publication.repository_changed_card_count, file_count=publication.repository_changed_file_count) }}</p>
+    {% else %}
+      <h2>{{ t('project.contribution_title') }}</h2>
+      {% if scenario.source_only %}
+        <p class="muted">{{ t('project.source_contribution_help', count=publication.base_changed_count) }}</p>
+      {% else %}
+        <p class="muted">{{ t('project.translation_contribution_help', base_count=publication.base_changed_count, translation_count=publication.translation_changed_count) }}</p>
+      {% endif %}
+    {% endif %}
+    {% if publication.missing_document_count %}<p class="warning-text">{{ t('documents.incomplete_help', count=publication.missing_document_count) }}</p>{% endif %}
+  </div>
+  {% if scenario.private_only %}
+    <button type="button" disabled>{{ t('project.publish_blocked') }}</button>
+  {% elif publication.ready_for_pull_request %}
+    <a class="button-link" href="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/pull-request">{{ t('project.create_pull_request') }}</a>
+  {% else %}
+    <a class="button-link" href="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/contribute">{{ t('project.preview_contribution') }}</a>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="project-menus">
+  <details class="project-menu panel">
+    <summary><strong>{{ t('project.export_menu') }}</strong></summary>
+    <div class="project-menu-content project-export-content">
+      {% if scenario.shared_layout and not scenario.source_only %}
+      <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/completion" class="project-action-row menu-setting completion-form">
+        <label class="checkbox-field">
+          <input type="checkbox" name="final_reviewed" value="true" {% if scenario.project.final_reviewed %}checked{% endif %} onchange="this.form.requestSubmit()">
+          <span>{{ t('project.final_reviewed') }}</span>
+        </label>
+        <p class="small muted">{{ t('project.final_reviewed_help') }}</p>
+      </form>
+      {% endif %}
+
+      {% if scenario.game == 'ah' %}
+      <div class="project-action-row">
+        <details class="shoggoth-settings-panel inline-settings-panel">
+          <summary>{{ t('shoggoth.settings') }}</summary>
+          <form class="shoggoth-settings-form">
+            <label>{{ t('shoggoth.set_icon') }}
+              <input name="set_icon" value="{{ scenario.project.shoggoth_set_icon or '' }}" placeholder="/path/to/set-icon.svg">
+              <span class="muted">{{ t('shoggoth.set_icon_help') }}</span>
+            </label>
+            <label>{{ t('shoggoth.encounter_icon') }}
+              <input name="encounter_icon" value="{{ scenario.project.shoggoth_encounter_icon or '' }}" placeholder="/path/to/encounter-icon.svg">
+            </label>
+            <label>{{ t('shoggoth.illustrator_prefix') }}
+              <input name="illustrator_prefix" value="{{ scenario.project.shoggoth_illustrator_prefix if scenario.project.shoggoth_illustrator_prefix is defined else 'Illus. ' }}">
+              <span class="muted">{{ t('shoggoth.illustrator_prefix_help') }}</span>
+            </label>
+            <div class="translation-actions">
+              <button type="submit" class="button-secondary">{{ t('metadata.save') }}</button>
+              <span class="shoggoth-settings-status small" role="status"></span>
+            </div>
+          </form>
+        </details>
+      </div>
+      <div class="project-action-row">
+        <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/export-shoggoth">
+          <button type="submit" class="button-secondary">{{ t('export.shoggoth_source') if scenario.source_only else t('export.shoggoth') }}</button>
+          {% if scenario.source_only %}<p class="small muted">{{ t('export.shoggoth_source_help') }}</p>{% endif %}
+        </form>
+      </div>
+      {% endif %}
+
+      <div class="project-menu-divider"><span>{{ t('project.copy_base_heading') }}</span></div>
+      <div class="project-action-row">
+        <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/copy-language" class="copy-language-form project-menu-action">
+          <select name="target_language" aria-label="{{ t('project.copy_language') }}" required>
+            {% for code, label in target_languages.items() %}{% if code != scenario.storage_language %}<option value="{{ code }}">{{ label }}</option>{% endif %}{% endfor %}
+          </select>
+          <button type="submit" class="button-secondary">{{ t('translation.new_title') if scenario.source_only else t('project.copy_language') }}</button>
+        </form>
+      </div>
+      {% if not scenario.source_only %}
+        <div class="project-menu-divider project-menu-divider-danger"><span>{{ t('project.danger_zone') }}</span></div>
+        <div class="project-action-row project-action-row-end">
+          <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/delete" onsubmit="return confirm({{ t('action.confirm_delete_project')|tojson }});">
+            <button type="submit" class="button-danger">{{ t('action.delete_project') }}</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </details>
+
+  <details class="project-menu panel">
+    <summary><strong>{{ t('project.options_menu') }}</strong></summary>
+    <div class="project-menu-content project-options-content">
+      {% if scenario.shared_layout %}
+      <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/private-only" class="menu-setting private-only-form">
+        <label>{{ t('project.publication_mode') }}
+          <select name="private_mode" onchange="this.form.requestSubmit()">
+            <option value="inherit" {% if scenario.private_only_override == 'inherit' %}selected{% endif %}>{{ t('project.publication_inherit') }}</option>
+            <option value="public" {% if scenario.private_only_override == 'public' %}selected{% endif %}>{{ t('project.publication_public') }}</option>
+            <option value="private" {% if scenario.private_only_override == 'private' %}selected{% endif %}>{{ t('project.publication_private') }}</option>
+          </select>
+        </label>
+        <p class="small muted">{% if scenario.campaign_private_only and scenario.private_only_override == 'inherit' %}{{ t('project.private_only_campaign_help') }}{% else %}{{ t('project.publication_mode_help') }}{% endif %}</p>
+      </form>
+      {% endif %}
+
+      {% if not scenario.source_only %}
+      <div class="translation-model-row project-api-status {% if ollama_status.installed %}is-installed{% endif %}">
+        <span class="small">{% if ollama_status.installed %}{{ t('translation.ollama_ready', model=ollama_status.model) }}{% elif ollama_status.available %}{{ t('translation.ollama_model_missing', model=ollama_status.model) }}{% else %}{{ t('translation.ollama_unavailable') }}{% endif %}</span>
+        <span class="small">{{ t('translation.google_api_ready') if google_translate_available else t('translation.google_api_unavailable') }}</span>
+        <span class="small">{{ t('translation.gemini_ready') if gemini_available else t('translation.gemini_unavailable') }}</span>
+        {% if scenario.translation_log_available %}
+        <a class="button-secondary" href="/library/{{ scenario.library_relative_path }}/logs/translation.jsonl" target="_blank">{{ t('translation.open_log') }}</a>
+        {% else %}
+        <span class="small muted">{{ t('translation.no_log') }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if scenario.game == 'ah' %}
+      <details class="shoggoth-import-panel inline-settings-panel">
+        <summary><strong>{{ t('shoggoth.import_title') }}</strong></summary>
+        <p class="muted">{{ t('shoggoth.import_help') }}</p>
+        <form class="shoggoth-import-form" enctype="multipart/form-data">
+          <label>{{ t('import.file') }}<input name="data_file" type="file" accept="application/json,.json,.shoggoth" required></label>
+          <div class="data-import-buttons"><button type="submit">{{ t('shoggoth.import_button') }}</button></div>
+          <p class="shoggoth-import-status small" role="status"></p>
+        </form>
+      </details>
+      {% endif %}
+
+      {% if scenario.shared_layout %}
+      <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/separate-card-art" class="menu-setting separate-art-switch-form">
+        <input type="hidden" name="enabled" value="false">
+        <label class="checkbox-field">
+          <input type="checkbox" name="enabled" value="true" {% if scenario.project.use_separate_card_art %}checked{% endif %} onchange="this.form.requestSubmit()">
+          <span>{{ t('project.use_separate_card_art') }}</span>
+        </label>
+        <p class="small muted">{{ t('project.use_separate_card_art_help') }}</p>
+      </form>
+      {% endif %}
+
+      {% if scenario.initialized %}
+      <div class="project-option-action">
+        <button type="button" class="button-secondary collapse-duplicates-button">{{ t('cards.collapse_duplicates') }}</button>
+        <div class="collapse-duplicates-status small" role="status"></div>
+      </div>
+      {% endif %}
+
+      {% if not scenario.source_only %}<details class="translation-rules-panel inline-settings-panel">
+        <summary><strong>{{ t('translation.rules_title') }}</strong></summary>
+        <form class="translation-rules-form">
+          <p class="muted">{{ t('translation.rules_help') }}</p>
+          <div class="translation-rules-grid">
+            <label>{{ t('translation.game_rules', game=scenario.game|upper) }}
+              <textarea rows="7" readonly>{{ translation_rules.game_text }}</textarea>
+            </label>
+            <label>{{ t('translation.scenario_rules') }}
+              <textarea name="scenario_rules" rows="7" placeholder="Wonderland => **Wonderland**">{{ translation_rules.scenario_text }}</textarea>
+            </label>
+          </div>
+          <div class="translation-actions">
+            <button type="submit">{{ t('translation.save_rules') }}</button>
+            <span class="rules-save-status small" role="status"></span>
+          </div>
+        </form>
+      </details>{% endif %}
+
+      <fieldset class="card-control-options">
+        <legend>{{ t('project.card_controls') }}</legend>
+        {% if not scenario.source_only %}
+        <label class="checkbox-field"><input type="checkbox" data-card-control="llm" {% if card_image_provider != 'none' %}checked{% endif %}><span>{{ t('project.show_llm_button') }}</span></label>
+        <label class="checkbox-field"><input type="checkbox" data-card-control="google" checked><span>{{ t('project.show_google_button') }}</span></label>
+        <label class="checkbox-field"><input type="checkbox" class="translation-field-layout-toggle"><span>{{ t('project.interleave_translation_fields') }}</span></label>
+        {% endif %}
+        <label class="checkbox-field"><input type="checkbox" data-card-control="ocr" checked><span>{{ t('project.show_ocr_mode') }}</span></label>
+      </fieldset>
+    </div>
+  </details>
+</section>
+
+{% if scenario.shared_layout and (scenario.source_only or not scenario.card_count) %}
+<section class="panel card-source-instructions">
+  <p class="eyebrow">{{ t('project.cards_eyebrow') }}</p>
+  <h2>{{ t('project.cards_title') }}</h2>
+  <p>{{ t('project.cards_copy_to') }}</p>
+  <code>{{ scenario.path }}/source/cards/</code>
+  <ul>
+    <li>{{ t('project.cards_rule_format') }}</li>
+    <li>{{ t('project.cards_rule_pairing') }}</li>
+    <li>{{ t('project.cards_rule_back') }}</li>
+    <li>{{ t('project.cards_rule_unique')|safe }}</li>
+  </ul>
+  <p class="muted">{{ t('project.cards_reload') }}</p>
+</section>
+{% endif %}
+{% endif %}
+
+{% if scenario.initialized %}
+{% if scenario.game == 'ah' and arkhamdb_scenario_import_enabled %}
+<section class="panel arkhamdb-import-panel">
+  <div>
+    <p class="eyebrow">{{ t('arkhamdb.import_eyebrow') }}</p>
+    <h3>{{ t('arkhamdb.import_title') }}</h3>
+    <p class="muted">{{ t('arkhamdb.import_help') }}</p>
+  </div>
+  <button type="button" class="arkhamdb-import-button">{{ t('arkhamdb.import_button') }}</button>
+  <p class="arkhamdb-import-status small" role="status"></p>
+</section>
+{% endif %}
+{% if json_import_sources %}
+<details class="panel data-import-panel">
+  <summary class="panel-summary">
+    <span class="panel-summary-heading">
+      <span class="eyebrow">{{ t('import.eyebrow') }}</span>
+      <strong class="panel-summary-title">{{ t('import.title') }}</strong>
+    </span>
+    <span class="panel-summary-description muted">{{ t('import.summary') }}</span>
+  </summary>
+  <form class="data-import-form" enctype="multipart/form-data">
+    <p class="muted">{{ t('import.help') }}</p>
+    <div class="data-import-controls">
+      <label>{{ t('import.source') }}
+        <select name="source_id" required>
+          {% for source in json_import_sources %}<option value="{{ source.id }}">{{ source.label }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>{{ t('import.file') }}<input name="data_file" type="file" accept="application/json,.json" required></label>
+      <div class="data-import-buttons">
+        <button type="submit" class="button-secondary" data-mode="preview">{{ t('import.preview') }}</button>
+        <button type="submit" data-mode="import">{{ t('import.button') }}</button>
+      </div>
+    </div>
+    <p class="data-import-status small" role="status"></p>
+    <div class="data-import-preview" hidden></div>
+    {% if latest_import %}
+    <div class="import-overview">
+      <strong>{{ t('import.latest') }}</strong>
+      <div class="import-overview-grid">
+        <span>{{ t('import.total') }} <b>{{ latest_import.total }}</b></span>
+        <span>{{ t('import.by_id') }} <b>{{ latest_import.matched_by_id }}</b></span>
+        <span>{{ t('import.by_name') }} <b>{{ latest_import.matched_by_name }}</b></span>
+        <span>{{ t('import.open_records') }} <b>{{ latest_import.open_records|length }}</b></span>
+        <span>{{ t('import.unmatched_images') }} <b>{{ latest_import.unmatched_local_cards }}</b></span>
+      </div>
+      {% if latest_import.open_records %}
+      <details class="open-import-records">
+        <summary>{{ t('import.show_open_records') }}</summary>
+        <ul>
+          {% for record in latest_import.open_records %}
+          <li>
+            {% if record.external_id %}<code>{{ record.external_id }}</code> · {% endif %}{{ record.title }}
+            {% if record.suggested_card_key %}<span class="match-suggestion">→ {{ record.suggested_card_key }} · {{ record.suggestion_percent }}% {{ t('matching.similar') }}</span>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </details>
+      {% endif %}
+    </div>
+    {% endif %}
+  </form>
+</details>
+{% endif %}
+
+{% endif %}
+
+{% set reference_source_language = ((scenario.project or {}).get('source_language') or 'en')|upper %}
+{% set reference_target_language = scenario.target_language|upper %}
+{% set llm_reference_warning = t(scenario.reference_warning_key, source=reference_source_language, target=reference_target_language) if scenario.reference_warning_key else '' %}
+<section class="cards-section">
+  <div class="section-heading">
+    <div><p class="eyebrow">{{ t('cards.eyebrow') }}</p><h2>{{ t('cards.local') }}</h2></div>
+    <div class="section-heading-actions">
+      {% if scenario.initialized %}<button type="button" class="button-secondary prepare-llm-batch-button prepare-llm-image-batch-button" data-force-image-analysis="true" data-extracted-data-only="false" title="{{ t('translation.batch_prepare_images_help') }}">{{ t('translation.batch_prepare_images') }}</button>{% endif %}
+      {% if scenario.initialized and not scenario.source_only and scenario.has_extracted_card_data %}<button type="button" class="button-secondary prepare-llm-batch-button prepare-llm-extracted-batch-button" data-force-image-analysis="false" data-extracted-data-only="true" title="{{ t('translation.batch_prepare_extracted_help') }}">{{ t('translation.batch_prepare_extracted') }}</button>{% endif %}
+      {% if scenario.initialized %}<button type="button" class="button-secondary apply-llm-batch-button">{{ t('translation.batch_apply') }}</button>{% endif %}
+      <div class="prepare-llm-batch-status small" role="status"></div>
+    </div>
+  </div>
+  {% if llm_reference_warning %}<p class="warning-text llm-reference-warning">{{ llm_reference_warning }}</p>{% endif %}
+  {% if scenario.initialized %}
+  <details class="panel llm-batch-guide" hidden>
+    <summary><strong>{{ t('translation.batch_guide_title') }}</strong></summary>
+    <div class="llm-batch-guide-content">
+      <p class="small">{{ t('translation.batch_guide_open') }}</p>
+      <p class="small warning-text">{{ t('translation.batch_source_warning') }}</p>
+      <code>{{ scenario.path }}</code>
+      <textarea class="llm-batch-agent-prompt" rows="10" readonly>{{ t('translation.batch_guide_prompt', path='library/' ~ scenario.library_relative_path ~ '/llm-batch/' ~ scenario.target_language, source_language=(scenario.project or {}).get('source_language', 'en'), target_language=scenario.target_language) }}</textarea>
+      <button type="button" class="button-secondary llm-batch-copy-button">{{ t('translation.batch_guide_copy') }}</button>
+    </div>
+  </details>
+  {% endif %}
+
+  {% if scenario.grouped_cards %}
+  {% set pagination = scenario.card_pagination %}
+  <nav class="card-pagination" aria-label="{{ t('cards.pagination') }}">
+    <span>{{ t('cards.pagination_status', start=pagination.start, end=pagination.end, total=pagination.total) }}</span>
+    <div class="card-pagination-actions">
+      {% if pagination.page > 1 %}<a class="button-secondary" href="?page={{ pagination.page - 1 }}&cards_per_page={{ pagination.cards_per_page }}">← {{ t('cards.previous') }}</a>{% endif %}
+      <strong>{{ pagination.page }} / {{ pagination.page_count }}</strong>
+      {% if pagination.page < pagination.page_count %}<a class="button-secondary" href="?page={{ pagination.page + 1 }}&cards_per_page={{ pagination.cards_per_page }}">{{ t('cards.next') }} →</a>{% endif %}
+      <label>{{ t('cards.per_page') }}
+        <select onchange="location.href='?page=1&cards_per_page='+this.value">
+          {% for size in [50, 100, 200] %}<option value="{{ size }}" {% if pagination.cards_per_page == size %}selected{% endif %}>{{ size }}</option>{% endfor %}
+        </select>
+      </label>
+    </div>
+  </nav>
+  <div class="card-list">
+    {% for card in scenario.grouped_cards %}
+    {% set card_position = scenario.card_pagination.start + loop.index0 %}
+    <article id="card-{{ card_position }}" class="logical-card{% if not scenario.source_only %} source-edit-locked{% endif %}" data-card-key="{{ card.key }}" data-record-key="{{ card.record.key or card.key }}" data-card-type="{{ card.card_type }}">
+      <header class="logical-card-header">
+        <div>
+          <h3><span class="manual-card-notes-alert" hidden>! {{ t('cards.has_notes') }} · </span><span class="manual-card-title">{{ card.source_text.title or card.display_name }}</span><span class="manual-card-type-suffix"></span></h3>
+          {% if card.back and card.back.hidden %}
+          <p class="card-back-hidden-note">{{ t('cards.back_hidden') }}</p>
+          {% endif %}
+        </div>
+        <div class="logical-card-meta">
+          <span class="badge badge-ok manual-card-progress-badge" hidden>{{ t('cards.progress_done') }}</span>
+          <button type="button" class="button-secondary manual-card-progress-toggle" aria-pressed="false">{{ t('cards.progress_mark_done') }}</button>
+          {% if card.changed_from_published %}<span class="badge badge-changed">{{ t('project.changed') }}</span>{% endif %}
+          {% if card.changed_from_published %}<a class="button-secondary contribution-diff-link" href="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/contribute#diff-card-{{ card_position }}">{{ t('project.preview_open_diff') }}</a>{% endif %}
+          {% if not card.matched %}<span class="badge">{{ t('cards.unmatched') }}</span>{% endif %}
+          {% if not scenario.source_only %}
+          <button type="button" class="button-secondary source-edit-toggle">{{ t('cards.edit_source') }}</button>
+          <button type="button" class="button-secondary source-proposal-overwrite" {% if not card.source_proposal_count %}hidden{% endif %}>{{ t('cards.source_overwrite') }}</button>
+          <button type="button" class="button-secondary source-proposal-diff" {% if not card.source_proposal_count %}hidden{% endif %}>{{ t('cards.source_show_diff') }}</button>
+          {% endif %}
+          {% if not scenario.source_only and ollama_status.enabled %}<button type="button" class="translate-card-button button-secondary llm-option-button" data-provider="translategemma" title="{{ t('translation.card_help') }}">{{ t('translation.card_button') }}</button>{% endif %}
+          {% if not scenario.source_only %}
+          {% if gemini_available %}<button type="button" class="translate-card-button button-secondary llm-option-button" data-provider="gemini" title="{{ t('translation.gemini_text_help') }}">{{ t('translation.gemini_text_button') }}</button>{% endif %}
+          {% if google_translate_available %}<button type="button" class="translate-card-button button-secondary google-option-button" data-provider="google" title="{{ t('translation.google_api_help') }}">{{ t('translation.google_api_button') }}</button>{% endif %}
+          <button type="button" class="google-web-open-button button-secondary google-option-button" title="{{ t('translation.google_web_help') }}">{{ t('translation.google_web_button') }}</button>
+          <button type="button" class="google-web-paste-button button-secondary google-option-button" title="{{ t('translation.google_paste_help') }}">{{ t('translation.google_paste_button') }}</button>
+          <button type="button" class="translation-log-button button-secondary" hidden>{{ t('translation.log_button') }}</button>
+          <span class="translate-card-status small" role="status"></span>
+          {% endif %}
+          <label class="ocr-mode-control ocr-option-control" title="{{ t('ocr.mode_help') }}">
+            <input type="checkbox" class="ocr-mode-switch">
+            <span class="ocr-switch-track" aria-hidden="true"></span>
+            <span>{{ t('ocr.mode') }}</span>
+          </label>
+        </div>
+        <div class="manual-card-notes">
+        <label><span>{{ t('cards.local_comments') }} <span class="manual-card-notes-export-hint">{{ t('cards.local_comments_not_exported') }}</span></span>
+          <textarea class="manual-card-notes-input" rows="3" placeholder="{{ t('cards.local_comments_placeholder') }}"></textarea>
+        </label>
+        </div>
+      </header>
+
+      {% if not card.matched and unmatched_imports %}
+      <form class="manual-match-form" data-card-key="{{ card.key }}">
+        <label>{{ t('matching.assign') }}
+          <select name="import_record_id" required>
+            <option value="">{{ t('action.choose') }}</option>
+            {% for candidate in unmatched_imports %}
+            <option value="{{ candidate.record_id }}">{% if candidate.external_id %}{{ candidate.external_id }} · {% endif %}{{ candidate.title }}{% if candidate.suggested_card_key == card.key %} · {{ candidate.suggestion_percent }}% {{ t('matching.similar') }}{% endif %}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button type="submit" class="button-secondary">{{ t('matching.button') }}</button>
+        <span class="manual-match-status small" role="status"></span>
+      </form>
+      {% endif %}
+
+      {% if card.source or card.identifiers %}
+      <details class="card-diagnostics">
+        <summary>{{ t('cards.import_details') }}</summary>
+        <div class="card-diagnostics-content">
+          {% if card.source.provider %}<span><b>{{ t('cards.provider') }}:</b> {{ card.source.provider }}</span>{% endif %}
+          {% if card.identifiers.hall_of_beorn %}<span><b>Hall of Beorn ID:</b> {{ card.identifiers.hall_of_beorn }}</span>{% endif %}
+          {% if card.source.discovered_via %}<span><b>{{ t('cards.discovered_via') }}:</b> {{ card.source.discovered_via }}</span>{% endif %}
+          {% if card.source.detail_url %}<a href="{{ card.source.detail_url }}" target="_blank" rel="noreferrer">{{ t('cards.open_source') }} ↗</a>{% endif %}
+        </div>
+      </details>
+      {% endif %}
+
+      {% if json_import_sources %}
+      <details class="card-identifiers-panel">
+        <summary>{{ t('matching.identifiers') }}</summary>
+        <div class="card-identifier-forms">
+          {% for source in json_import_sources %}
+          {% set namespace = source.identifier_namespace or source.id %}
+          <form class="card-identifier-form" data-card-key="{{ card.key }}">
+            <input type="hidden" name="namespace" value="{{ namespace }}">
+            <label>{{ source.label }} · {{ t('matching.external_id') }}
+              <input name="external_id" value="{{ card.identifiers.get(namespace, '') }}" placeholder="{{ source.identifier or 'id' }}">
+            </label>
+            <button type="submit" class="button-secondary">{{ t('action.save_translation') }}</button>
+            <span class="card-identifier-status small" role="status"></span>
+          </form>
+          {% endfor %}
+        </div>
+      </details>
+      {% endif %}
+
+      {% if card.stats or card.traits %}
+      <div class="structured-card-fields">
+        {% if card.traits %}<div><span class="field-label">{{ t('field.traits') }}</span><strong>{{ card.traits | join(' · ') }}</strong></div>{% endif %}
+        {% for stat_name in ['quest_stage', 'quest_points', 'engagement_cost', 'threat', 'willpower', 'attack', 'defense', 'hit_points', 'cost'] %}
+          {% if stat_name in card.stats %}
+          <div><span class="field-label">{{ t('field.' ~ stat_name) }}</span><strong>{{ card.stats[stat_name] }}</strong></div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% for side_name, side in [('front', card.front), ('back', card.back)] %}
+        {% set source_side = card.source_draft_sides.get(side_name, {}) %}
+        {% set target_side = card.target_sides.get(side_name, {}) %}
+        {% set source_review = card.source_side_review.get(side_name, {}) %}
+        {% set target_review = card.target_side_review.get(side_name, {}) %}
+        {% set source_proposal_side = card.source_proposal.get('sides', {}).get(side_name, {}) %}
+        {% if side %}
+        <section class="card-side-row {% if side.hidden %}is-hidden{% endif %}" data-image-name="{{ side.name }}" data-side="{{ side_name }}">
+          <div class="hidden-side-summary">
+            <span><strong>{{ t('field.front') if side_name == 'front' else t('field.back') }}</strong> {{ t('cards.hidden') }}</span>
+            <button type="button" class="button-secondary hidden-button">{{ t('action.show') }}</button>
+          </div>
+
+          <div class="side-full-content">
+            <div class="source-side">
+              <div class="card-side-heading">
+                <span class="field-label">{{ t('field.front') if side_name == 'front' else t('field.back') }}</span>
+              </div>
+              <div class="card-image-stage">
+                <img
+                  class="card-image"
+                  src="/library/{{ scenario.library_relative_path }}/{{ scenario.card_source }}/{{ side.name }}"
+                  alt="{{ side.name }}"
+                  loading="lazy"
+                  data-rotation="{{ side.display_rotation }}"
+                >
+                <span class="ocr-selection" aria-hidden="true"></span>
+              </div>
+              <div class="card-width-resizer" role="separator" tabindex="0" aria-label="{{ t('cards.resize_image') }}" data-min-width="320" data-max-width="1100">↔ {{ t('cards.resize_image') }}</div>
+              <div class="image-actions">
+                <button type="button" class="button-secondary rotate-button" data-delta="-90">↶ 90°</button>
+                <button type="button" class="button-secondary rotate-button" data-delta="90">↷ 90°</button>
+                <button type="button" class="button-secondary rotate-button" data-delta="180">180°</button>
+                <button type="button" class="button-secondary hidden-button">{{ t('action.ignore') }}</button>
+                {% if card_image_provider != 'none' %}<button type="button" class="button-secondary card-image-button" data-card-key="{{ card.key }}" data-side="{{ side_name }}" {% if not card_image_available %}disabled title="{{ t('settings.provider_key_missing', name=card_image_provider|upper ~ '_API_KEY') }}"{% endif %}>{{ t('translation.card_image_button') }} · {{ t('settings.provider_' ~ card_image_provider) }}</button>{% endif %}
+                <button type="button" class="button-secondary gemini-prompt-button" data-card-key="{{ card.key }}" data-side="{{ side_name }}">{{ t('translation.prompt_button') }}</button>
+              </div>
+              <p class="small image-filename">{{ side.name }}</p>
+              {% if scenario.project.use_separate_card_art %}
+              <div class="separate-art-panel">
+                <span class="field-label">{{ t('project.separate_card_art') }}</span>
+                {% set art = card.separate_art.get(side_name) if card.separate_art else none %}
+                {% if art %}<img class="separate-art-preview" src="/library/{{ scenario.library_relative_path }}/{{ art.relative_path }}" alt="{{ t('project.separate_card_art') }}" loading="lazy">{% endif %}
+                <form method="post" enctype="multipart/form-data" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/card-art" class="separate-art-upload">
+                  <input type="hidden" name="card_key" value="{{ card.key }}">
+                  <input type="hidden" name="side" value="{{ side_name }}">
+                  <input type="file" name="art_file" accept="image/jpeg,image/png,image/webp" required>
+                  <button type="submit" class="button-secondary">{{ t('project.upload_card_art') }}</button>
+                </form>
+                <span class="small muted">{{ t('project.separate_card_art_help') }}</span>
+              </div>
+              {% endif %}
+              <div class="llm-json-import">
+                <div class="field-label">{{ t('translation.json_import_title') }}</div>
+                <label class="small">{{ t('translation.json_import_label') }}
+                  <textarea class="llm-json-input" rows="7" placeholder='{"source": {…}, "translation": {…}, "metadata": {…}}'></textarea>
+                </label>
+                <div class="translation-actions">
+                  <button type="button" class="button-secondary llm-json-apply" data-card-key="{{ card.key }}" data-side="{{ side_name }}">{{ t('translation.json_import_apply') }}</button>
+                  <span class="small muted llm-json-status"></span>
+                </div>
+                {% if scenario.game == 'ah' %}<div class="translation-actions">
+                  <button type="button" class="button-secondary llm-json-format-rules">{{ t('translation.format_rules') }}</button>
+                </div>{% endif %}
+              </div>
+            </div>
+
+            <div class="side-fields">
+              <div class="batch-card-error" role="alert" hidden></div>
+              <div class="source-data-label">
+                <span>{{ t('cards.source_shared') }}</span>
+                <span class="source-status">{{ t('cards.source_status_' ~ card.source_status_by_side.get(side_name, 'missing')) }}</span>
+              </div>
+              <form class="card-metadata-form card-type-fields-form" data-card-key="{{ card.key }}" data-side="{{ side_name }}">
+                <div class="card-metadata-grid">
+                  {% for field in card.metadata_draft_fields_by_side[side_name] %}{% if field.id != 'pack_name' and not (side_name == 'back' and field.scope == 'card') %}
+                  {% set metadata_ocr = field.id != 'card_type' and field.type in ['text', 'integer'] and not field.options and not field.control %}
+                  {% set location_symbol_field = field.id in ['connection', 'connections'] and field.options %}
+                  {% set metadata_pending = source_proposal_side.get('metadata', {}).get(field.id) %}
+                  <{{ 'div' if location_symbol_field else 'label' }} data-card-field="{{ field.id }}" data-source-kind="metadata" {% if field.id not in card.visible_field_ids %}hidden{% endif %} class="{% if location_symbol_field %}metadata-field {% elif metadata_ocr %}ocr-target {% endif %}{% if metadata_pending %}source-proposal-pending{% endif %}"{% if metadata_ocr %} data-ocr-field="{{ field.id }}" data-ocr-language="{{ scenario.project.source_language }}"{% endif %}>{% if location_symbol_field %}<span class="metadata-field-title">{% endif %}{{ field.label or field.id|replace('_', ' ')|title }}{% if field.id == 'card_type' and side_name == 'back' %} (Back){% endif %}{% if metadata_pending %} <span class="source-proposal-field-hint">{{ t('cards.source_pending') }}</span>{% endif %}{% if location_symbol_field %}</span>{% endif %}
+                    {% if field.id == 'card_type' and scenario.card_types %}
+                    <select name="card_type"{% if side_name == 'back' %} disabled{% endif %}>
+                      <option value=""></option>
+                      {% for type in scenario.card_types %}<option value="{{ type.id }}" {% if (field.value or '')|lower|replace('-', '_')|replace(' ', '_') in [type.id|lower|replace('-', '_')|replace(' ', '_'), type.label|lower|replace('-', '_')|replace(' ', '_')] %}selected{% endif %}>{{ type.label }}</option>{% endfor %}
+                    </select>
+                    {% elif field.id in ['connection', 'connections'] and field.options %}
+                    <div class="multi-select location-symbol-select" data-max-items="{{ 1 if field.id == 'connection' else field.max_items or '' }}" data-single="{{ 'true' if field.id == 'connection' else 'false' }}">
+                      <input type="hidden" name="{{ field.id }}" value="{% if field.value is iterable and field.value is not string %}{{ field.value|join(', ') }}{% else %}{{ field.value or '' }}{% endif %}">
+                      <button type="button" class="button-secondary multi-select-toggle" aria-label="{{ field.label or field.id }}" aria-expanded="false"><span class="multi-select-summary">—</span></button>
+                      <div class="multi-select-menu" hidden>
+                        {% if field.id == 'connection' %}<button type="button" class="location-symbol-clear" aria-label="{{ field.label or field.id }}: —" title="—">—</button>{% endif %}
+                        {% for option in field.options %}
+                        <label class="location-symbol-option" title="{{ option|replace('_', ' ')|title }}"><input type="checkbox" aria-label="{{ option|replace('_', ' ')|title }}" value="{{ option }}" {% if field.id == 'connection' and field.value == option or field.id == 'connections' and field.value is iterable and field.value is not string and option in field.value %}checked{% endif %}><img src="/static/location_symbols/connection_{{ option }}.svg" alt="" loading="lazy"></label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    {% elif field.options and field.single %}
+                    <select name="{{ field.id }}">
+                      <option value=""></option>
+                      {% set selected_value = field.value[0] if field.value is iterable and field.value is not string and field.value else field.value %}
+                      {% for option in field.options %}<option value="{{ option }}" {% if selected_value == option %}selected{% endif %}>{{ option|replace('_alt', ' (alt)')|replace('_', ' ')|title }}</option>{% endfor %}
+                    </select>
+                    {% elif field.options and field.type == 'list' %}
+                    <div class="multi-select" data-max-items="{{ field.max_items or '' }}">
+                      <input type="hidden" name="{{ field.id }}" value="{% if field.value is iterable and field.value is not string %}{{ field.value|join(', ') }}{% else %}{{ field.value or '' }}{% endif %}">
+                      <button type="button" class="button-secondary multi-select-toggle" aria-expanded="false"></button>
+                      <div class="multi-select-menu" hidden>
+                        {% for option in field.options %}<label><input type="checkbox" value="{{ option }}" {% if field.value is iterable and field.value is not string and option in field.value %}checked{% endif %}> {{ option|replace('_alt', ' (alt)')|replace('_', ' ')|title }}</label>{% endfor %}
+                      </div>
+                    </div>
+                    {% elif field.options %}
+                    <select name="{{ field.id }}">
+                      <option value=""></option>
+                      {% for option in field.options %}<option value="{{ option }}" {% if field.value == option %}selected{% endif %}>{{ option|replace('_alt', ' (alt)')|replace('_', ' ')|title }}</option>{% endfor %}
+                    </select>
+                    {% elif field.control == 'checkbox' %}
+                    <span class="checkbox-field">
+                      <input type="hidden" name="{{ field.id }}" value="false">
+                      <input type="checkbox" name="{{ field.id }}" value="true" {% if field.value in [true, 'true', '1', 1] %}checked{% endif %}>
+                      <span>&lt;per&gt;</span>
+                    </span>
+                    {% else %}
+                    <input name="{{ field.id }}" {% if field.type == 'integer' %}type="number" step="1"{% else %}type="text"{% endif %} value="{% if field.type == 'list' and field.value is iterable and field.value is not string %}{{ field.value|join(', ') }}{% else %}{{ field.value if field.value is not none else '' }}{% endif %}" {% if field.type == 'list' %}placeholder="{{ t('metadata.list_help') }}"{% elif field.value_format == 'scaled_number' %}placeholder="5, X, 5&lt;per&gt;, X&lt;per&gt;"{% endif %}>
+                    {% endif %}
+                  </{{ 'div' if location_symbol_field else 'label' }}>
+                  {% endif %}{% endfor %}
+                </div>
+                <div class="translation-actions">
+                  <span class="card-metadata-status small" role="status"></span>
+                </div>
+              </form>
+              <div class="text-field-layout">
+              <form class="source-fields source-side-form" data-card-key="{{ card.record.key or card.key }}" data-side="{{ side_name }}">
+              {% for field in scenario.translatable_fields %}
+                {% set source_value = source_side.get(field.id) if field.id in source_side else (card.source_text.get(field.id) if side_name == 'front' else '') %}
+                {% set text_pending = source_proposal_side.get('text', {}).get(field.id) %}
+              <label data-card-field="{{ field.id }}" data-source-kind="text" style="--translation-field-order: {{ loop.index0 * 2 }}" {% if field.id not in card.visible_field_ids %}hidden{% endif %} class="{% if field.id in ['title', 'traits', 'rules', 'flavor'] %}ocr-target {% endif %}{% if text_pending %}source-proposal-pending{% endif %}"{% if field.id in ['title', 'traits', 'rules', 'flavor'] %} data-ocr-field="{{ field.id }}" data-ocr-language="{{ scenario.project.source_language }}"{% endif %}>{{ scenario.project.source_language|upper }} · {{ field.label or field.id|replace('_', ' ')|title }}{% if field.id == 'title' %} <span class="small muted">· &lt;unique&gt;Name</span>{% endif %}{% if text_pending %} <span class="source-proposal-field-hint">{{ t('cards.source_pending') }}</span>{% endif %}
+                {% if field.id == 'rules' %}<span class="chaos-entry-help" hidden>{{ t('cards.chaos_entry_help') }}</span>{% endif %}
+                {% if source_review.get(field.id, {}).get('review_required') %}
+                <span class="review-warning">{{ t('cards.review_missing_source_text') }}</span>
+                {% endif %}
+                {% if field.type == 'multiline' %}
+                <textarea name="{{ field.id }}" rows="4" placeholder="{{ t('cards.source_placeholder') }}">{{ source_value or '' }}</textarea>
+                {% else %}
+                <input name="{{ field.id }}" value="{{ (source_value or [])|join(', ') if field.type == 'list' else source_value or '' }}">
+                {% endif %}
+              </label>
+              {% endfor %}
+              </form>
+              {% if not scenario.source_only %}<form class="translation-side-form" data-card-key="{{ card.record.key or card.key }}" data-side="{{ side_name }}">
+              {% for field in scenario.translatable_fields %}
+                {% set target_value = target_side.get(field.id) or (card.target_text.get(field.id) if side_name == 'front' else '') %}
+              <label data-card-field="{{ field.id }}" style="--translation-field-order: {{ loop.index0 * 2 + 1 }}" {% if field.id not in card.visible_field_ids %}hidden{% endif %} class="{% if target_review.get(field.id, {}).get('review_required') %}machine-translation-review{% endif %}">{{ scenario.target_language|upper }} · {{ field.label or field.id|replace('_', ' ')|title }}{% if field.id == 'title' %} <span class="small muted">· &lt;unique&gt;Name</span>{% endif %}
+                {% if target_review.get(field.id, {}).get('review_reason') == 'source_text_changed' %}<span class="review-warning">{{ t('cards.source_changed_since_translation') }}</span>{% endif %}
+                {% if field.id == 'rules' %}<span class="chaos-entry-help" hidden>{{ t('cards.chaos_entry_help') }}</span>{% endif %}
+                {% if field.type == 'multiline' %}
+                <textarea name="{{ field.id }}" rows="4">{{ target_value or '' }}</textarea>
+                {% else %}
+                <input name="{{ field.id }}" value="{{ (target_value or [])|join(', ') if field.type == 'list' else target_value or '' }}">
+                {% endif %}
+              </label>
+              {% endfor %}
+              </form>{% endif %}
+              </div>
+            </div>
+          </div>
+        </section>
+        {% elif side_name == 'back' %}
+        <section class="card-side-row missing-side-row">
+          <div class="missing-side-copy">
+            <span class="field-label">{{ t('field.back') }}</span>
+            <span class="muted">{{ t('cards.no_back') }}</span>
+          </div>
+        </section>
+        {% endif %}
+      {% endfor %}
+    </article>
+    {% endfor %}
+  </div>
+  {% if pagination.page_count > 1 %}
+  <nav class="card-pagination card-pagination-bottom" aria-label="{{ t('cards.pagination') }}">
+    <span>{{ t('cards.pagination_status', start=pagination.start, end=pagination.end, total=pagination.total) }}</span>
+    <div class="card-pagination-actions">
+      {% if pagination.page > 1 %}<a class="button-secondary" href="?page={{ pagination.page - 1 }}&cards_per_page={{ pagination.cards_per_page }}">← {{ t('cards.previous') }}</a>{% endif %}
+      <strong>{{ pagination.page }} / {{ pagination.page_count }}</strong>
+      {% if pagination.page < pagination.page_count %}<a class="button-secondary" href="?page={{ pagination.page + 1 }}&cards_per_page={{ pagination.cards_per_page }}">{{ t('cards.next') }} →</a>{% endif %}
+    </div>
+  </nav>
+  {% endif %}
+  <div class="autosave-indicator is-saved" role="status" aria-live="polite">{{ t('autosave.saved') }}</div>
+  {% elif scenario.card_source_needs_selection %}
+    <div class="empty-state">{{ t('cards.multiple_sources') }}</div>
+  {% else %}
+    <div class="empty-state">{{ t('cards.none') }}</div>
+  {% endif %}
+</section>
+
+<dialog class="ocr-dialog" id="ocr-preview-dialog">
+  <form method="dialog" class="ocr-dialog-content">
+    <div>
+      <p class="eyebrow">OCR</p>
+      <h3>{{ t('ocr.preview_title') }}</h3>
+    </div>
+    <p class="small ocr-confidence"></p>
+    <div class="ocr-dialog-body">
+      <div class="ocr-dialog-image-column">
+        <span class="field-label">{{ t('ocr.card_reference') }}</span>
+        <div class="card-image-stage ocr-dialog-image-stage">
+          <img class="card-image ocr-dialog-image" alt="{{ t('ocr.card_reference') }}">
+          <span class="ocr-selection ocr-dialog-selection" aria-hidden="true"></span>
+        </div>
+      </div>
+      <label>{{ t('ocr.recognized_text') }}
+        <textarea class="ocr-preview-text" rows="12"></textarea>
+      </label>
+    </div>
+    <div class="ocr-dialog-actions">
+      <button type="button" class="button-secondary ocr-cancel">{{ t('ocr.cancel') }}</button>
+      <button type="button" class="ocr-apply">{{ t('ocr.apply') }}</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="ocr-dialog gemini-card-dialog" id="gemini-card-dialog">
+  <div class="ocr-dialog-content">
+    <div><p class="eyebrow">{{ t('settings.provider_' ~ card_image_provider) }}</p><h3>{{ t('translation.card_image_preview_title') }}</h3></div>
+    <p class="muted gemini-card-summary"></p>
+    <pre class="warning-text gemini-card-warnings" hidden></pre>
+    <label>{{ t('translation.card_image_preview_json') }}
+      <textarea class="gemini-card-json" rows="24"></textarea>
+    </label>
+    <div class="ocr-dialog-actions">
+      <button type="button" class="button-secondary gemini-card-cancel">{{ t('action.cancel') }}</button>
+      <button type="button" class="gemini-card-apply">{{ t('translation.card_image_apply') }}</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="ocr-dialog gemini-prompt-dialog" id="gemini-prompt-dialog">
+  <div class="ocr-dialog-content">
+    <div><p class="eyebrow">LLM</p><h3>{{ t('translation.prompt_title') }}</h3></div>
+    <p class="muted gemini-prompt-help"></p>
+    <label>{{ t('translation.prompt_label') }}
+      <textarea class="gemini-prompt-text" rows="24" readonly></textarea>
+    </label>
+    <div class="ocr-dialog-actions">
+      <button type="button" class="button-secondary gemini-prompt-close">{{ t('action.close') }}</button>
+      <button type="button" class="gemini-prompt-copy">{{ t('translation.prompt_copy') }}</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="ocr-dialog source-proposal-dialog" id="source-proposal-dialog">
+  <div class="ocr-dialog-content">
+    <div>
+      <p class="eyebrow">{{ t('cards.source_shared') }}</p>
+      <h3>{{ t('cards.source_diff_title') }}</h3>
+      <p class="muted">{{ t('cards.source_diff_help') }}</p>
+    </div>
+    <p class="warning-text source-proposal-conflict" hidden>{{ t('cards.source_conflict') }}</p>
+    <div class="source-proposal-sides"></div>
+    <div class="ocr-dialog-actions">
+      <button type="button" class="button-secondary source-proposal-cancel">{{ t('action.cancel') }}</button>
+      <button type="button" class="source-proposal-apply">{{ t('cards.source_apply') }}</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="ocr-dialog translation-review-dialog" id="translation-review-dialog">
+  <div class="ocr-dialog-content">
+    <div>
+      <p class="eyebrow">{{ t('translation.review_eyebrow') }}</p>
+      <h3>{{ t('translation.review_title') }}</h3>
+      <p class="muted translation-review-context"></p>
+    </div>
+    <div class="translation-review-issues" role="alert"></div>
+    <div class="translation-review-grid">
+      <label>{{ t('translation.review_original') }}
+        <textarea class="translation-review-original" rows="12" readonly></textarea>
+      </label>
+      <label>{{ t('translation.review_draft') }}
+        <textarea class="translation-review-draft" rows="12"></textarea>
+      </label>
+    </div>
+    <div class="ocr-dialog-actions">
+      <button type="button" class="button-secondary translation-review-cancel">{{ t('action.cancel') }}</button>
+      <button type="button" class="translation-review-apply">{{ t('translation.review_apply') }}</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="ocr-dialog translation-log-dialog" id="translation-log-dialog">
+  <div class="ocr-dialog-content">
+    <div>
+      <p class="eyebrow">{{ t('translation.log_eyebrow') }}</p>
+      <h3>{{ t('translation.log_title') }}</h3>
+    </div>
+    <div class="translation-log-content"></div>
+    <div class="ocr-dialog-actions">
+      <button type="button" class="translation-log-close">{{ t('action.close') }}</button>
+    </div>
+  </div>
+</dialog>
+
+{% if scenario.initialized %}
+<script>
+(() => {
+  const projectBaseUrl = "/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}";
+  const imageMetaUrl = `${projectBaseUrl}/image-meta`;
+  const cardGameFieldsUrl = `${projectBaseUrl}/card-game-fields`;
+  const cardTextUrl = `${projectBaseUrl}/card-text`;
+  const sourceCardTextUrl = `${projectBaseUrl}/source-card-text`;
+  const sourceProposalUrl = projectBaseUrl + "/source-proposal";
+  const sourceProposalApplyUrl = projectBaseUrl + "/source-proposal/apply";
+  const translationRulesUrl = `${projectBaseUrl}/translation-rules`;
+  const importDataUrl = `${projectBaseUrl}/import-data`;
+  const previewImportUrl = `${projectBaseUrl}/preview-import`;
+  const matchImportUrl = `${projectBaseUrl}/match-import`;
+  const cardIdentifierUrl = `${projectBaseUrl}/card-identifier`;
+  const shoggothSettingsUrl = `${projectBaseUrl}/shoggoth-settings`;
+  const collapseDuplicatesUrl = `${projectBaseUrl}/collapse-duplicates`;
+  const cardImageBatchUrl = `${projectBaseUrl}/card-image-batch`;
+  const cardImageBatchApplyUrl = `${projectBaseUrl}/card-image-batch-apply`;
+  const arkhamdbImportUrl = `${projectBaseUrl}/import-arkhamdb`;
+  const shoggothImportUrl = `${projectBaseUrl}/import-shoggoth`;
+  const llmReferenceWarning = {{ llm_reference_warning|tojson }};
+  const confirmLlmReferenceWarning = () => !llmReferenceWarning || window.confirm(
+    llmReferenceWarning + "\n\n" + {{ t('translation.reference_continue')|tojson }}
+  );
+  document.querySelectorAll(".card-width-resizer").forEach((resizer) => {
+    const target = resizer.closest(".source-side");
+    if (!target) return;
+    const minWidth = Number(resizer.dataset.minWidth || 320);
+    const maxWidth = Number(resizer.dataset.maxWidth || 1100);
+    let startX = 0;
+    let startWidth = 0;
+    const setWidth = (width) => {
+      target.style.width = `${Math.max(minWidth, Math.min(maxWidth, width))}px`;
+    };
+    resizer.addEventListener("pointerdown", (event) => {
+      startX = event.clientX;
+      startWidth = target.getBoundingClientRect().width;
+      resizer.classList.add("is-resizing");
+      resizer.setPointerCapture(event.pointerId);
+    });
+    resizer.addEventListener("pointermove", (event) => {
+      if (!resizer.hasPointerCapture(event.pointerId)) return;
+      setWidth(startWidth + event.clientX - startX);
+    });
+    const stopResize = (event) => {
+      if (resizer.hasPointerCapture(event.pointerId)) {
+        resizer.releasePointerCapture(event.pointerId);
+      }
+      resizer.classList.remove("is-resizing");
+    };
+    resizer.addEventListener("pointerup", stopResize);
+    resizer.addEventListener("pointercancel", stopResize);
+    resizer.addEventListener("keydown", (event) => {
+      if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      event.preventDefault();
+      const direction = event.key === 'ArrowRight' ? 1 : -1;
+      setWidth(target.getBoundingClientRect().width + direction * 30);
+    });
+  });
+  const cardControlStorageKey = "unspeakable-translations.card-controls";
+  const cardControlDefaults = {
+    llm: {{ (card_image_provider != 'none')|tojson }},
+    google: true,
+    ocr: true,
+  };
+  let cardControlPreferences = {...cardControlDefaults};
+  try {
+    cardControlPreferences = {
+      ...cardControlDefaults,
+      ...JSON.parse(window.localStorage.getItem(cardControlStorageKey) || "{}"),
+    };
+  } catch (_) {}
+  const manualCardProgressStorageKey =
+    `unspeakable-translations.card-progress:${projectBaseUrl}`;
+  const manualCardNotesStorageKey =
+    `unspeakable-translations.card-notes:${projectBaseUrl}`;
+  let manuallyCompletedCards = new Set();
+  let manualCardNotes = {};
+  try {
+    const storedProgress = JSON.parse(
+      window.localStorage.getItem(manualCardProgressStorageKey) || "[]"
+    );
+    if (Array.isArray(storedProgress)) manuallyCompletedCards = new Set(storedProgress);
+  } catch (_) {}
+  try {
+    const storedNotes = JSON.parse(
+      window.localStorage.getItem(manualCardNotesStorageKey) || "{}"
+    );
+    if (storedNotes && typeof storedNotes === "object" && !Array.isArray(storedNotes)) {
+      manualCardNotes = storedNotes;
+    }
+  } catch (_) {}
+  const saveManualCardProgress = () => {
+    try {
+      window.localStorage.setItem(
+        manualCardProgressStorageKey,
+        JSON.stringify([...manuallyCompletedCards]),
+      );
+    } catch (_) {}
+  };
+  const saveManualCardNotes = () => {
+    try {
+      window.localStorage.setItem(manualCardNotesStorageKey, JSON.stringify(manualCardNotes));
+    } catch (_) {}
+  };
+  const updateManualCardSummary = card => {
+    const cardType = card.querySelector(
+      '.card-metadata-form[data-side="front"] [name="card_type"]'
+    );
+    const selectedType = cardType?.value
+      ? cardType.selectedOptions?.[0]?.textContent?.trim() || cardType.value
+      : "";
+    card.querySelector(".manual-card-type-suffix").textContent =
+      selectedType ? ` (${selectedType})` : "";
+    const hasNotes = Boolean((manualCardNotes[card.dataset.cardKey] || "").trim());
+    card.querySelector(".manual-card-notes-alert").hidden = !hasNotes;
+  };
+  const setManualCardProgress = (card, complete) => {
+    const cardKey = card.dataset.cardKey;
+    card.classList.toggle("is-manually-complete", complete);
+    card.querySelector(".manual-card-progress-badge").hidden = !complete;
+    const button = card.querySelector(".manual-card-progress-toggle");
+    button.setAttribute("aria-pressed", String(complete));
+    button.textContent = complete
+      ? {{ t('cards.progress_reopen')|tojson }}
+      : {{ t('cards.progress_mark_done')|tojson }};
+    if (complete) manuallyCompletedCards.add(cardKey);
+    else manuallyCompletedCards.delete(cardKey);
+    updateManualCardSummary(card);
+  };
+  const manualNotesSaveTimers = new WeakMap();
+  document.querySelectorAll(".logical-card").forEach(card => {
+    const notesInput = card.querySelector(".manual-card-notes-input");
+    notesInput.value = manualCardNotes[card.dataset.cardKey] || "";
+    notesInput.addEventListener("input", () => {
+      if (notesInput.value.trim()) manualCardNotes[card.dataset.cardKey] = notesInput.value;
+      else delete manualCardNotes[card.dataset.cardKey];
+      updateManualCardSummary(card);
+      window.clearTimeout(manualNotesSaveTimers.get(notesInput));
+      manualNotesSaveTimers.set(notesInput, window.setTimeout(saveManualCardNotes, 250));
+    });
+    notesInput.addEventListener("blur", saveManualCardNotes);
+    card.querySelector(
+      '.card-metadata-form[data-side="front"] [name="card_type"]'
+    )?.addEventListener("change", () => updateManualCardSummary(card));
+    setManualCardProgress(card, manuallyCompletedCards.has(card.dataset.cardKey));
+    card.querySelector(".manual-card-progress-toggle").addEventListener("click", () => {
+      setManualCardProgress(card, !card.classList.contains("is-manually-complete"));
+      saveManualCardProgress();
+    });
+  });
+  const applyCardControlPreferences = () => {
+    Object.entries(cardControlPreferences).forEach(([control, visible]) => {
+      document.documentElement.classList.toggle(`ui-hide-${control}`, !visible);
+      const checkbox = document.querySelector(`[data-card-control="${control}"]`);
+      if (checkbox) checkbox.checked = Boolean(visible);
+    });
+  };
+  document.querySelectorAll("[data-card-control]").forEach(checkbox => {
+    checkbox.addEventListener("change", () => {
+      cardControlPreferences[checkbox.dataset.cardControl] = checkbox.checked;
+      applyCardControlPreferences();
+      try {
+        window.localStorage.setItem(cardControlStorageKey, JSON.stringify(cardControlPreferences));
+      } catch (_) {}
+    });
+  });
+  applyCardControlPreferences();
+  {% if not scenario.source_only %}
+  const translationFieldLayoutStorageKey =
+    "unspeakable-translations.interleave-translation-fields";
+  const translationFieldLayoutToggle = document.querySelector(
+    ".translation-field-layout-toggle"
+  );
+  const applyTranslationFieldLayout = enabled => {
+    document.documentElement.classList.toggle(
+      "ui-interleave-translation-fields", enabled
+    );
+    translationFieldLayoutToggle.checked = enabled;
+  };
+  let interleaveTranslationFields = true;
+  try {
+    const storedFieldLayout = window.localStorage.getItem(
+      translationFieldLayoutStorageKey
+    );
+    interleaveTranslationFields = storedFieldLayout === null
+      ? true
+      : storedFieldLayout === "true";
+  } catch (_) {}
+  applyTranslationFieldLayout(interleaveTranslationFields);
+  translationFieldLayoutToggle.addEventListener("change", () => {
+    interleaveTranslationFields = translationFieldLayoutToggle.checked;
+    applyTranslationFieldLayout(interleaveTranslationFields);
+    try {
+      window.localStorage.setItem(
+        translationFieldLayoutStorageKey,
+        String(interleaveTranslationFields),
+      );
+    } catch (_) {}
+  });
+  {% endif %}
+  const cardTypes = {{ scenario.card_types|tojson }};
+  const symbolTokens = [
+    ["action", "n"], ["agility", "a"], ["auto_fail", "T"],
+    ["bless", "D"], ["blessing", "D"], ["bullet", "b"], ["codex", "#"],
+    ["combat", "c"], ["cultist", "C"], ["curse", "U"],
+    ["damage", "h"], ["day", "<"], ["elder_sign", "E"],
+    ["elder_thing", "L"], ["entry", "B"], ["fleur", "F"],
+    ["fast", "f"], ["free", "f"], ["frost", "H"], ["guardian", "G"],
+    ["horror", "d"], ["intellect", "i"], ["investigator", "q"],
+    ["mystic", "M"], ["night", ">"], ["open", "o"],
+    ["per", "p"], ["per_investigator", "p"], ["reaction", "r"],
+    ["resolution", "e"], ["resource", "m"], ["rogue", "R"],
+    ["seeker", "K"], ["skull", "S"], ["star", "*"],
+    ["survivor", "V"], ["tablet", "A"], ["unique", "u"],
+    ["wild", "?"], ["willpower", "w"],
+  ].map(([name, glyph]) => ({name, token: `{${name}}`, glyph}));
+  const chaosSymbolTokens = [
+    "+1", "0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8",
+    "bless", "blood", "cultist", "curse", "elder_sign", "elder_thing",
+    "fail", "frost", "skull", "tablet",
+  ].map(name => ({
+    name,
+    token: `{${name}}`,
+    image: `/assets/ah/chaostokens/chaos_${name}.png`,
+  }));
+  const prepareLlmBatchButtons = [...document.querySelectorAll(".prepare-llm-batch-button")];
+  prepareLlmBatchButtons.forEach(button => button.addEventListener("click", async event => {
+      if (!confirmLlmReferenceWarning()) return;
+      const activeButton = event.currentTarget;
+      const status = document.querySelector(".prepare-llm-batch-status");
+      prepareLlmBatchButtons.forEach(item => { item.disabled = true; });
+      status.textContent = {{ t('translation.batch_working')|tojson }};
+      try {
+        const result = await postForm(cardImageBatchUrl, {
+          force_image_analysis: activeButton.dataset.forceImageAnalysis === "true",
+          extracted_data_only: activeButton.dataset.extractedDataOnly === "true",
+        });
+        status.textContent = {{ t('translation.batch_result')|tojson }}
+          .replace("{count}", result.count)
+          .replace("{text}", result.text_only)
+          .replace("{images}", result.image_jobs)
+          .replace("{hidden}", result.skipped_hidden)
+          .replace("{path}", result.path);
+        const guide = document.querySelector(".llm-batch-guide");
+        if (guide) {
+          guide.hidden = false;
+          guide.open = true;
+        }
+      } catch (error) {
+        console.error(error);
+        status.textContent = error.message;
+      } finally {
+        prepareLlmBatchButtons.forEach(item => { item.disabled = false; });
+      }
+    }));
+  document.querySelector(".llm-batch-copy-button")?.addEventListener("click", async event => {
+    const prompt = document.querySelector(".llm-batch-agent-prompt");
+    prompt.select();
+    try {
+      await navigator.clipboard.writeText(prompt.value);
+    } catch (_error) {
+      document.execCommand("copy");
+    }
+    event.currentTarget.textContent = {{ t('translation.prompt_copied')|tojson }};
+    window.setTimeout(() => {
+      event.currentTarget.textContent = {{ t('translation.batch_guide_copy')|tojson }};
+    }, 1500);
+  });
+  document.querySelector(".apply-llm-batch-button")?.addEventListener("click", async event => {
+    const button = event.currentTarget;
+    const status = document.querySelector(".prepare-llm-batch-status");
+    document.querySelectorAll(".card-side-row.batch-import-error").forEach(row => {
+      row.classList.remove("batch-import-error");
+      const message = row.querySelector(".batch-card-error");
+      if (message) {
+        message.hidden = true;
+        message.textContent = "";
+      }
+    });
+    button.disabled = true;
+    status.textContent = {{ t('translation.batch_applying')|tojson }};
+    try {
+      const result = await postForm(cardImageBatchApplyUrl, {});
+      (result.items || []).forEach(item => {
+        const card = document.querySelector(
+          `.logical-card[data-card-key="${CSS.escape(item.card_key)}"]`
+        );
+        if (card) fillCardFromLlmResult(card, item.side, item.result);
+      });
+      let firstFailedRow = null;
+      (result.errors || []).forEach(failure => {
+        const card = document.querySelector(
+          `.logical-card[data-card-key="${CSS.escape(failure.card_key)}"]`
+        );
+        const row = card?.querySelector(
+          `.card-side-row[data-side="${CSS.escape(failure.side)}"]`
+        );
+        if (!row) return;
+        row.classList.add("batch-import-error");
+        firstFailedRow ||= row;
+        const message = row.querySelector(".batch-card-error");
+        if (message) {
+          message.textContent = failure.error;
+          message.hidden = false;
+        }
+        const input = row.querySelector(".llm-json-input");
+        if (input) input.value = failure.result_json || "";
+        const jsonStatus = row.querySelector(".llm-json-status");
+        if (jsonStatus) jsonStatus.textContent = failure.error;
+      });
+      if (result.failed) {
+        status.textContent = {{ t('translation.batch_applied_partial')|tojson }}
+          .replace("{count}", result.applied)
+          .replace("{failed}", result.failed);
+        firstFailedRow?.scrollIntoView({behavior: "smooth", block: "center"});
+      } else {
+        status.textContent = {{ t('translation.batch_applied')|tojson }}
+          .replace("{count}", result.applied);
+        if (result.source_proposal_count) {
+          status.textContent += " " + {{ t('translation.batch_source_proposals')|tojson }}
+            .replace("{count}", result.source_proposal_count);
+        }
+        window.setTimeout(() => window.location.reload(), 600);
+      }
+    } catch (error) {
+      console.error(error);
+      status.textContent = {{ t('translation.batch_apply_failed')|tojson }}
+        .replace("{error}", error.message);
+    } finally {
+      button.disabled = false;
+    }
+  });
+  document.querySelector(".collapse-duplicates-button")?.addEventListener("click", async event => {
+    const button = event.currentTarget;
+    const status = document.querySelector(".collapse-duplicates-status");
+    button.disabled = true;
+    status.textContent = {{ t('action.saving')|tojson }};
+    try {
+      const result = await postForm(collapseDuplicatesUrl, {});
+      status.textContent = {{ t('cards.collapse_duplicates_result')|tojson }}
+        .replace("{groups}", result.groups).replace("{hidden}", result.hidden_cards);
+      if (result.collapsed?.length) {
+        const details = document.createElement("details");
+        details.className = "collapse-duplicates-details";
+        const summary = document.createElement("summary");
+        summary.textContent = {{ t('cards.collapse_duplicates_show')|tojson }};
+        const list = document.createElement("ul");
+        result.collapsed.forEach(group => {
+          const item = document.createElement("li");
+          item.textContent = {{ t('cards.collapse_duplicates_group')|tojson }}
+            .replace("{name}", group.representative_name)
+            .replace("{quantity}", group.quantity)
+            .replace("{copies}", group.hidden_keys.join(", "));
+          list.append(item);
+          group.hidden_keys.forEach(key => {
+            document.querySelectorAll(`.logical-card[data-card-key="${CSS.escape(key)}"] .card-side-row[data-image-name]`)
+              .forEach(row => refreshHiddenState(row, true));
+          });
+          const representative = document.querySelector(`.logical-card[data-card-key="${CSS.escape(group.representative_key)}"]`);
+          const quantity = representative?.querySelector('[name="printed_quantity"]');
+          if (quantity) quantity.value = group.quantity;
+        });
+        details.append(summary, list);
+        status.append(details);
+      }
+      button.disabled = false;
+    } catch (error) {
+      status.textContent = error.message || {{ t('action.save_failed')|tojson }};
+      button.disabled = false;
+    }
+  });
+  document.querySelector(".arkhamdb-import-button")?.addEventListener("click", async event => {
+    const button = event.currentTarget;
+    const status = document.querySelector(".arkhamdb-import-status");
+    button.disabled = true;
+    status.textContent = {{ t('action.saving')|tojson }};
+    try {
+      const result = await postForm(arkhamdbImportUrl, {});
+      status.textContent = {{ t('arkhamdb.import_result')|tojson }}
+        .replace("{source}", result.source_imported)
+        .replace("{target}", result.target_imported)
+        .replace("{missing_source}", result.missing_source.length)
+        .replace("{missing_target}", result.missing_target.length);
+      window.setTimeout(() => window.location.reload(), 1800);
+    } catch (error) {
+      status.textContent = error.message || {{ t('action.save_failed')|tojson }};
+      button.disabled = false;
+    }
+  });
+
+  document.querySelector(".shoggoth-import-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const button = form.querySelector('button[type="submit"]');
+    const status = form.querySelector(".shoggoth-import-status");
+    button.disabled = true;
+    status.textContent = {{ t('action.saving')|tojson }};
+    try {
+      const response = await fetch(shoggothImportUrl, {method: "POST", body: new FormData(form)});
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.detail || {{ t('action.save_failed')|tojson }});
+      status.textContent = {{ t('shoggoth.import_result')|tojson }}
+        .replace("{total}", payload.total)
+        .replace("{image}", payload.matched_by_image)
+        .replace("{name}", payload.matched_by_name)
+        .replace("{unmatched}", payload.unmatched);
+      window.setTimeout(() => location.reload(), 900);
+    } catch (error) {
+      status.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+  const autosaveIndicator = document.querySelector(".autosave-indicator");
+  const autosaveLabels = {
+    unsaved: {{ t('autosave.unsaved')|tojson }},
+    saving: {{ t('autosave.saving')|tojson }},
+    saved: {{ t('autosave.saved')|tojson }},
+  };
+  const dirtyForms = new Set();
+  const formRevisions = new WeakMap();
+  let activeSaves = 0;
+  const refreshAutosaveIndicator = () => {
+    if (!autosaveIndicator) return;
+    const state = activeSaves ? "saving" : dirtyForms.size ? "unsaved" : "saved";
+    autosaveIndicator.textContent = autosaveLabels[state];
+    autosaveIndicator.className = `autosave-indicator is-${state}`;
+  };
+  const markFormDirty = form => {
+    formRevisions.set(form, (formRevisions.get(form) || 0) + 1);
+    dirtyForms.add(form);
+    refreshAutosaveIndicator();
+  };
+  const beginFormSave = form => {
+    activeSaves += 1;
+    refreshAutosaveIndicator();
+    return formRevisions.get(form) || 0;
+  };
+  const finishFormSave = (form, revision, saved) => {
+    activeSaves = Math.max(0, activeSaves - 1);
+    if (saved && (formRevisions.get(form) || 0) === revision) dirtyForms.delete(form);
+    refreshAutosaveIndicator();
+  };
+  const normalizeCardType = value => String(value || "").toLowerCase().replaceAll("-", "_").replaceAll(" ", "_");
+  const sharedCardFields = cardTypes.length
+    ? cardTypes.map(type => new Set(type.fields)).reduce((shared, fields) =>
+        new Set([...shared].filter(field => fields.has(field)))
+      )
+    : new Set();
+  const updateCardTypeFields = form => {
+    const card = form.closest(".logical-card");
+    const typeSelect = form.elements.namedItem("card_type");
+    if (!card || !typeSelect) return;
+    const selected = normalizeCardType(typeSelect.value);
+    const definition = cardTypes.find(type =>
+      [normalizeCardType(type.id), normalizeCardType(type.label)].includes(selected)
+    );
+    const visible = new Set(["card_type", ...(definition ? definition.fields : sharedCardFields)]);
+    card.querySelectorAll("[data-card-field]").forEach(element => {
+      const show = visible.has(element.dataset.cardField);
+      element.hidden = !show;
+      // Inline display also works when an older cached stylesheet still overrides [hidden].
+      element.style.display = show ? "" : "none";
+    });
+    card.querySelectorAll(".chaos-entry-help").forEach(element => {
+      element.hidden = selected !== "chaos";
+    });
+    card.dataset.cardType = typeSelect.value;
+  };
+  document.querySelectorAll(".card-metadata-form").forEach(form => {
+    form.elements.namedItem("card_type")?.addEventListener("change", () =>
+      updateCardTypeFields(form)
+    );
+    updateCardTypeFields(form);
+  });
+  const shoggothSettingsForm = document.querySelector(".shoggoth-settings-form");
+  shoggothSettingsForm?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const status = shoggothSettingsForm.querySelector(".shoggoth-settings-status");
+    status.textContent = {{ t('action.saving')|tojson }};
+    try {
+      await postForm(shoggothSettingsUrl, Object.fromEntries(new FormData(shoggothSettingsForm).entries()));
+      status.textContent = {{ t('action.saved')|tojson }};
+    } catch (error) {
+      status.textContent = error.message || {{ t('action.save_failed')|tojson }};
+    }
+  });
+  document.querySelectorAll(".multi-select").forEach(widget => {
+    const hiddenInput = widget.querySelector('input[type="hidden"]');
+    const toggle = widget.querySelector(".multi-select-toggle");
+    const menu = widget.querySelector(".multi-select-menu");
+    const choices = [...widget.querySelectorAll('input[type="checkbox"]')];
+    const symbolPicker = widget.classList.contains("location-symbol-select");
+    const single = widget.dataset.single === "true";
+    const maxItems = Number(widget.dataset.maxItems) || Infinity;
+    const refresh = () => {
+      const selected = choices.filter(item => item.checked && item.value);
+      hiddenInput.value = selected.map(item => item.value).join(", ");
+      const summary = toggle.querySelector(".multi-select-summary") || toggle;
+      summary.replaceChildren();
+      if (selected.length) {
+        selected.forEach((item, index) => {
+          if (index && !symbolPicker) summary.append(document.createTextNode(", "));
+          const icon = item.parentElement.querySelector("img");
+          if (icon) summary.append(icon.cloneNode(true));
+          if (!symbolPicker) {
+            const name = document.createElement("span");
+            name.textContent = item.parentElement.textContent.trim();
+            summary.append(name);
+          }
+        });
+      } else {
+        summary.textContent = "—";
+      }
+      if (symbolPicker) toggle.title = selected.map(item => item.getAttribute("aria-label")).join(", ");
+      if (!single) choices.forEach(item => item.disabled = !item.checked && selected.length >= maxItems);
+    };
+    toggle.addEventListener("click", () => {
+      menu.hidden = !menu.hidden;
+      toggle.setAttribute("aria-expanded", String(!menu.hidden));
+    });
+    choices.forEach(item => item.addEventListener("change", () => {
+      if (single && item.checked) choices.forEach(other => { if (other !== item) other.checked = false; });
+      refresh();
+      if (single) {
+        menu.hidden = true;
+        toggle.setAttribute("aria-expanded", "false");
+      }
+      hiddenInput.dispatchEvent(new Event("input", {bubbles: true}));
+    }));
+    widget.querySelector(".location-symbol-clear")?.addEventListener("click", () => {
+      choices.forEach(item => { item.checked = false; });
+      refresh();
+      menu.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+      hiddenInput.dispatchEvent(new Event("input", {bubbles: true}));
+    });
+    hiddenInput.addEventListener("llm-sync", () => {
+      const selected = new Set(hiddenInput.value.split(",").map(value => value.trim()).filter(Boolean));
+      choices.forEach(item => { item.checked = selected.has(item.value); });
+      refresh();
+    });
+    refresh();
+  });
+  const translateCardUrl = `${projectBaseUrl}/translate-card`;
+  const externalTranslationUrl = `${projectBaseUrl}/external-translation`;
+  const externalTranslationSourceUrl = `${projectBaseUrl}/external-translation-source`;
+  const cardImagePreviewUrl = `${projectBaseUrl}/card-image-preview`;
+  const cardImageApplyUrl = `${projectBaseUrl}/card-image-apply`;
+  const formatRulesUrl = `${projectBaseUrl}/format-rules`;
+  const cardImagePromptUrl = `${projectBaseUrl}/card-image-prompt`;
+  const ocrRegionUrl = `${projectBaseUrl}/ocr-region`;
+  const ocrApplyUrl = `${projectBaseUrl}/card-ocr-apply`;
+  const ignoreLabel = {{ t('action.ignore')|tojson }};
+  const showLabel = {{ t('action.show')|tojson }};
+  const backHiddenLabel = {{ t('cards.back_hidden')|tojson }};
+  const ocrSelectFieldLabel = {{ t('ocr.select_field')|tojson }};
+  const ocrDrawRegionLabel = {{ t('ocr.draw_region')|tojson }};
+  const ocrRecognizingLabel = {{ t('ocr.recognizing')|tojson }};
+  const ocrFailedLabel = {{ t('ocr.failed')|tojson }};
+  const ocrConfidenceLabel = {{ t('ocr.confidence')|tojson }};
+  const translatingLabel = {{ t('translation.translating')|tojson }};
+  const translatedLabel = {{ t('translation.translated')|tojson }};
+  const nothingToTranslateLabel = {{ t('translation.nothing_to_translate')|tojson }};
+  const translationFailedLabel = {{ t('translation.failed')|tojson }};
+  const translationReviewMissingLabel = {{ t('translation.review_missing')|tojson }};
+  const translationReviewDuplicateLabel = {{ t('translation.review_duplicate')|tojson }};
+  const translationReviewUnexpectedLabel = {{ t('translation.review_unexpected')|tojson }};
+  const translationReviewSavedLabel = {{ t('translation.review_saved')|tojson }};
+  const importDuplicateIdsLabel = {{ t('import.duplicate_ids')|tojson }};
+  const importExamplesLabel = {{ t('import.examples')|tojson }};
+  const ocrDialog = document.querySelector("#ocr-preview-dialog");
+  const ocrPreview = ocrDialog.querySelector(".ocr-preview-text");
+  const ocrConfidence = ocrDialog.querySelector(".ocr-confidence");
+  const ocrDialogImage = ocrDialog.querySelector(".ocr-dialog-image");
+  const ocrDialogSelection = ocrDialog.querySelector(".ocr-dialog-selection");
+  const translationReviewDialog = document.querySelector("#translation-review-dialog");
+  const translationReviewOriginal = translationReviewDialog.querySelector(".translation-review-original");
+  const translationReviewDraft = translationReviewDialog.querySelector(".translation-review-draft");
+  const translationReviewIssues = translationReviewDialog.querySelector(".translation-review-issues");
+  const translationReviewContext = translationReviewDialog.querySelector(".translation-review-context");
+  const translationLogDialog = document.querySelector("#translation-log-dialog");
+  const translationLogContent = translationLogDialog.querySelector(".translation-log-content");
+  let pendingOcr = null;
+  let pendingTranslationReview = null;
+  let activeExternalTranslation = null;
+  const geminiCardDialog = document.querySelector("#gemini-card-dialog");
+  const geminiCardJson = geminiCardDialog.querySelector(".gemini-card-json");
+  const geminiCardWarnings = geminiCardDialog.querySelector(".gemini-card-warnings");
+  let pendingGeminiCard = null;
+  const geminiPromptDialog = document.querySelector("#gemini-prompt-dialog");
+  const geminiPromptText = geminiPromptDialog.querySelector(".gemini-prompt-text");
+
+  function parseLlmJson(value) {
+    let cleaned = value.trim();
+    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    try {
+      return JSON.parse(cleaned);
+    } catch (originalError) {
+      let repaired = "";
+      let inString = false;
+      for (let index = 0; index < cleaned.length; index += 1) {
+        const character = cleaned[index];
+        if (!inString) {
+          repaired += character;
+          if (character === '"') inString = true;
+          continue;
+        }
+        if (character === "\\") {
+          repaired += character;
+          if (index + 1 < cleaned.length) repaired += cleaned[index += 1];
+          continue;
+        }
+        if (character === "\n" || character === "\r" || character === "\t") {
+          repaired += character === "\t" ? "\\t" : "\\n";
+          if (character === "\r" && cleaned[index + 1] === "\n") index += 1;
+          continue;
+        }
+        if (character === '"') {
+          let lookahead = index + 1;
+          while (/\s/.test(cleaned[lookahead] || "")) lookahead += 1;
+          const next = cleaned[lookahead] || "";
+          if (!next || [",", ":", "}", "]"].includes(next)) {
+            repaired += character;
+            inString = false;
+          } else {
+            repaired += '\\"';
+          }
+          continue;
+        }
+        repaired += character;
+      }
+      try {
+        return JSON.parse(repaired);
+      } catch (_repairError) {
+        throw originalError;
+      }
+    }
+  }
+
+  function fillCardFromLlmResult(card, side, parsed) {
+    {% if scenario.source_only %}
+    const detectedCardType = side === "front" ? parsed.metadata?.card_type : "";
+    if (detectedCardType) {
+      card.querySelectorAll('.card-metadata-form [name="card_type"]').forEach(control => {
+        control.value = detectedCardType;
+      });
+      const frontForm = card.querySelector('.card-metadata-form[data-side="front"]');
+      if (frontForm) updateCardTypeFields(frontForm);
+    }
+    const resultForms = [[".source-side-form", parsed.source], [".card-metadata-form", parsed.metadata]];
+    {% else %}
+    const resultForms = [[".translation-side-form", parsed.translation]];
+    {% endif %}
+    resultForms
+      .forEach(([selector, values]) => {
+        const form = card.querySelector(`${selector}[data-side="${CSS.escape(side)}"]`);
+        Object.entries(values || {}).forEach(([field, value]) => {
+          const checkbox = form?.querySelector(
+            `input[type="checkbox"][name="${CSS.escape(field)}"]`
+          );
+          if (checkbox) {
+            checkbox.checked = ["1", "true", "yes", "on"].includes(String(value).toLowerCase());
+            return;
+          }
+          const control = form?.elements.namedItem(field);
+          if (!control) return;
+          control.value = Array.isArray(value) ? value.join(", ") : value;
+          control.dispatchEvent(new Event("llm-sync"));
+        });
+      });
+    {% if not scenario.source_only %}
+    if (Object.keys(parsed.source || {}).length || Object.keys(parsed.metadata || {}).length) {
+      const pendingFields = [
+        ...Object.keys(parsed.source || {}).map(field => `text.${field}`),
+        ...Object.keys(parsed.metadata || {}).map(field => `metadata.${field}`),
+      ];
+      markSourceProposalAvailable(card, side, pendingFields);
+    }
+    {% endif %}
+  }
+
+  async function copyDisplayedCardImage(button) {
+    const image = button.closest(".source-side").querySelector(".card-image");
+    if (!window.ClipboardItem || !navigator.clipboard?.write) {
+      throw new Error("image clipboard is not supported");
+    }
+    if (!image.complete) await image.decode();
+    const rotation = ((Number(image.dataset.rotation || 0) % 360) + 360) % 360;
+    const swapsDimensions = rotation === 90 || rotation === 270;
+    const canvas = document.createElement("canvas");
+    canvas.width = swapsDimensions ? image.naturalHeight : image.naturalWidth;
+    canvas.height = swapsDimensions ? image.naturalWidth : image.naturalHeight;
+    const context = canvas.getContext("2d");
+    context.translate(canvas.width / 2, canvas.height / 2);
+    context.rotate(rotation * Math.PI / 180);
+    context.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2);
+    const blob = await new Promise((resolve, reject) => canvas.toBlob(
+      value => value ? resolve(value) : reject(new Error("could not create PNG")),
+      "image/png",
+    ));
+    await navigator.clipboard.write([new ClipboardItem({"image/png": blob})]);
+  }
+
+  function fitOcrDialogImage() {
+    if (!pendingOcr || !ocrDialog.open) return;
+    fitRotatedImage(ocrDialogImage);
+    requestAnimationFrame(() => {
+      const stageRect = ocrDialogImage.closest(".card-image-stage").getBoundingClientRect();
+      const imageRect = ocrDialogImage.getBoundingClientRect();
+      ocrDialogSelection.style.cssText = [
+        "display:block",
+        `left:${imageRect.left - stageRect.left + pendingOcr.x * imageRect.width}px`,
+        `top:${imageRect.top - stageRect.top + pendingOcr.y * imageRect.height}px`,
+        `width:${pendingOcr.width * imageRect.width}px`,
+        `height:${pendingOcr.height * imageRect.height}px`,
+      ].join(";");
+    });
+  }
+
+  ocrDialogImage.addEventListener("load", fitOcrDialogImage);
+
+  async function postForm(url, values) {
+    const body = new URLSearchParams();
+    Object.entries(values).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) body.set(key, String(value));
+    });
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body,
+    });
+    if (!response.ok) {
+      const raw = await response.text();
+      let payload = null;
+      try { payload = JSON.parse(raw); } catch (_) {}
+      const error = new Error(payload?.detail || raw);
+      error.payload = payload;
+      throw error;
+    }
+    return response.json();
+  }
+
+  {% if not scenario.source_only %}
+  const sourceProposalDialog = document.querySelector("#source-proposal-dialog");
+  const sourceProposalSides = sourceProposalDialog.querySelector(".source-proposal-sides");
+  let pendingSourceProposal = null;
+
+  const setSourceLocked = (card, locked) => {
+    card.classList.toggle("source-edit-locked", locked);
+    card.querySelectorAll(".source-side-form input, .source-side-form textarea").forEach(control => {
+      control.readOnly = locked;
+    });
+    card.querySelectorAll(".card-metadata-form input, .card-metadata-form select, .card-metadata-form button").forEach(control => {
+      if (!control.dataset.sourcePermanentDisabled) {
+        control.dataset.sourcePermanentDisabled = control.disabled ? "true" : "false";
+      }
+      control.disabled = locked || control.dataset.sourcePermanentDisabled === "true";
+    });
+    const toggle = card.querySelector(".source-edit-toggle");
+    if (toggle) {
+      toggle.textContent = locked
+        ? {{ t('cards.edit_source')|tojson }}
+        : {{ t('cards.lock_source')|tojson }};
+    }
+  };
+
+  const markSourceProposalAvailable = (
+    card, side = null, pendingFields = null, replace = false, proposalCount = null
+  ) => {
+    card.querySelectorAll(".source-proposal-overwrite, .source-proposal-diff")
+      .forEach(button => { button.hidden = proposalCount === 0; });
+    if (!side || !Array.isArray(pendingFields)) return;
+    const row = card.querySelector(`.card-side-row[data-side="${CSS.escape(side)}"]`);
+    if (!row) return;
+    if (replace) {
+      row.querySelectorAll("[data-source-kind].source-proposal-pending").forEach(field => {
+        field.classList.remove("source-proposal-pending");
+        field.querySelector(".source-proposal-field-hint")?.remove();
+      });
+    }
+    pendingFields.forEach(identifier => {
+      const [kind, ...fieldParts] = identifier.split(".");
+      const field = fieldParts.join(".");
+      const container = row.querySelector(
+        `[data-source-kind="${CSS.escape(kind)}"][data-card-field="${CSS.escape(field)}"]`
+      );
+      if (!container) return;
+      container.classList.add("source-proposal-pending");
+      if (!container.querySelector(".source-proposal-field-hint")) {
+        const hint = document.createElement("span");
+        hint.className = "source-proposal-field-hint";
+        hint.textContent = {{ t('cards.source_pending')|tojson }};
+        container.prepend(hint);
+      }
+    });
+  };
+
+  const displaySourceValue = value => {
+    if (Array.isArray(value)) return value.join(", ");
+    if (value === null || value === undefined) return "";
+    return String(value);
+  };
+
+  const loadSourceProposal = async card => {
+    const proposal = await postForm(sourceProposalUrl, {card_key: card.dataset.cardKey});
+    if (!proposal.field_count) throw new Error({{ t('cards.source_proposal')|tojson }});
+    return proposal;
+  };
+
+  const proposalUpdates = proposal => proposal.sides.flatMap(side =>
+    side.fields.map(field => ({
+      side: side.side,
+      kind: field.kind,
+      field: field.field,
+      value: field.proposed,
+      reviewed_hash: field.reviewed_hash,
+    }))
+  );
+
+  const applySourceProposal = async (card, updates) => {
+    await postForm(sourceProposalApplyUrl, {
+      card_key: card.dataset.cardKey,
+      updates_json: JSON.stringify(updates),
+    });
+    window.location.reload();
+  };
+
+  const renderSourceProposal = (card, proposal) => {
+    pendingSourceProposal = {card, proposal};
+    sourceProposalSides.replaceChildren();
+    sourceProposalDialog.querySelector(".source-proposal-conflict").hidden = !proposal.stale;
+    proposal.sides.forEach(side => {
+      const section = document.createElement("section");
+      section.className = "source-proposal-side";
+      const image = document.createElement("img");
+      image.src = side.image;
+      image.alt = side.side;
+      const fields = document.createElement("div");
+      fields.className = "source-proposal-fields";
+      side.fields.forEach(field => {
+        const row = document.createElement("div");
+        row.className = "source-proposal-field" + (field.stale ? " is-stale" : "");
+        const title = document.createElement("strong");
+        title.textContent = side.side + " · " + field.label;
+        const currentLabel = document.createElement("label");
+        currentLabel.textContent = {{ t('cards.source_current')|tojson }};
+        const current = document.createElement("textarea");
+        current.className = "source-current";
+        current.readOnly = true;
+        current.value = displaySourceValue(field.current);
+        currentLabel.append(current);
+        const proposedLabel = document.createElement("label");
+        proposedLabel.textContent = {{ t('cards.source_proposed')|tojson }};
+        const proposed = document.createElement("textarea");
+        proposed.value = displaySourceValue(field.proposed);
+        proposed.dataset.side = side.side;
+        proposed.dataset.kind = field.kind;
+        proposed.dataset.field = field.field;
+        proposed.dataset.reviewedHash = field.reviewed_hash;
+        proposedLabel.append(proposed);
+        row.append(title, currentLabel, proposedLabel);
+        fields.append(row);
+      });
+      section.append(image, fields);
+      sourceProposalSides.append(section);
+    });
+    sourceProposalDialog.showModal();
+  };
+
+  document.querySelectorAll(".logical-card").forEach(card => {
+    setSourceLocked(card, true);
+    card.querySelector(".source-edit-toggle")?.addEventListener("click", () => {
+      setSourceLocked(card, !card.classList.contains("source-edit-locked"));
+    });
+    card.querySelector(".source-proposal-diff")?.addEventListener("click", async () => {
+      try {
+        renderSourceProposal(card, await loadSourceProposal(card));
+      } catch (error) {
+        window.alert(error.message);
+      }
+    });
+    card.querySelector(".source-proposal-overwrite")?.addEventListener("click", async () => {
+      if (!window.confirm({{ t('cards.source_overwrite_confirm')|tojson }})) return;
+      try {
+        const proposal = await loadSourceProposal(card);
+        await applySourceProposal(card, proposalUpdates(proposal));
+      } catch (error) {
+        window.alert(error.message);
+      }
+    });
+  });
+
+  sourceProposalDialog.querySelector(".source-proposal-cancel").addEventListener("click", () => {
+    pendingSourceProposal = null;
+    sourceProposalDialog.close();
+  });
+  sourceProposalDialog.querySelector(".source-proposal-apply").addEventListener("click", async event => {
+    if (!pendingSourceProposal) return;
+    const button = event.currentTarget;
+    button.disabled = true;
+    const updates = [...sourceProposalSides.querySelectorAll("textarea[data-field]")].map(control => ({
+      side: control.dataset.side,
+      kind: control.dataset.kind,
+      field: control.dataset.field,
+      value: control.value,
+      reviewed_hash: control.dataset.reviewedHash,
+    }));
+    try {
+      await applySourceProposal(pendingSourceProposal.card, updates);
+    } catch (error) {
+      window.alert(error.message);
+      button.disabled = false;
+    }
+  });
+  {% endif %}
+
+  const importForm = document.querySelector(".data-import-form");
+  importForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = event.submitter;
+    const mode = button?.dataset.mode || "preview";
+    const status = importForm.querySelector(".data-import-status");
+    const preview = importForm.querySelector(".data-import-preview");
+    button.disabled = true;
+    status.textContent = mode === "preview" ? {{ t('import.previewing')|tojson }} : {{ t('import.importing')|tojson }};
+    try {
+      const url = mode === "preview" ? previewImportUrl : importDataUrl;
+      const response = await fetch(url, {method: "POST", body: new FormData(importForm)});
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || response.statusText);
+      status.textContent = {{ t('import.result')|tojson }}
+        .replace("{total}", result.total)
+        .replace("{id}", result.matched_by_id)
+        .replace("{name}", result.matched_by_name)
+        .replace("{unmatched}", result.unmatched);
+      if (mode === "preview") {
+        const duplicateNote = result.duplicate_ids?.length
+          ? `<p class="warning-text">${escapeHtml(importDuplicateIdsLabel)}: ${result.duplicate_ids.map(escapeHtml).join(", ")}</p>`
+          : "";
+        const rows = (result.examples || []).map((item) =>
+          `<li><code>${escapeHtml(item.external_id || "—")}</code> · ${escapeHtml(item.title || "—")} <span class="badge">${escapeHtml(item.match)}</span></li>`
+        ).join("");
+        preview.innerHTML = `${duplicateNote}<strong>${escapeHtml(importExamplesLabel)}</strong><ul>${rows}</ul>`;
+        preview.hidden = false;
+      } else if (result.matched_by_id + result.matched_by_name > 0) {
+        window.setTimeout(() => window.location.reload(), 900);
+      }
+    } catch (error) {
+      console.error(error);
+      status.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  function escapeHtml(value) {
+    const element = document.createElement("span");
+    element.textContent = String(value);
+    return element.innerHTML;
+  }
+
+  document.querySelectorAll(".manual-match-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = form.querySelector('button[type="submit"]');
+      const status = form.querySelector(".manual-match-status");
+      const values = Object.fromEntries(new FormData(form).entries());
+      values.card_key = form.dataset.cardKey;
+      button.disabled = true;
+      status.textContent = {{ t('matching.saving')|tojson }};
+      try {
+        await postForm(matchImportUrl, values);
+        status.textContent = {{ t('matching.saved')|tojson }};
+        window.setTimeout(() => window.location.reload(), 500);
+      } catch (error) {
+        console.error(error);
+        status.textContent = error.message;
+        button.disabled = false;
+      }
+    });
+  });
+
+  document.querySelectorAll(".card-identifier-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = form.querySelector('button[type="submit"]');
+      const status = form.querySelector(".card-identifier-status");
+      const values = Object.fromEntries(new FormData(form).entries());
+      values.card_key = form.dataset.cardKey;
+      button.disabled = true;
+      status.textContent = {{ t('action.saving')|tojson }};
+      try {
+        await postForm(cardIdentifierUrl, values);
+        status.textContent = {{ t('action.saved')|tojson }};
+        window.setTimeout(() => window.location.reload(), 500);
+      } catch (error) {
+        console.error(error);
+        status.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+
+  const rulesForm = document.querySelector(".translation-rules-form");
+  rulesForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = rulesForm.querySelector('button[type="submit"]');
+    const status = rulesForm.querySelector(".rules-save-status");
+    const values = Object.fromEntries(new FormData(rulesForm).entries());
+    values.language = {{ scenario.target_language|tojson }};
+    button.disabled = true;
+    status.textContent = {{ t('action.saving')|tojson }};
+    try {
+      await postForm(translationRulesUrl, values);
+      status.textContent = {{ t('action.saved')|tojson }};
+    } catch (error) {
+      console.error(error);
+      status.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  document.querySelectorAll(".translate-card-button").forEach((button) => {
+    button.addEventListener("click", async () => {
+      if (button.dataset.provider !== "google" && !confirmLlmReferenceWarning()) return;
+      const card = button.closest(".logical-card");
+      const status = card.querySelector(".translate-card-status");
+      button.disabled = true;
+      status.textContent = translatingLabel;
+      try {
+        const result = await postForm(translateCardUrl, {
+          card_key: card.dataset.recordKey,
+          language: {{ scenario.target_language|tojson }},
+          provider: button.dataset.provider || "translategemma",
+        });
+        const logButton = card.querySelector(".translation-log-button");
+        logButton.translationLog = result.translation_log || [];
+        logButton.hidden = !logButton.translationLog.length;
+        Object.entries(result.sides || {}).forEach(([side, fields]) => {
+          const form = card.querySelector(`.translation-side-form[data-side="${side}"]`);
+          if (!form) return;
+          Object.entries(fields).forEach(([field, value]) => {
+            const control = form.elements.namedItem(field);
+            if (!control || control.value.trim()) return;
+            control.value = Array.isArray(value) ? value.join(", ") : value;
+            control.closest("label")?.classList.add("machine-translation-review");
+          });
+        });
+        status.textContent = result.translated_count ? translatedLabel : nothingToTranslateLabel;
+      } catch (error) {
+        console.error(error);
+        if (error.payload?.review_required) {
+          const logButton = card.querySelector(".translation-log-button");
+          logButton.translationLog = error.payload.translation_log || [];
+          logButton.hidden = !logButton.translationLog.length;
+          pendingTranslationReview = {payload: error.payload, card, status};
+          translationReviewOriginal.value = error.payload.original || "";
+          translationReviewDraft.value = error.payload.draft || "";
+          translationReviewContext.textContent = `${error.payload.side} · ${error.payload.field}`;
+          translationReviewIssues.replaceChildren();
+          const list = document.createElement("ul");
+          (error.payload.issues || []).forEach((issue) => {
+            const item = document.createElement("li");
+            if (issue.type === "missing") {
+              item.textContent = translationReviewMissingLabel.replace("{value}", issue.expected);
+            } else if (issue.type === "duplicate") {
+              item.textContent = translationReviewDuplicateLabel
+                .replace("{value}", issue.expected).replace("{count}", issue.count);
+            } else {
+              item.textContent = translationReviewUnexpectedLabel.replace("{value}", issue.marker);
+            }
+            list.append(item);
+          });
+          translationReviewIssues.append(list);
+          status.textContent = translationFailedLabel;
+          translationReviewDialog.showModal();
+        } else {
+          status.textContent = translationFailedLabel;
+          window.alert(error.message);
+        }
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+
+  document.querySelectorAll(".source-side-form [name]").forEach(control => {
+    control.addEventListener("focus", () => {
+      const form = control.closest(".source-side-form");
+      const card = control.closest(".logical-card");
+      activeExternalTranslation = {
+        card,
+        cardKey: card.dataset.recordKey,
+        side: form.dataset.side,
+        field: control.name,
+        sourceControl: control,
+      };
+    });
+  });
+
+  const externalContextFor = card =>
+    activeExternalTranslation?.card === card ? activeExternalTranslation : null;
+
+  const openGoogleWeb = async card => {
+    const context = externalContextFor(card);
+    if (!context) {
+      window.alert({{ t('translation.google_select_source')|tojson }});
+      return;
+    }
+    const width = Math.max(520, Math.floor(screen.availWidth / 2));
+    const height = screen.availHeight;
+    const left = (screen.availLeft || 0) + Math.max(0, screen.availWidth - width);
+    const freshWindow = window.open(
+      "about:blank", "_blank",
+      `popup=yes,width=${width},height=${height},left=${left},top=${screen.availTop || 0}`,
+    );
+    if (!freshWindow) {
+      window.alert({{ t('translation.google_popup_blocked')|tojson }});
+      return;
+    }
+    let source;
+    try {
+      source = await postForm(externalTranslationSourceUrl, {
+        card_key: context.cardKey,
+        language: {{ scenario.target_language|tojson }},
+        side: context.side,
+        field: context.field,
+      });
+    } catch (error) {
+      freshWindow?.close();
+      window.alert(error.message);
+      return;
+    }
+    const text = source.prepared.trim();
+    if (!text) return;
+    const params = new URLSearchParams({
+      sl: {{ scenario.project.source_language|tojson }},
+      tl: {{ scenario.target_language|tojson }},
+      text,
+      op: "translate",
+    });
+    const url = `https://translate.google.com/?${params}`;
+    freshWindow.location.href = url;
+    freshWindow.focus();
+  };
+
+  const applyClipboardTranslation = async card => {
+    const context = externalContextFor(card);
+    if (!context) {
+      window.alert({{ t('translation.google_select_source')|tojson }});
+      return;
+    }
+    let draft = "";
+    try {
+      draft = await navigator.clipboard.readText();
+    } catch (_) {
+      draft = window.prompt({{ t('translation.google_clipboard_fallback')|tojson }}) || "";
+    }
+    if (!draft.trim()) return;
+    const result = await postForm(externalTranslationUrl, {
+      card_key: context.cardKey,
+      language: {{ scenario.target_language|tojson }},
+      side: context.side,
+      field: context.field,
+      draft,
+    });
+    const targetForm = card.querySelector(`.translation-side-form[data-side="${CSS.escape(context.side)}"]`);
+    const targetControl = targetForm?.elements.namedItem(context.field);
+    if (result.review_required) {
+      const payload = {...result, card_key: context.cardKey, language: {{ scenario.target_language|tojson }}, side: context.side, field: context.field};
+      pendingTranslationReview = {payload, card, status: card.querySelector(".translate-card-status")};
+      translationReviewOriginal.value = result.original || "";
+      translationReviewDraft.value = result.draft || "";
+      translationReviewContext.textContent = `${context.side} · ${context.field}`;
+      translationReviewIssues.replaceChildren();
+      const list = document.createElement("ul");
+      result.issues.forEach(issue => {
+        const item = document.createElement("li");
+        item.textContent = issue.type === "missing"
+          ? translationReviewMissingLabel.replace("{value}", issue.expected)
+          : translationReviewDuplicateLabel.replace("{value}", issue.expected).replace("{count}", issue.count);
+        list.append(item);
+      });
+      translationReviewIssues.append(list);
+      translationReviewDialog.showModal();
+      return;
+    }
+    if (targetControl) {
+      targetControl.value = result.value;
+      targetControl.dispatchEvent(new Event("input", {bubbles: true}));
+    }
+  };
+
+  document.querySelectorAll(".google-web-open-button").forEach(button =>
+    button.addEventListener("click", () => openGoogleWeb(button.closest(".logical-card")))
+  );
+  document.querySelectorAll(".google-web-paste-button").forEach(button =>
+    button.addEventListener("click", () => applyClipboardTranslation(button.closest(".logical-card")))
+  );
+  document.addEventListener("keydown", event => {
+    if (!event.altKey || event.ctrlKey || event.metaKey || event.key.toLowerCase() !== "g") return;
+    const card = activeExternalTranslation?.card;
+    if (!card) return;
+    event.preventDefault();
+    if (event.shiftKey) applyClipboardTranslation(card);
+    else openGoogleWeb(card);
+  });
+
+  document.querySelectorAll(".card-image-button").forEach(button => {
+    button.addEventListener("click", async () => {
+      if (!confirmLlmReferenceWarning()) return;
+      button.disabled = true;
+      const oldLabel = button.textContent;
+      button.textContent = {{ t('translation.card_image_working')|tojson }};
+      try {
+        const result = await postForm(cardImagePreviewUrl, {
+          card_key: button.dataset.cardKey,
+          side: button.dataset.side,
+        });
+        pendingGeminiCard = {button, result};
+        geminiCardJson.value = JSON.stringify({
+          source: result.source,
+          translation: result.translation,
+          metadata: result.metadata,
+          ...(button.dataset.side === "back" ? {standard_back: result.standard_back === true} : {}),
+        }, null, 2);
+        geminiCardDialog.querySelector(".gemini-card-summary").textContent = result.model;
+        geminiCardWarnings.hidden = !result.warnings?.length;
+        geminiCardWarnings.textContent = result.warnings?.length
+          ? JSON.stringify(result.warnings, null, 2) : "";
+        geminiCardDialog.showModal();
+      } catch (error) {
+        window.alert(error.message);
+      } finally {
+        button.disabled = false;
+        button.textContent = oldLabel;
+      }
+    });
+  });
+  document.querySelectorAll(".gemini-prompt-button").forEach(button => {
+    button.addEventListener("click", async () => {
+      if (!confirmLlmReferenceWarning()) return;
+      button.disabled = true;
+      const promptRequest = postForm(cardImagePromptUrl, {
+        card_key: button.dataset.cardKey,
+        side: button.dataset.side,
+      });
+      let imageCopied = true;
+      try {
+        await copyDisplayedCardImage(button);
+      } catch (error) {
+        console.warn("Could not copy card image", error);
+        imageCopied = false;
+      }
+      try {
+        const result = await promptRequest;
+        geminiPromptText.value = result.prompt;
+        geminiPromptDialog.querySelector(".gemini-prompt-help").textContent =
+          (imageCopied
+            ? {{ t('translation.prompt_image_copied')|tojson }}
+            : {{ t('translation.prompt_image_failed')|tojson }}
+          ).replace("{image}", result.image_name);
+        geminiPromptDialog.showModal();
+        requestAnimationFrame(() => {
+          geminiPromptText.focus();
+          geminiPromptText.select();
+        });
+      } catch (error) {
+        window.alert(error.message);
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+  geminiPromptDialog.querySelector(".gemini-prompt-close").addEventListener("click", () => {
+    geminiPromptDialog.close();
+  });
+  geminiPromptDialog.querySelector(".gemini-prompt-copy").addEventListener("click", async event => {
+    geminiPromptText.select();
+    try {
+      await navigator.clipboard.writeText(geminiPromptText.value);
+    } catch (_error) {
+      document.execCommand("copy");
+    }
+    event.currentTarget.textContent = {{ t('translation.prompt_copied')|tojson }};
+    window.setTimeout(() => {
+      event.currentTarget.textContent = {{ t('translation.prompt_copy')|tojson }};
+    }, 1500);
+  });
+  document.querySelectorAll(".llm-json-apply").forEach(button => {
+    button.addEventListener("click", async () => {
+      const container = button.closest(".llm-json-import");
+      const input = container.querySelector(".llm-json-input");
+      const status = container.querySelector(".llm-json-status");
+      const card = button.closest(".logical-card");
+      button.disabled = true;
+      status.textContent = {{ t('action.saving')|tojson }};
+      try {
+        const parsed = parseLlmJson(input.value);
+        await postForm(cardImageApplyUrl, {
+          card_key: button.dataset.cardKey,
+          side: button.dataset.side,
+          result_json: JSON.stringify(parsed),
+        });
+        fillCardFromLlmResult(card, button.dataset.side, parsed);
+        if (button.dataset.side === "back" && parsed.standard_back === true) {
+          const row = button.closest(".card-side-row");
+          if (row) refreshHiddenState(row, true);
+        }
+        status.textContent = {{ t('translation.json_import_saved')|tojson }};
+      } catch (error) {
+        status.textContent = {{ t('translation.json_import_failed')|tojson }} + ": " + error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+  document.querySelectorAll(".llm-json-format-rules").forEach(button => {
+    button.addEventListener("click", async () => {
+      const container = button.closest(".llm-json-import");
+      const status = container.querySelector(".llm-json-status");
+      const row = button.closest(".card-side-row");
+      const sourceRules = row.querySelector('.source-side-form [name="rules"]');
+      const translatedRules = row.querySelector('.translation-side-form [name="rules"]');
+      button.disabled = true;
+      status.textContent = {{ t('translation.format_rules')|tojson }} + "…";
+      try {
+        const parsed = {
+          source: {rules: sourceRules?.value || ""},
+          translation: {rules: translatedRules?.value || ""},
+        };
+        const formatted = await postForm(formatRulesUrl, {
+          result_json: JSON.stringify(parsed),
+        });
+        [[sourceRules, formatted.result.source.rules], [translatedRules, formatted.result.translation.rules]]
+          .forEach(([control, value]) => {
+            if (control && control.value !== value) {
+              control.value = value;
+              control.dispatchEvent(new Event("input", {bubbles: true}));
+            }
+          });
+        status.textContent = {{ t('translation.rules_formatted')|tojson }};
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+  geminiCardDialog.querySelector(".gemini-card-cancel").addEventListener("click", () => {
+    pendingGeminiCard = null;
+    geminiCardDialog.close();
+  });
+  geminiCardDialog.querySelector(".gemini-card-apply").addEventListener("click", async event => {
+    if (!pendingGeminiCard) return;
+    const button = event.currentTarget;
+    button.disabled = true;
+    try {
+      const parsed = JSON.parse(geminiCardJson.value);
+      await postForm(cardImageApplyUrl, {
+        card_key: pendingGeminiCard.button.dataset.cardKey,
+        side: pendingGeminiCard.button.dataset.side,
+        result_json: JSON.stringify(parsed),
+      });
+      const card = pendingGeminiCard.button.closest(".logical-card");
+      fillCardFromLlmResult(card, pendingGeminiCard.button.dataset.side, parsed);
+      if (pendingGeminiCard.button.dataset.side === "back" && parsed.standard_back === true) {
+        const row = pendingGeminiCard.button.closest(".card-side-row");
+        if (row) refreshHiddenState(row, true);
+      }
+      geminiCardDialog.close();
+      pendingGeminiCard = null;
+    } catch (error) {
+      geminiCardWarnings.hidden = false;
+      geminiCardWarnings.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  translationReviewDialog.querySelector(".translation-review-cancel").addEventListener("click", () => {
+    translationReviewDialog.close();
+    pendingTranslationReview = null;
+  });
+
+  translationReviewDialog.querySelector(".translation-review-apply").addEventListener("click", async () => {
+    if (!pendingTranslationReview) return;
+    const {payload, card, status} = pendingTranslationReview;
+    const button = translationReviewDialog.querySelector(".translation-review-apply");
+    button.disabled = true;
+    try {
+      await postForm(cardTextUrl, {
+        card_key: payload.card_key,
+        language: payload.language,
+        side: payload.side,
+        [payload.field]: translationReviewDraft.value,
+      });
+      const form = card.querySelector(`.translation-side-form[data-side="${CSS.escape(payload.side)}"]`);
+      const control = form?.elements.namedItem(payload.field);
+      if (control) {
+        control.value = translationReviewDraft.value;
+        control.closest("label")?.classList.remove("machine-translation-review");
+      }
+      status.textContent = translationReviewSavedLabel;
+      translationReviewDialog.close();
+      pendingTranslationReview = null;
+    } catch (error) {
+      translationReviewIssues.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  document.querySelectorAll(".translation-log-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      translationLogContent.replaceChildren();
+      (button.translationLog || []).forEach((entry) => {
+        const section = document.createElement("section");
+        section.className = "translation-log-entry";
+        const heading = document.createElement("h4");
+        heading.textContent = `${entry.side || ""} · ${entry.field || ""} · ${entry.status || ""}`;
+        section.append(heading);
+        [
+          [{{ t('translation.log_original')|tojson }}, entry.original],
+          [{{ t('translation.log_raw')|tojson }}, entry.raw_translation],
+          [{{ t('translation.log_normalized')|tojson }}, entry.normalized_translation],
+          [{{ t('translation.log_final')|tojson }}, entry.final_translation],
+          [{{ t('translation.log_prompt')|tojson }}, entry.prompt],
+        ].forEach(([label, value]) => {
+          const details = document.createElement("details");
+          if (label !== {{ t('translation.log_prompt')|tojson }}) details.open = true;
+          const summary = document.createElement("summary");
+          summary.textContent = label;
+          const pre = document.createElement("pre");
+          pre.textContent = value || "—";
+          details.append(summary, pre);
+          section.append(details);
+        });
+        if (entry.issues?.length) {
+          const issues = document.createElement("pre");
+          issues.className = "warning-text";
+          issues.textContent = JSON.stringify(entry.issues, null, 2);
+          section.append(issues);
+        }
+        if (entry.warnings?.length) {
+          const warningDetails = document.createElement("details");
+          warningDetails.open = true;
+          const warningSummary = document.createElement("summary");
+          warningSummary.textContent = {{ t('translation.log_warnings')|tojson }};
+          const warnings = document.createElement("pre");
+          warnings.className = "warning-text";
+          warnings.textContent = JSON.stringify(entry.warnings, null, 2);
+          warningDetails.append(warningSummary, warnings);
+          section.append(warningDetails);
+        }
+        translationLogContent.append(section);
+      });
+      translationLogDialog.showModal();
+    });
+  });
+  translationLogDialog.querySelector(".translation-log-close").addEventListener("click", () => translationLogDialog.close());
+
+  function fitRotatedImage(image) {
+    const stage = image.closest(".card-image-stage");
+    if (!stage || !image.naturalWidth || !image.naturalHeight) return;
+
+    const rotation = Number(image.dataset.rotation || 0) % 360;
+    const quarterTurn = Math.abs(rotation) % 180 === 90;
+    const sourceWidth = image.naturalWidth;
+    const sourceHeight = image.naturalHeight;
+    const rotatedWidth = quarterTurn ? sourceHeight : sourceWidth;
+    const rotatedHeight = quarterTurn ? sourceWidth : sourceHeight;
+    stage.style.aspectRatio = `${rotatedWidth} / ${rotatedHeight}`;
+    const availableWidth = stage.clientWidth;
+    const availableHeight = stage.clientHeight;
+    const scale = Math.min(availableWidth / rotatedWidth, availableHeight / rotatedHeight);
+
+    image.style.width = `${sourceWidth * scale}px`;
+    image.style.height = `${sourceHeight * scale}px`;
+    image.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+  }
+
+  if ("ResizeObserver" in window) {
+    const imageResizeObserver = new ResizeObserver((entries) => {
+      entries.forEach((entry) => {
+        const image = entry.target.querySelector(".card-image");
+        if (image) fitRotatedImage(image);
+      });
+    });
+    document.querySelectorAll(".card-side-row .card-image-stage").forEach((stage) => {
+      imageResizeObserver.observe(stage);
+    });
+  }
+
+  function refreshHiddenState(row, hidden) {
+    row.classList.toggle("is-hidden", hidden);
+    row.querySelectorAll(".hidden-button").forEach((button) => {
+      button.textContent = hidden ? showLabel : ignoreLabel;
+    });
+
+    if (row.dataset.side === "back") {
+      const card = row.closest(".logical-card");
+      let note = card.querySelector(".card-back-hidden-note");
+      if (hidden && !note) {
+        note = document.createElement("p");
+        note.className = "card-back-hidden-note";
+        note.textContent = backHiddenLabel;
+        card.querySelector(".logical-card-header h3").insertAdjacentElement("afterend", note);
+      } else if (!hidden && note) {
+        note.remove();
+      }
+    }
+  }
+
+  document.querySelectorAll(".card-side-row[data-image-name]").forEach((row) => {
+    const imageName = row.dataset.imageName;
+    const image = row.querySelector(".card-image");
+    let rotation = Number(image.dataset.rotation || 0);
+    let hidden = row.classList.contains("is-hidden");
+
+    if (image.complete) fitRotatedImage(image);
+    image.addEventListener("load", () => fitRotatedImage(image));
+
+    row.querySelectorAll(".rotate-button").forEach((button) => {
+      button.addEventListener("click", async () => {
+        rotation = ((rotation + Number(button.dataset.delta)) % 360 + 360) % 360;
+        image.dataset.rotation = String(rotation);
+        fitRotatedImage(image);
+        try {
+          await postForm(imageMetaUrl, {image_name: imageName, display_rotation: rotation});
+        } catch (error) {
+          console.error(error);
+        }
+      });
+    });
+
+    row.querySelectorAll(".hidden-button").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const nextHidden = !hidden;
+        try {
+          await postForm(imageMetaUrl, {image_name: imageName, hidden: nextHidden});
+          hidden = nextHidden;
+          refreshHiddenState(row, hidden);
+          if (!hidden) requestAnimationFrame(() => fitRotatedImage(image));
+        } catch (error) {
+          console.error(error);
+        }
+      });
+    });
+  });
+
+  document.querySelectorAll(".card-metadata-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const status = form.querySelector(".card-metadata-status");
+      const values = Object.fromEntries(new FormData(form).entries());
+      values.card_key = form.dataset.cardKey;
+      values.side = form.dataset.side;
+      status.textContent = {{ t('action.saving')|tojson }};
+      const saveRevision = beginFormSave(form);
+      let saved = false;
+      try {
+        const result = await postForm(cardGameFieldsUrl, values);
+        {% if not scenario.source_only %}markSourceProposalAvailable(form.closest(".logical-card"), form.dataset.side, result.pending_fields || [], true, result.proposal_count);{% endif %}
+        status.textContent = {{ t('action.saved')|tojson }};
+        saved = true;
+      } catch (error) {
+        console.error(error);
+        status.textContent = error.message;
+      } finally {
+        finishFormSave(form, saveRevision, saved);
+      }
+    });
+  });
+
+  function setOcrHint(card, message) {
+    let hint = card.querySelector(".ocr-mode-hint");
+    if (!hint) {
+      hint = document.createElement("span");
+      hint.className = "ocr-mode-hint";
+      card.querySelector(".logical-card-meta").append(hint);
+    }
+    hint.textContent = message;
+  }
+
+  document.querySelectorAll(".logical-card").forEach((card) => {
+    const toggle = card.querySelector(".ocr-mode-switch");
+    let activeTarget = null;
+
+    toggle.addEventListener("change", () => {
+      card.classList.toggle("ocr-mode", toggle.checked);
+      if (!toggle.checked) {
+        activeTarget?.classList.remove("is-ocr-target");
+        activeTarget = null;
+        card.querySelectorAll(".ocr-selection").forEach((selection) => selection.removeAttribute("style"));
+        setOcrHint(card, "");
+      } else {
+        setOcrHint(card, ocrSelectFieldLabel);
+      }
+    });
+
+    card.querySelectorAll(".ocr-target").forEach((target) => {
+      target.addEventListener("click", () => {
+        if (!toggle.checked) return;
+        activeTarget?.classList.remove("is-ocr-target");
+        activeTarget = target;
+        target.classList.add("is-ocr-target");
+        setOcrHint(card, ocrDrawRegionLabel);
+      });
+    });
+
+    card.querySelectorAll(".card-image-stage").forEach((stage) => {
+      let drag = null;
+
+      function updateSelection(clientX, clientY) {
+        if (!drag) return;
+        const currentX = Math.max(drag.imageRect.left, Math.min(clientX, drag.imageRect.right));
+        const currentY = Math.max(drag.imageRect.top, Math.min(clientY, drag.imageRect.bottom));
+        const left = Math.min(drag.startX, currentX) - drag.stageRect.left;
+        const top = Math.min(drag.startY, currentY) - drag.stageRect.top;
+        drag.selection.style.cssText = `display:block;left:${left}px;top:${top}px;width:${Math.abs(currentX - drag.startX)}px;height:${Math.abs(currentY - drag.startY)}px`;
+      }
+
+      stage.addEventListener("pointerdown", (event) => {
+        if (!toggle.checked || !activeTarget) return;
+        const row = stage.closest(".card-side-row");
+        if (activeTarget.closest(".card-side-row") !== row) return;
+        const image = stage.querySelector(".card-image");
+        const imageRect = image.getBoundingClientRect();
+        if (event.clientX < imageRect.left || event.clientX > imageRect.right || event.clientY < imageRect.top || event.clientY > imageRect.bottom) return;
+        event.preventDefault();
+        stage.setPointerCapture(event.pointerId);
+        drag = {
+          startX: event.clientX,
+          startY: event.clientY,
+          imageRect,
+          stageRect: stage.getBoundingClientRect(),
+          selection: stage.querySelector(".ocr-selection"),
+          pointerId: event.pointerId,
+        };
+        updateSelection(event.clientX, event.clientY);
+      });
+
+      stage.addEventListener("pointermove", (event) => {
+        if (drag && event.pointerId === drag.pointerId) updateSelection(event.clientX, event.clientY);
+      });
+
+      stage.addEventListener("pointerup", async (event) => {
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        updateSelection(event.clientX, event.clientY);
+        const current = drag;
+        drag = null;
+        const endX = Math.max(current.imageRect.left, Math.min(event.clientX, current.imageRect.right));
+        const endY = Math.max(current.imageRect.top, Math.min(event.clientY, current.imageRect.bottom));
+        const region = {
+          x: (Math.min(current.startX, endX) - current.imageRect.left) / current.imageRect.width,
+          y: (Math.min(current.startY, endY) - current.imageRect.top) / current.imageRect.height,
+          width: Math.abs(endX - current.startX) / current.imageRect.width,
+          height: Math.abs(endY - current.startY) / current.imageRect.height,
+        };
+        if (region.width < .01 || region.height < .01) {
+          current.selection.removeAttribute("style");
+          return;
+        }
+
+        const row = stage.closest(".card-side-row");
+        const image = stage.querySelector(".card-image");
+        const selectedTarget = activeTarget;
+        const context = {
+          card_key: card.dataset.cardKey,
+          image_name: row.dataset.imageName,
+          side: row.dataset.side,
+          field: selectedTarget.dataset.ocrField,
+          language: selectedTarget.dataset.ocrLanguage,
+          rotation: Number(image.dataset.rotation || 0),
+          ...region,
+        };
+        setOcrHint(card, ocrRecognizingLabel);
+        current.selection.classList.add("is-busy");
+        try {
+          const result = await postForm(ocrRegionUrl, context);
+          pendingOcr = {...context, raw_text: result.text, confidence: result.confidence, target: selectedTarget, selection: current.selection, card};
+          ocrPreview.value = result.text;
+          ocrConfidence.textContent = result.confidence == null ? "" : `${ocrConfidenceLabel}: ${Math.round(result.confidence * 100)}%`;
+          ocrDialogImage.src = image.currentSrc || image.src;
+          ocrDialogImage.dataset.rotation = String(context.rotation);
+          ocrDialog.showModal();
+          requestAnimationFrame(fitOcrDialogImage);
+        } catch (error) {
+          console.error(error);
+          current.selection.removeAttribute("style");
+          window.alert(ocrFailedLabel);
+        } finally {
+          current.selection.classList.remove("is-busy");
+          setOcrHint(card, ocrDrawRegionLabel);
+        }
+      });
+
+      stage.addEventListener("pointercancel", () => {
+        drag?.selection.removeAttribute("style");
+        drag = null;
+      });
+    });
+  });
+
+  ocrDialog.querySelector(".ocr-cancel").addEventListener("click", () => {
+    pendingOcr?.selection.removeAttribute("style");
+    pendingOcr = null;
+    ocrDialog.close();
+  });
+  ocrDialog.addEventListener("cancel", () => {
+    pendingOcr?.selection.removeAttribute("style");
+    pendingOcr = null;
+  });
+
+  ocrDialog.querySelector(".ocr-apply").addEventListener("click", async (event) => {
+    if (!pendingOcr) return;
+    const button = event.currentTarget;
+    button.disabled = true;
+    try {
+      const {target, selection, card, ...values} = pendingOcr;
+      await postForm(ocrApplyUrl, {...values, value: ocrPreview.value});
+      pendingOcr.target.querySelector("input, textarea").value = ocrPreview.value.trim();
+      pendingOcr.target.querySelector(".review-warning")?.remove();
+      pendingOcr.selection.removeAttribute("style");
+      ocrDialog.close();
+      pendingOcr = null;
+    } catch (error) {
+      console.error(error);
+      window.alert(ocrFailedLabel);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  document.querySelectorAll(".translation-side-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const values = Object.fromEntries(new FormData(form).entries());
+      values.card_key = form.dataset.cardKey;
+      values.side = form.dataset.side;
+      values.language = {{ scenario.target_language|tojson }};
+      const saveRevision = beginFormSave(form);
+      let saved = false;
+      try {
+        await postForm(cardTextUrl, values);
+        form.querySelectorAll(".machine-translation-review").forEach((label) => label.classList.remove("machine-translation-review"));
+        saved = true;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        finishFormSave(form, saveRevision, saved);
+      }
+    });
+  });
+
+  document.querySelectorAll(".source-side-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const values = Object.fromEntries(new FormData(form).entries());
+      values.card_key = form.dataset.cardKey;
+      values.side = form.dataset.side;
+      const saveRevision = beginFormSave(form);
+      let saved = false;
+      try {
+        const result = await postForm(sourceCardTextUrl, values);
+        {% if not scenario.source_only %}markSourceProposalAvailable(form.closest(".logical-card"), form.dataset.side, result.pending_fields || [], true, result.proposal_count);{% endif %}
+        form.querySelectorAll(".review-warning").forEach((warning) => warning.remove());
+        const targetForm = form.parentElement.querySelector(
+          `.translation-side-form[data-side="${CSS.escape(form.dataset.side)}"]`
+        );
+        (result.changed_fields || []).forEach((field) => {
+          targetForm?.elements.namedItem(field)?.closest("label")?.classList.add("machine-translation-review");
+        });
+        saved = true;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        finishFormSave(form, saveRevision, saved);
+      }
+    });
+  });
+
+  const autosaveTimers = new WeakMap();
+
+  const symbolMenu = document.createElement("div");
+  symbolMenu.className = "symbol-autocomplete";
+  symbolMenu.hidden = true;
+  symbolMenu.setAttribute("role", "listbox");
+  document.body.append(symbolMenu);
+  let symbolTarget = null;
+  let symbolStart = -1;
+  let symbolMatches = [];
+  let symbolSelection = 0;
+
+  const closeSymbolMenu = () => {
+    symbolMenu.hidden = true;
+    symbolMenu.replaceChildren();
+    symbolTarget = null;
+    symbolStart = -1;
+    symbolMatches = [];
+    delete symbolMenu.dataset.side;
+  };
+  const positionSymbolMenu = control => {
+    const rect = control.getBoundingClientRect();
+    const below = window.innerHeight - rect.bottom;
+    symbolMenu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - 346)) + window.scrollX}px`;
+    symbolMenu.dataset.side ||= below >= 285 ? "below" : "above";
+    symbolMenu.style.top = `${(symbolMenu.dataset.side === "below" ? rect.bottom + 5 : Math.max(8, rect.top - 285)) + window.scrollY}px`;
+  };
+  const chooseSymbol = index => {
+    const choice = symbolMatches[index];
+    if (!choice || !symbolTarget) return;
+    const end = symbolTarget.selectionStart;
+    symbolTarget.setRangeText(choice.token, symbolStart, end, "end");
+    symbolTarget.dispatchEvent(new Event("input", {bubbles: true}));
+    symbolTarget.focus();
+    closeSymbolMenu();
+  };
+  const renderSymbolMenu = () => {
+    const previousScroll = symbolMenu.scrollTop;
+    symbolMenu.replaceChildren();
+    symbolMatches.forEach((symbol, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `symbol-autocomplete-item${index === symbolSelection ? " is-active" : ""}`;
+      button.setAttribute("role", "option");
+      button.setAttribute("aria-selected", String(index === symbolSelection));
+      const icon = document.createElement(symbol.image ? "img" : "span");
+      if (symbol.image) {
+        icon.className = "symbol-autocomplete-image";
+        icon.src = symbol.image;
+        icon.alt = "";
+      } else {
+        icon.className = "symbol-autocomplete-icon";
+        icon.textContent = symbol.glyph;
+      }
+      const token = document.createElement("span");
+      token.className = "symbol-autocomplete-token";
+      token.textContent = symbol.token;
+      button.append(icon, token);
+      button.addEventListener("mousedown", event => event.preventDefault());
+      button.addEventListener("click", () => chooseSymbol(index));
+      symbolMenu.append(button);
+    });
+    symbolMenu.hidden = !symbolMatches.length;
+    if (!symbolMenu.hidden) {
+      positionSymbolMenu(symbolTarget);
+      symbolMenu.scrollTop = previousScroll;
+    }
+  };
+  const updateSymbolMenu = control => {
+    const cursor = control.selectionStart;
+    if (cursor === null) return closeSymbolMenu();
+    const before = control.value.slice(0, cursor);
+    const match = before.match(/\{([a-z0-9_+\-]*)$/i);
+    if (!match) return closeSymbolMenu();
+    const query = match[1].toLowerCase();
+    symbolTarget = control;
+    symbolStart = cursor - match[0].length;
+    const isChaos = normalizeCardType(control.closest(".logical-card")?.dataset.cardType) === "chaos";
+    const inlineSymbols = isChaos
+      ? symbolTokens.filter(symbol => !["auto_fail", "blessing"].includes(symbol.name))
+      : symbolTokens;
+    const available = isChaos
+      ? [...new Map([...inlineSymbols, ...chaosSymbolTokens].map(symbol => [symbol.name, symbol])).values()]
+      : symbolTokens;
+    symbolMatches = available.filter(symbol => symbol.name.includes(query));
+    symbolSelection = 0;
+    renderSymbolMenu();
+  };
+  document.querySelectorAll(".source-side-form input, .source-side-form textarea, .translation-side-form input, .translation-side-form textarea").forEach(control => {
+    control.addEventListener("input", () => updateSymbolMenu(control));
+    control.addEventListener("click", () => updateSymbolMenu(control));
+    control.addEventListener("keydown", event => {
+      if (symbolMenu.hidden || symbolTarget !== control) return;
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const direction = event.key === "ArrowDown" ? 1 : -1;
+        symbolSelection = (symbolSelection + direction + symbolMatches.length) % symbolMatches.length;
+        renderSymbolMenu();
+        const selected = symbolMenu.children[symbolSelection];
+        if (selected) {
+          if (selected.offsetTop < symbolMenu.scrollTop) symbolMenu.scrollTop = selected.offsetTop;
+          const selectedBottom = selected.offsetTop + selected.offsetHeight;
+          if (selectedBottom > symbolMenu.scrollTop + symbolMenu.clientHeight) {
+            symbolMenu.scrollTop = selectedBottom - symbolMenu.clientHeight;
+          }
+        }
+      } else if (event.key === "Enter" || event.key === "Tab") {
+        event.preventDefault();
+        chooseSymbol(symbolSelection);
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        closeSymbolMenu();
+      }
+    });
+    control.addEventListener("blur", () => window.setTimeout(() => {
+      if (document.activeElement?.closest?.(".symbol-autocomplete") !== symbolMenu) closeSymbolMenu();
+    }, 0));
+  });
+  window.addEventListener("resize", closeSymbolMenu);
+  window.addEventListener("scroll", event => {
+    if (!symbolMenu.contains(event.target)) closeSymbolMenu();
+  }, true);
+
+  {% if scenario.game == 'ah' %}
+  const textHistories = new WeakMap();
+  const textSnapshot = control => ({
+    value: control.value,
+    start: control.selectionStart,
+    end: control.selectionEnd,
+  });
+  const rememberTextSelection = (control, breakTypingGroup = false) => {
+    const history = textHistories.get(control);
+    if (!history) return;
+    const current = history.entries[history.index];
+    current.start = control.selectionStart;
+    current.end = control.selectionEnd;
+    if (breakTypingGroup) history.lastInputType = "";
+  };
+  const recordTextEdit = (control, event) => {
+    const history = textHistories.get(control);
+    if (!history || history.restoring) return;
+    const current = history.entries[history.index];
+    if (current.value === control.value) return;
+    const now = Date.now();
+    const inputType = event.inputType || "";
+    const groupedType = ["insertText", "deleteContentBackward", "deleteContentForward"].includes(inputType);
+    const canGroup = groupedType && history.lastInputType === inputType
+      && now - history.lastInputAt < 700 && history.index === history.entries.length - 1;
+    const next = textSnapshot(control);
+    if (canGroup) {
+      history.entries[history.index] = next;
+    } else {
+      history.entries.splice(history.index + 1);
+      history.entries.push(next);
+      history.index += 1;
+      if (history.entries.length > 100) {
+        history.entries.shift();
+        history.index -= 1;
+      }
+    }
+    history.lastInputType = groupedType ? inputType : "";
+    history.lastInputAt = now;
+  };
+  const stepTextHistory = (control, direction) => {
+    const history = textHistories.get(control);
+    if (!history) return;
+    const nextIndex = history.index + direction;
+    if (nextIndex < 0 || nextIndex >= history.entries.length) return;
+    history.index = nextIndex;
+    history.lastInputType = "";
+    const snapshot = history.entries[nextIndex];
+    history.restoring = true;
+    try {
+      control.value = snapshot.value;
+      control.setSelectionRange(snapshot.start, snapshot.end);
+      control.dispatchEvent(new Event("input", {bubbles: true}));
+    } finally {
+      history.restoring = false;
+      closeMarkupMenu();
+    }
+  };
+  const markupOptions = [
+    ["b", {{ t('translation.markup_bold')|tojson }}],
+    ["i", {{ t('translation.markup_italic')|tojson }}],
+    ["bi", {{ t('translation.markup_bold_italic')|tojson }}],
+    ["blockquote", {{ t('translation.markup_blockquote')|tojson }}],
+  ];
+  const markupMenu = document.createElement("div");
+  markupMenu.className = "markup-selection-menu";
+  markupMenu.hidden = true;
+  markupMenu.setAttribute("role", "toolbar");
+  markupMenu.setAttribute("aria-label", {{ t('translation.markup_menu')|tojson }});
+  document.body.append(markupMenu);
+  let markupTarget = null;
+  let markupStart = 0;
+  let markupEnd = 0;
+  const closeMarkupMenu = () => {
+    markupMenu.hidden = true;
+    markupTarget = null;
+  };
+  const positionMarkupMenu = control => {
+    const rect = control.getBoundingClientRect();
+    const top = rect.bottom + markupMenu.offsetHeight + 6 <= window.innerHeight
+      ? rect.bottom + 6
+      : Math.max(8, rect.top - markupMenu.offsetHeight - 6);
+    markupMenu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - markupMenu.offsetWidth - 8))}px`;
+    markupMenu.style.top = `${top}px`;
+  };
+  const updateMarkupMenu = control => {
+    const start = control.selectionStart;
+    const end = control.selectionEnd;
+    if (document.activeElement !== control || start === end || !control.value.slice(start, end).trim()) {
+      closeMarkupMenu();
+      return;
+    }
+    closeSymbolMenu();
+    markupTarget = control;
+    markupStart = start;
+    markupEnd = end;
+    markupMenu.hidden = false;
+    positionMarkupMenu(control);
+  };
+  markupOptions.forEach(([tag, label]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.addEventListener("mousedown", event => event.preventDefault());
+    button.addEventListener("click", () => {
+      if (!markupTarget) return;
+      const control = markupTarget;
+      const selected = control.value.slice(markupStart, markupEnd);
+      const history = textHistories.get(control);
+      if (history) {
+        history.entries[history.index].start = markupStart;
+        history.entries[history.index].end = markupEnd;
+      }
+      control.setRangeText(`<${tag}>${selected}</${tag}>`, markupStart, markupEnd, "end");
+      closeMarkupMenu();
+      control.focus();
+      control.dispatchEvent(new Event("input", {bubbles: true}));
+    });
+    markupMenu.append(button);
+  });
+  document.querySelectorAll(
+    '.source-side-form textarea[name="rules"], .source-side-form textarea[name="flavor"], '
+    + '.translation-side-form textarea[name="rules"], .translation-side-form textarea[name="flavor"]'
+  ).forEach(control => {
+    textHistories.set(control, {
+      entries: [textSnapshot(control)], index: 0, lastInputType: "", lastInputAt: 0,
+      restoring: false,
+    });
+    control.addEventListener("llm-sync", () => {
+      textHistories.set(control, {
+        entries: [textSnapshot(control)], index: 0, lastInputType: "", lastInputAt: 0,
+        restoring: false,
+      });
+    });
+    ["select", "mouseup"].forEach(type => {
+      control.addEventListener(type, () => {
+        rememberTextSelection(control, true);
+        updateMarkupMenu(control);
+      });
+    });
+    control.addEventListener("keyup", event => {
+      if (event.key !== "Escape" && !event.ctrlKey && !event.metaKey) {
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+          rememberTextSelection(control, true);
+        }
+        updateMarkupMenu(control);
+      }
+    });
+    control.addEventListener("input", event => {
+      recordTextEdit(control, event);
+      updateMarkupMenu(control);
+    });
+    control.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeMarkupMenu();
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      const key = event.key.toLowerCase();
+      if (key === "z" || key === "y") {
+        event.preventDefault();
+        stepTextHistory(control, key === "y" || event.shiftKey ? 1 : -1);
+      }
+    });
+    control.addEventListener("blur", () => window.setTimeout(() => {
+      if (!markupMenu.contains(document.activeElement)) closeMarkupMenu();
+    }, 0));
+  });
+  document.addEventListener("mousedown", event => {
+    if (!markupMenu.contains(event.target) && event.target !== markupTarget) closeMarkupMenu();
+  });
+  window.addEventListener("resize", closeMarkupMenu);
+  window.addEventListener("scroll", closeMarkupMenu, true);
+  {% endif %}
+
+  document.querySelectorAll(
+    ".card-metadata-form, .source-side-form, .translation-side-form"
+  ).forEach(form => {
+    const scheduleAutosave = delay => {
+      window.clearTimeout(autosaveTimers.get(form));
+      autosaveTimers.set(form, window.setTimeout(() => form.requestSubmit(), delay));
+    };
+    form.addEventListener("input", () => {
+      markFormDirty(form);
+      scheduleAutosave(900);
+    });
+    form.addEventListener("change", () => {
+      markFormDirty(form);
+      scheduleAutosave(150);
+    });
+  });
+
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      document.querySelectorAll(".card-side-row:not(.is-hidden) .card-image").forEach(fitRotatedImage);
+      fitOcrDialogImage();
+    }, 80);
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

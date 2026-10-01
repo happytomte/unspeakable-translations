@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+{% block title %}{{ t('project.contribution_preview_title') }} · {{ scenario.title }}{% endblock %}
+{% block content %}
+<a class="back-link" href="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}">← {{ scenario.title }}</a>
+
+{% if project_published %}<div class="settings-message settings-message-ok" role="status">{{ t('project.source_published') if scenario.source_only else t('project.published') }}</div>{% endif %}
+
+<section class="scenario-header contribution-preview-header">
+  <div>
+    <p class="eyebrow">{{ t('project.contribution_eyebrow') }}</p>
+    <h1>{{ t('project.contribution_preview_title') }}</h1>
+    <p class="muted">{{ t('project.contribution_preview_help') }}</p>
+  </div>
+  {% if preview.private_only %}
+  <button type="button" disabled>{{ t('project.publish_blocked') }}</button>
+  {% elif preview.file_count %}
+  <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/publish" onsubmit="return confirm({{ (t('project.publish_source_confirm') if scenario.source_only else t('project.publish_confirm'))|tojson }});">
+    <button type="submit">
+      {% if scenario.source_only %}{{ t('project.update_source_publication') if preview.published else t('project.publish_source') }}{% else %}{{ t('project.update_publication') if preview.published else t('project.publish') }}{% endif %}
+    </button>
+  </form>
+  {% elif preview.ready_for_pull_request %}
+  <a class="button-link" href="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/pull-request">{{ t('project.create_pull_request') }}</a>
+  {% else %}
+  <button type="button" disabled>{{ t('project.publish') }}</button>
+  {% endif %}
+</section>
+
+{% if preview.private_only %}
+<section class="panel publish-success-panel private-only-panel">
+  <div>
+    <p class="eyebrow">{{ t('project.contribution_eyebrow') }}</p>
+    <h2>{{ t('project.private_only_active_title') }}</h2>
+    <p class="muted">{{ t('project.private_only_active_help') }}</p>
+  </div>
+  <span class="badge badge-private">{{ t('project.private_only_badge') }}</span>
+</section>
+{% elif preview.ready_for_pull_request %}
+<section class="panel publish-success-panel">
+  <div>
+    {% if preview.file_count %}
+    <p class="eyebrow">{{ t('project.repository_ready_eyebrow') }}</p>
+    <h2>{{ t('project.repository_changes_waiting_title') }}</h2>
+    <p class="muted">{{ t('project.repository_changes_waiting_help', card_count=preview.repository_changed_card_count, file_count=preview.repository_changed_file_count, local_count=preview.file_count) }}</p>
+    {% else %}
+    <p class="eyebrow">{{ t('project.next_step') }}</p>
+    <h2>{{ t('project.pull_request_ready_title') }}</h2>
+    <p class="muted">{{ t('project.pull_request_ready_help', card_count=preview.repository_changed_card_count, file_count=preview.repository_changed_file_count) }}</p>
+    {% endif %}
+  </div>
+  <span class="badge badge-ready">{{ t('project.ready_for_pull_request') }}</span>
+</section>
+{% endif %}
+
+{% if preview.missing_document_count %}
+<section class="panel publish-success-panel document-incomplete-panel">
+  <div>
+    <p class="eyebrow">{{ t('documents.eyebrow') }}</p>
+    <h2>{{ t('documents.incomplete_title') }}</h2>
+    <p class="muted">{{ t('documents.incomplete_help', count=preview.missing_document_count) }}</p>
+    <ul>{% for document in preview.missing_document_translations %}<li>{{ t('documents.campaign') if document.level == 'campaign' else t('documents.scenario') }} · {{ document.name }}</li>{% endfor %}</ul>
+  </div>
+</section>
+{% endif %}
+
+<section class="panel contribution-preview-notes" hidden>
+  <p class="eyebrow">{{ t('project.preview_notes_title') }}</p>
+  <p class="muted">{{ t('project.preview_notes_help') }}</p>
+  <div class="contribution-preview-note-list"></div>
+</section>
+
+<section class="contribution-preview-local-heading">
+  <p class="eyebrow">{{ t('project.unpublished_changes_eyebrow') }}</p>
+  <h2>{{ t('project.unpublished_changes_title') }}</h2>
+  <p class="muted">{{ t('project.unpublished_changes_help') }}</p>
+</section>
+
+<section class="stats-row contribution-preview-stats">
+  <div class="stat"><span>{{ t('project.preview_files') }}</span><strong>{{ preview.file_count }}</strong></div>
+  <div class="stat"><span>{{ t('project.preview_added') }}</span><strong>{{ preview.added_count }}</strong></div>
+  <div class="stat"><span>{{ t('project.preview_modified') }}</span><strong>{{ preview.modified_count }}</strong></div>
+  <div class="stat"><span>{{ t('project.preview_deleted') }}</span><strong>{{ preview.deleted_count }}</strong></div>
+</section>
+
+{% if preview.deleted_count %}
+<div class="settings-message settings-message-warning" role="status">{{ t('project.preview_deletion_warning', count=preview.deleted_count) }}</div>
+{% endif %}
+
+<section class="panel contribution-preview-section">
+  <p class="eyebrow">{{ t('project.local_changed_cards') }}</p>
+  <h2>{{ preview.cards|length }} {{ t('project.preview_local_cards') }}</h2>
+  {% if preview.cards %}
+  <div class="contribution-card-list">
+    {% for card in preview.cards %}
+    <details id="diff-{{ card.editor_anchor }}" class="contribution-card-diff" data-card-key="{{ card.key }}" {% if loop.first %}open{% endif %}>
+      <summary>
+        <span class="contribution-card-identity">
+          {% if card.images %}<img src="{{ card.images[0].url }}" alt="" loading="lazy">{% endif %}
+          <span><strong>{{ card.display_name }}</strong><code>{{ card.key }}</code></span>
+        </span>
+        <span class="contribution-card-badges">
+          <span class="badge badge-warn contribution-note-badge" hidden>{{ t('cards.has_notes') }}</span>
+          <span class="badge">{{ t('project.preview_' ~ card.change_type) }}</span>
+          {% if card.base_changed %}<span class="badge">{{ t('project.preview_base') }}</span>{% endif %}
+          {% if card.translation_changed %}<span class="badge badge-changed">{{ t('project.preview_translation') }}</span>{% endif %}
+        </span>
+      </summary>
+      <div class="contribution-card-body">
+        <div class="contribution-card-actions">
+          <a class="button-secondary contribution-open-card" href="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}#{{ card.editor_anchor }}">{{ t('project.preview_open_card') }}</a>
+          <button type="button" class="button-secondary contribution-edit-card">{{ t('project.preview_edit_inline') }}</button>
+          <button type="button" class="contribution-save-card" hidden>{{ t('project.preview_save_changes') }}</button>
+          <button type="button" class="button-secondary contribution-cancel-card" hidden>{{ t('action.cancel') }}</button>
+          <span class="small contribution-edit-status" role="status"></span>
+        </div>
+        <aside class="contribution-card-note" hidden>
+          <strong>{{ t('project.preview_card_note') }}</strong>
+          <p></p>
+        </aside>
+        <div class="contribution-review-layout{% if not card.images %} without-images{% endif %}">
+          {% if card.images %}
+          <aside class="contribution-card-images">
+            {% for image in card.images %}
+            <figure>
+              <div class="contribution-review-image-stage"><img src="{{ image.url }}" alt="{{ card.display_name }} · {{ image.side }}" loading="lazy" data-rotation="{{ image.rotation }}"></div>
+              <div class="contribution-image-actions">
+                <button type="button" class="button-secondary contribution-rotate-image" data-delta="-90" aria-label="{{ t('project.preview_rotate_left') }}">↶ 90°</button>
+                <button type="button" class="button-secondary contribution-rotate-image" data-delta="90" aria-label="{{ t('project.preview_rotate_right') }}">↷ 90°</button>
+              </div>
+              <div class="card-width-resizer" role="separator" tabindex="0" aria-label="{{ t('cards.resize_image') }}" data-min-width="160" data-max-width="620">↔ {{ t('cards.resize_image') }}</div>
+              <figcaption>{{ t('project.preview_' ~ image.side) }}</figcaption>
+            </figure>
+            {% endfor %}
+          </aside>
+          {% endif %}
+          <div class="contribution-card-diff-content">
+          {% if card.fields %}
+          <p class="small muted contribution-diff-legend">{{ t('project.preview_empty_value_help') }}</p>
+          <div class="contribution-card-table-wrap">
+          <table class="contribution-card-table">
+            <thead>
+              <tr>
+                <th>{{ t('project.preview_field') }}</th>
+                <th>{{ t('project.preview_published_source') }}</th>
+                <th>{{ t('project.preview_local_source') }}</th>
+                {% if not scenario.source_only %}<th>{{ t('project.preview_published_translation') }}</th><th>{{ t('project.preview_local_translation') }}</th>{% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for field in card.fields %}
+              <tr>
+                <th><span>{{ field.label }}</span><code>{{ field.path }}</code></th>
+                <td class="diff-value{% if field.source_changed %} is-before{% endif %}"><span class="diff-rendered-value">{{ field.published_source }}</span></td>
+                <td class="diff-value{% if field.source_changed %} is-after{% endif %}">
+                  <span class="diff-current-value diff-rendered-value">{{ field.local_source }}</span>
+                  {% if field.source_editable %}
+                    {% if field.editor_multiline %}<textarea class="contribution-field-editor" data-scope="source" data-path="{{ field.path }}" data-original="{{ field.local_source_edit_value }}" rows="4" hidden>{{ field.local_source_edit_value }}</textarea>{% else %}<input class="contribution-field-editor" data-scope="source" data-path="{{ field.path }}" data-original="{{ field.local_source_edit_value }}" value="{{ field.local_source_edit_value }}" hidden>{% endif %}
+                  {% endif %}
+                </td>
+                {% if not scenario.source_only %}
+                <td class="diff-value{% if field.translation_changed %} is-before{% endif %}"><span class="diff-rendered-value">{{ field.published_translation }}</span></td>
+                <td class="diff-value{% if field.translation_changed %} is-after{% endif %}">
+                  <span class="diff-current-value diff-rendered-value">{{ field.local_translation }}</span>
+                  {% if field.translation_editable %}
+                    {% if field.editor_multiline %}<textarea class="contribution-field-editor" data-scope="translation" data-path="{{ field.path }}" data-original="{{ field.local_translation_edit_value }}" rows="4" hidden>{{ field.local_translation_edit_value }}</textarea>{% else %}<input class="contribution-field-editor" data-scope="translation" data-path="{{ field.path }}" data-original="{{ field.local_translation_edit_value }}" value="{{ field.local_translation_edit_value }}" hidden>{% endif %}
+                  {% endif %}
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+          {% else %}
+          <p class="muted">{{ t('project.preview_only_review_metadata') }}</p>
+          {% endif %}
+          </div>
+        </div>
+      </div>
+    </details>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="muted">{{ t('project.preview_no_local_changed_cards') }}</p>
+  {% endif %}
+</section>
+
+<section class="panel contribution-preview-section">
+  <p class="eyebrow">{{ t('project.preview_files') }}</p>
+  <h2>{{ t('project.unpublished_file_changes') }}</h2>
+  {% if preview.files %}
+  <div class="contribution-file-table-wrap">
+    <table class="contribution-file-table">
+      <thead><tr><th>{{ t('project.preview_status') }}</th><th>{{ t('project.preview_path') }}</th></tr></thead>
+      <tbody>
+        {% for file in preview.files %}
+        <tr class="file-change-{{ file.status }}">
+          <td><span class="badge">{{ t('project.preview_' ~ file.status) }}</span></td>
+          <td><code>{{ file.path }}</code>{% if file.kind == 'shoggoth' %} <span class="badge badge-changed">{{ t('project.preview_shoggoth') }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">{{ t('project.preview_no_changes') }}</p>
+  {% endif %}
+</section>
+
+<script>
+  const projectBaseUrl = "/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}";
+  const contributionFieldUrl = "/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/contribution-field";
+
+  try {
+    const notes = JSON.parse(
+      window.localStorage.getItem(
+        `unspeakable-translations.card-notes:${projectBaseUrl}`
+      ) || "{}"
+    );
+    if (notes && typeof notes === "object" && !Array.isArray(notes)) {
+      const notesPanel = document.querySelector(".contribution-preview-notes");
+      const notesList = notesPanel.querySelector(".contribution-preview-note-list");
+      Object.entries(notes).forEach(([cardKey, rawNote]) => {
+        const note = String(rawNote || "").trim();
+        if (!note) return;
+        const item = document.createElement("article");
+        const title = document.createElement("strong");
+        const text = document.createElement("p");
+        title.textContent = cardKey;
+        text.textContent = note;
+        item.append(title, text);
+        notesList.append(item);
+      });
+      notesPanel.hidden = !notesList.children.length;
+      document.querySelectorAll(".contribution-card-diff").forEach((card) => {
+        const note = String(notes[card.dataset.cardKey] || "").trim();
+        if (!note) return;
+        const panel = card.querySelector(".contribution-card-note");
+        panel.querySelector("p").textContent = note;
+        panel.hidden = false;
+        card.querySelector(".contribution-note-badge").hidden = false;
+      });
+    }
+  } catch (_) {}
+
+  document.querySelectorAll(".contribution-card-images figure").forEach((figure) => {
+    const stage = figure.querySelector(".contribution-review-image-stage");
+    const image = stage?.querySelector("img");
+    if (!stage || !image) return;
+    let rotation = Number(image.dataset.rotation || 0);
+    const layoutImage = () => {
+      if (!image.naturalWidth || !image.naturalHeight) return;
+      const stageWidth = figure.getBoundingClientRect().width;
+      const quarterTurn = Math.abs(rotation % 180) === 90;
+      const stageHeight = quarterTurn
+        ? stageWidth * image.naturalWidth / image.naturalHeight
+        : stageWidth * image.naturalHeight / image.naturalWidth;
+      stage.style.height = `${stageHeight}px`;
+      image.style.width = `${quarterTurn ? stageHeight : stageWidth}px`;
+      image.style.height = `${quarterTurn ? stageWidth : stageHeight}px`;
+      image.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+    };
+    figure._layoutReviewImage = layoutImage;
+    if (image.complete) layoutImage();
+    else image.addEventListener("load", layoutImage, {once: true});
+    figure.querySelectorAll(".contribution-rotate-image").forEach((button) => {
+      button.addEventListener("click", () => {
+        rotation = (rotation + Number(button.dataset.delta || 0)) % 360;
+        image.dataset.rotation = String(rotation);
+        layoutImage();
+      });
+    });
+  });
+
+  document.querySelectorAll(".card-width-resizer").forEach((resizer) => {
+    const target = resizer.closest("figure");
+    if (!target) return;
+    const minWidth = Number(resizer.dataset.minWidth || 160);
+    const maxWidth = Number(resizer.dataset.maxWidth || 620);
+    let startX = 0;
+    let startWidth = 0;
+    const setWidth = (width) => {
+      target.style.width = `${Math.max(minWidth, Math.min(maxWidth, width))}px`;
+      window.requestAnimationFrame(() => target._layoutReviewImage?.());
+    };
+    resizer.addEventListener("pointerdown", (event) => {
+      startX = event.clientX;
+      startWidth = target.getBoundingClientRect().width;
+      resizer.classList.add("is-resizing");
+      resizer.setPointerCapture(event.pointerId);
+    });
+    resizer.addEventListener("pointermove", (event) => {
+      if (!resizer.hasPointerCapture(event.pointerId)) return;
+      setWidth(startWidth + event.clientX - startX);
+    });
+    const stopResize = (event) => {
+      if (resizer.hasPointerCapture(event.pointerId)) {
+        resizer.releasePointerCapture(event.pointerId);
+      }
+      resizer.classList.remove("is-resizing");
+    };
+    resizer.addEventListener("pointerup", stopResize);
+    resizer.addEventListener("pointercancel", stopResize);
+    resizer.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      setWidth(target.getBoundingClientRect().width + direction * 30);
+    });
+  });
+  window.addEventListener("resize", () => {
+    document.querySelectorAll(".contribution-card-images figure").forEach(
+      (figure) => figure._layoutReviewImage?.()
+    );
+  });
+  document.querySelectorAll(".contribution-card-diff").forEach((details) => {
+    details.addEventListener("toggle", () => {
+      if (!details.open) return;
+      window.requestAnimationFrame(() => {
+        details.querySelectorAll(".contribution-card-images figure").forEach(
+          (figure) => figure._layoutReviewImage?.()
+        );
+      });
+    });
+  });
+
+  if (window.location.hash) {
+    const selectedDiff = document.querySelector(window.location.hash);
+    if (selectedDiff?.matches(".contribution-card-diff")) selectedDiff.open = true;
+  }
+
+  document.querySelectorAll(".contribution-card-diff").forEach((card) => {
+    const editButton = card.querySelector(".contribution-edit-card");
+    const saveButton = card.querySelector(".contribution-save-card");
+    const cancelButton = card.querySelector(".contribution-cancel-card");
+    const status = card.querySelector(".contribution-edit-status");
+    const editors = [...card.querySelectorAll(".contribution-field-editor")];
+    const setEditing = (editing) => {
+      card.classList.toggle("is-editing", editing);
+      editors.forEach((editor) => {
+        editor.hidden = !editing;
+        const value = editor.parentElement.querySelector(".diff-current-value");
+        if (value) value.hidden = editing;
+      });
+      editButton.hidden = editing;
+      saveButton.hidden = !editing;
+      cancelButton.hidden = !editing;
+    };
+
+    editButton?.addEventListener("click", () => setEditing(true));
+    cancelButton?.addEventListener("click", () => {
+      editors.forEach((editor) => { editor.value = editor.dataset.original || ""; });
+      status.textContent = "";
+      setEditing(false);
+    });
+    saveButton?.addEventListener("click", async () => {
+      const changed = editors.filter((editor) => editor.value !== (editor.dataset.original || ""));
+      if (!changed.length) {
+        setEditing(false);
+        return;
+      }
+      saveButton.disabled = true;
+      status.textContent = {{ t('project.preview_saving')|tojson }};
+      try {
+        for (const editor of changed) {
+          const body = new URLSearchParams({
+            card_key: card.dataset.cardKey,
+            scope: editor.dataset.scope,
+            path: editor.dataset.path,
+            value: editor.value,
+          });
+          const response = await fetch(contributionFieldUrl, {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body,
+          });
+          if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload.detail || {{ t('project.preview_save_failed')|tojson }});
+          }
+        }
+        window.location.hash = card.id;
+        window.location.reload();
+      } catch (error) {
+        status.textContent = error.message || {{ t('project.preview_save_failed')|tojson }};
+        saveButton.disabled = false;
+      }
+    });
+  });
+</script>
+{% endblock %}

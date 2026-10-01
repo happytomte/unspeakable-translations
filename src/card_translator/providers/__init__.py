@@ -1,0 +1,1 @@
+"""External structured-data providers."""

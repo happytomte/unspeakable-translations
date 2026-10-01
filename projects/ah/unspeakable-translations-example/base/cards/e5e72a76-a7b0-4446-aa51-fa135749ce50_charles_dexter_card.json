@@ -1,0 +1,358 @@
+{
+  "format": "card-translator-card-extraction",
+  "format_version": 1,
+  "card": {
+    "id": "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card",
+    "key": "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card",
+    "images": {
+      "front": "source/cards/e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card_front_0.png",
+      "back": null
+    },
+    "game_data": {
+      "encounter_set": "",
+      "card_number": null,
+      "printed_quantity": null,
+      "pack_name": "",
+      "artist": "happy tomte",
+      "copyright": "",
+      "project_number": "0",
+      "encounter_number": "",
+      "stage": null,
+      "index": "",
+      "doom": null,
+      "shroud": null,
+      "clues": null,
+      "clues_per_investigator": "",
+      "health": 2,
+      "sanity": 1,
+      "fight": null,
+      "damage": null,
+      "horror": null,
+      "evade": null,
+      "cost": 3,
+      "xp": null,
+      "slot": "ally",
+      "willpower": 1,
+      "intellect": 1,
+      "combat": null,
+      "agility": null,
+      "wild": 1,
+      "classes": [
+        "neutral"
+      ],
+      "connection": "",
+      "connections": [],
+      "victory": null,
+      "vengeance": null
+    },
+    "card_type": "asset",
+    "text": {
+      "en": {
+        "sides": {
+          "front": {
+            "title": "Charles Dexter Card",
+            "subname": "Pun intended!",
+            "traits": [
+              "Ally",
+              "Scholar"
+            ],
+            "rules": "{reaction} After you succeed at a skill test on a treachery card, exhaust Charles Dexter Card: Draw 1 card. If you succeeded by 2 or more, you may instead discover 1 clue at your location.",
+            "flavor": "<i>“I assure you, the punctuation is significant.”</i>"
+          }
+        },
+        "title": "Charles Dexter Card",
+        "subname": "Pun intended!",
+        "traits": [
+          "Ally",
+          "Scholar"
+        ],
+        "rules": "{reaction} After you succeed at a skill test on a treachery card, exhaust Charles Dexter Card: Draw 1 card. If you succeeded by 2 or more, you may instead discover 1 clue at your location.",
+        "flavor": "<i>“I assure you, the punctuation is significant.”</i>"
+      }
+    }
+  },
+  "_meta": {
+    "fields": {
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.card_type": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.encounter_set": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.card_number": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.printed_quantity": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.pack_name": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.artist": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.copyright": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.project_number": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.encounter_number": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.stage": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.index": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.doom": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.shroud": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.clues": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.clues_per_investigator": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.health": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.sanity": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.fight": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.damage": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.horror": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.evade": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.cost": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.xp": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.slot": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.willpower": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.intellect": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.combat": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.agility": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.wild": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.connection": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.connections": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.victory": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.vengeance": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.sides.front.title": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.title": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.sides.front.subname": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false
+          }
+        }
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.subname": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false
+          }
+        }
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.sides.front.traits": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false
+          }
+        }
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.traits": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false
+          }
+        }
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.sides.front.rules": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.rules": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.sides.front.flavor": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false
+          }
+        }
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.text.en.flavor": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false
+          }
+        }
+      },
+      "e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card.game_data.classes": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      }
+    }
+  }
+}

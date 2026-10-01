@@ -1,0 +1,11 @@
+{
+  "format": "card-translator-project",
+  "format_version": 2,
+  "game": "ah",
+  "slug": "unspeakable-translations-example",
+  "title": "Unspeakable Translations Example",
+  "author": "happytomte",
+  "source_url": "",
+  "source_language": "en",
+  "card_source": "source/cards"
+}

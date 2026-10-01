@@ -1,0 +1,104 @@
+{
+    "name": "Unspeakable Translations Examples",
+    "code": "UT",
+    "icon": "/home/jo/.var/app/org.tokeeto.Shoggoth/data/Shoggoth/assets/set_icons/cards.svg",
+    "encounter_sets": [
+        {
+            "name": "ut-test",
+            "icon": "/home/jo/.var/app/org.tokeeto.Shoggoth/data/Shoggoth/assets/set_icons/arkhamcore-intellect.svg",
+            "cards": [],
+            "id": "7d381da6-161c-45f4-bb43-42337208ba39",
+            "meta": {
+                "tts": {}
+            }
+        }
+    ],
+    "cards": [
+        {
+            "name": "Unspeakable Translation",
+            "id": "daefbbe9-0fa5-4005-bc8c-a9b71f1971b7",
+            "amount": 3,
+            "front": {
+                "type": "treachery"
+            },
+            "back": {
+                "type": "encounter"
+            },
+            "encounter_set": "ace-enc-loc"
+        },
+        {
+            "id": "fbd47bce-2beb-4a1a-8236-a21a3a692b1b",
+            "amount": 3,
+            "front": {
+                "type": "treachery",
+                "name": "<name>",
+                "text": "<b>Revelation \u2014</b> Put Strange Ink into your threat area.\n<b>Forced \u2014</b>  At the end of your turn, discard 1 card at random from your hand. If you cannot, take 1 horror.\n[Action]: Test [Agility] (3). If you succeed, discard Strange Ink.\n",
+                "flavor_text": "Perhaps I should have left the bottle closed.",
+                "illustration": "/run/user/1000/doc/4e15f589/fccd33a0-d3af-41fd-9af2-c7efda7c3fe8.png",
+                "illustration_pan_x": -496.0,
+                "illustration_pan_y": -11.0,
+                "traits": "Hazard."
+            },
+            "back": {
+                "type": "encounter"
+            },
+            "enumerated": "manual",
+            "name": "Strange Ink",
+            "encounter_set": "7d381da6-161c-45f4-bb43-42337208ba39"
+        },
+        {
+            "name": "Unspeakable Translation",
+            "id": "23804c9a-085c-47aa-98a6-ce1dde3e7b0c",
+            "amount": 3,
+            "front": {
+                "type": "treachery",
+                "flavor_text": "The symbols were meaningless at first. You wish they had stayed that way.",
+                "illustration": "/run/user/1000/doc/5c2a79bb/b0852895-c445-4371-9441-bb3567b33369.png",
+                "illustration_pan_x": -526.0,
+                "illustration_pan_y": -209.0,
+                "illustration_scale": 1.577,
+                "text": "<b>Revelation \u2014</b> Test [Intellect] (4). For each point you fail by, choose and discard 1 card from your hand. For each card you cannot discard, take 1 horror.\n",
+                "name": "<name>"
+            },
+            "back": {
+                "type": "encounter"
+            },
+            "encounter_set": "7d381da6-161c-45f4-bb43-42337208ba39"
+        },
+        {
+            "name": "Charles Dexter Card",
+            "id": "e5e72a76-a7b0-4446-aa51-fa135749ce50",
+            "amount": 2,
+            "front": {
+                "type": "asset",
+                "classes": [
+                    "neutral"
+                ],
+                "subtitle": "Pun intended!",
+                "cost": "3",
+                "icons": "WIQ",
+                "health": "2",
+                "sanity": "1",
+                "slots": [
+                    "ally"
+                ],
+                "illustration": "/run/user/1000/doc/5aab9638/85ed1241-5a0b-4172-8591-4761115804a3.png",
+                "illustration_pan_x": -307.0,
+                "illustration_pan_y": 40.0,
+                "illustration_scale": 1.382,
+                "traits": "Ally. Scholar.",
+                "text": "\n<reaction> After you succeed at a skill test on a treachery card, exhaust Charles Dexter Card: Draw 1 card. If you succeeded by 2 or more, you may instead discover 1 clue at your location.\n",
+                "flavor_text": "\u201cI assure you, the punctuation is significant.\u201d"
+            },
+            "back": {
+                "type": "player"
+            }
+        }
+    ],
+    "id": "9aee4175-f22d-4e16-9ccb-452fce824931",
+    "meta": {
+        "language": "en",
+        "dirty": []
+    },
+    "default_copyright": "happy tomte"
+}

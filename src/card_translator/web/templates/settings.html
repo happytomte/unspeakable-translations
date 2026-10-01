@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}{{ t('settings.title') }} · Unspeakable Translations{% endblock %}
+{% block content %}
+<a class="back-link" href="/">← {{ t('nav.library') }}</a>
+
+<section class="hero settings-hero">
+  <p class="eyebrow">{{ t('settings.eyebrow') }}</p>
+  <h1>{{ t('settings.title') }}</h1>
+  <p>{{ t('settings.description') }}</p>
+</section>
+
+{% if settings_error %}
+<div class="settings-message settings-message-error" role="alert"><strong>{{ t('settings.error') }}</strong> {{ settings_error }}</div>
+{% elif settings_saved %}
+<div class="settings-message settings-message-ok" role="status">{{ t('settings.saved_' ~ settings_saved) }}</div>
+{% endif %}
+
+{% for game in games %}{% if game.reference_status and game.reference_status.missing_languages %}
+<div class="settings-message settings-message-error" role="alert">
+  {{ t('settings.reference_missing', languages=game.reference_status.missing_languages | map('upper') | join(', ')) }}
+</div>
+{% endif %}{% endfor %}
+
+{% if definition_issues %}
+<section class="settings-definition-issues" role="alert">
+  <strong>{{ t('settings.invalid_definitions') }}</strong>
+  <ul>{% for issue in definition_issues %}<li><code>{{ issue.path }}</code>: {{ issue.error }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+<section class="panel translation-provider-settings">
+  <p class="eyebrow">{{ t('settings.translation_providers_eyebrow') }}</p>
+  <h2>{{ t('settings.translation_providers') }}</h2>
+  <p class="muted">{{ t('settings.translation_providers_help') }}</p>
+  <form method="post" action="/settings/translation-providers" class="form-grid" onchange="this.requestSubmit()">
+    <label class="checkbox-field">
+      <input type="hidden" name="ollama_enabled" value="false">
+      <input type="checkbox" name="ollama_enabled" value="true" {% if translation_settings.ollama.enabled %}checked{% endif %}>
+      <span>{{ t('settings.enable_ollama') }}</span>
+    </label>
+    <p class="wide small">
+      {% if not translation_settings.ollama.enabled %}{{ t('settings.ollama_disabled') }}
+      {% elif translation_settings.ollama.installed %}{{ t('translation.ollama_ready', model=translation_settings.ollama.model) }}
+      {% elif translation_settings.ollama.available %}{{ t('translation.ollama_model_missing', model=translation_settings.ollama.model) }}
+      {% else %}{{ t('translation.ollama_unavailable') }}{% endif %}
+    </p>
+    <fieldset class="wide card-image-provider-options">
+      <legend>{{ t('settings.card_image_provider') }}</legend>
+      <p class="small muted">{{ t('settings.card_image_provider_help') }}</p>
+      <div class="card-image-provider-grid">
+      {% for provider in translation_settings.card_image_providers %}
+      <label class="card-image-provider-option">
+        <input type="radio" name="image_provider" value="{{ provider.id }}" {% if provider.id == translation_settings.card_image_provider %}checked{% endif %}>
+        <span><strong>{{ t('settings.provider_' ~ provider.id) }}</strong>
+          <small>{% if provider.id == 'none' %}{{ t('settings.provider_none_help') }}{% elif provider.available %}{{ t('settings.provider_ready', model=provider.model) }}{% else %}{{ t('settings.provider_key_missing', name=provider.id|upper ~ '_API_KEY') }}{% endif %}</small>
+        </span>
+      </label>
+      {% endfor %}
+      </div>
+    </fieldset>
+    <p class="wide small muted">{{ t('settings.provider_changes_autosave') }}</p>
+  </form>
+  <div class="provider-key-setup">
+    <h3>{{ t('settings.provider_keys') }}</h3>
+    <p>{{ t('settings.provider_keys_help', path=translation_settings.env_path) }}</p>
+    <code>GEMINI_API_KEY=…</code><br>
+    <code>OPENAI_API_KEY=…</code><br>
+    <code>ANTHROPIC_API_KEY=…</code>
+  </div>
+</section>
+
+<div class="settings-game-grid">
+  {% for game in games %}
+  <section class="panel settings-game-card">
+    <form method="post" action="/settings/games" class="form-grid">
+      <label>{{ t('settings.game_id') }}
+        <input name="game_id" value="{{ game.id }}" readonly>
+      </label>
+      <label>{{ t('settings.game_name') }}
+        <input name="name" value="{{ game.name }}" required>
+      </label>
+      <label>{{ t('settings.source_language') }}
+        <input name="default_source_language" value="{{ game.default_source_language or 'en' }}" required>
+      </label>
+      <div class="form-actions"><button type="submit">{{ t('settings.save_game') }}</button></div>
+    </form>
+    <details class="game-system-settings" {% if request.query_params.get('game') == game.id %}open{% endif %}>
+      <summary><strong>{{ t('settings.game_system_config') }}</strong></summary>
+      <p class="muted">{{ t('settings.game_system_config_help') }}</p>
+      <form method="post" action="/settings/games/{{ game.id }}/system-config" class="form-grid">
+        <label class="wide">{{ t('settings.translation_context') }}
+          <span class="muted">{{ t('settings.translation_context_help') }}</span>
+          <textarea name="translation_context" rows="7" placeholder="{{ t('settings.translation_context_placeholder') }}">{{ game.translation_context or '' }}</textarea>
+        </label>
+        <label class="wide">{{ t('settings.global_glossary') }}
+          <span class="muted">{{ t('settings.global_glossary_help') }}</span>
+          <textarea name="glossary_text" rows="10" placeholder="[willpower] => {willpower}">{{ game.glossary_text }}</textarea>
+        </label>
+        {% if game.id == 'ah' %}
+        <label class="wide">{{ t('settings.arkhamdb_urls') }}
+          <span class="muted">{{ t('settings.arkhamdb_urls_help') }}</span>
+          <textarea name="arkhamdb_urls_text" rows="14">{{ game.arkhamdb_urls_text }}</textarea>
+        </label>
+        {% endif %}
+        <div class="form-actions"><button type="submit">{{ t('settings.save_system_config') }}</button></div>
+      </form>
+    </details>
+    {% if game.id != 'ah' %}<details class="card-schema-settings">
+      <summary><strong>{{ t('settings.card_schema') }}</strong></summary>
+      <form method="post" action="/settings/games/{{ game.id }}/card-schema" class="card-schema-form">
+        <p class="muted">{{ t('settings.card_schema_help') }}</p>
+        <label>{{ t('settings.translatable_fields') }}
+          <textarea name="fields_text" rows="7" required>{{ game.translatable_fields_text }}</textarea>
+        </label>
+        <label>{{ t('settings.metadata_fields') }}
+          <textarea name="metadata_fields_text" rows="6">{{ game.metadata_fields_text }}</textarea>
+        </label>
+        <div class="form-actions"><button type="submit">{{ t('settings.save_schema') }}</button></div>
+      </form>
+    </details>{% endif %}
+    {% if game.id == 'ah' %}
+    <details class="reference-index-settings">
+      <summary><strong>{{ t('settings.arkhamdb_references') }}</strong></summary>
+      {% set status = game.reference_status %}
+      <p class="muted">{{ t('settings.arkhamdb_references_help') }}</p>
+      {% for source in game.arkhamdb_sources %}
+      <form method="post" action="/settings/games/{{ game.id }}/arkhamdb-download" class="form-grid">
+        <input type="hidden" name="language" value="{{ source.language }}">
+        <label class="wide"><strong>{{ source.language|upper }}</strong> · {{ t('settings.data_downloaded') if source.downloaded else t('settings.data_missing') }}
+          <code>{{ source.url }}</code>
+        </label>
+        <div class="form-actions"><button type="submit">{{ t('settings.update_data') if source.downloaded else t('settings.download_data') }}</button></div>
+      </form>
+      {% endfor %}
+      <p>
+        {{ t('settings.reference_available', languages=status.available_languages | map('upper') | join(', ') if status.available_languages else '–') }}
+        {% if status.index_exists %} · {{ t('settings.reference_indexed', languages=status.indexed_languages | map('upper') | join(', ') if status.indexed_languages else '–') }}{% endif %}
+      </p>
+      {% if not status.source_exists %}
+      <p class="settings-message settings-message-error" role="alert">{{ t('settings.reference_source_missing', language=game.default_source_language) }}</p>
+      {% elif not status.index_exists or status.stale %}
+      <p class="settings-message settings-message-error" role="status">{{ t('settings.reference_rebuild_needed') }}</p>
+      {% endif %}
+      <form method="post" action="/settings/games/{{ game.id }}/reference-index">
+        <div class="form-actions"><button type="submit">{{ t('settings.build_reference_index') }}</button></div>
+      </form>
+    </details>
+    {% endif %}
+    {% if game.id != 'ah' %}<details class="json-source-settings">
+      <summary><strong>{{ t('settings.json_sources') }}</strong></summary>
+      {% set json_sources = game.imports | rejectattr('adapter') | list %}
+      {% for source in json_sources %}
+        {% include "settings_json_source_form.html" %}
+      {% endfor %}
+      {% set source = {} %}
+      {% include "settings_json_source_form.html" %}
+    </details>{% endif %}
+  </section>
+  {% endfor %}
+</div>
+
+<!-- <details class="panel settings-new-game">
+  <summary><strong>{{ t('settings.new_game') }}</strong></summary>
+  <form method="post" action="/settings/games" class="form-grid">
+    <label>{{ t('settings.game_id') }}
+      <input name="game_id" placeholder="my-game" pattern="[a-z][a-z0-9-]{0,31}" required>
+    </label>
+    <label>{{ t('settings.game_name') }}<input name="name" required></label>
+    <label>{{ t('settings.source_language') }}<input name="default_source_language" value="en" required></label>
+    <div class="form-actions"><button type="submit">{{ t('settings.create_game') }}</button></div>
+  </form>
+</details> -->
+{% endblock %}

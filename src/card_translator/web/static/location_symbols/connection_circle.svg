@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<style>.st0 {
+        fill: none;
+      }
+
+      .st1 {
+        fill: #a99b14;
+        stroke-width: 4.8px;
+      }
+
+      .st1, .st2 {
+        stroke: #000;
+      }
+
+      .st2 {
+        fill: #ebdfa1;
+        stroke-width: 2.6px;
+      }
+
+      .st3 {
+        clip-path: url(#a);
+      }</style>
+<clipPath id="a">
+<rect class="st0" width="100" height="100"/>
+</clipPath>
+</defs>
+<g class="st3">
+<path class="st1" d="M50,97.4c26.2,0,47.4-21.2,47.4-47.4S76.2,2.6,50,2.6,2.6,23.8,2.6,50s21.2,47.4,47.4,47.4Z"/>
+<path class="st2" d="m50 67.8c9.8 0 17.8-8 17.8-17.8s-8-17.8-17.8-17.8-17.8 8-17.8 17.8 8 17.8 17.8 17.8z"/>
+</g>
+</svg>

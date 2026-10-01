@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}{{ t('project.create_pull_request') }} · {{ scenario.title }}{% endblock %}
+{% block content %}
+<a class="back-link" href="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/contribute">← {{ t('project.contribution_preview_title') }}</a>
+
+<section class="scenario-header">
+  <div>
+    <p class="eyebrow">{{ t('project.next_step') }}</p>
+    <h1>{{ t('project.create_pull_request') }}</h1>
+    <p class="muted">{{ t('pull_request.help') }}</p>
+  </div>
+  <span class="badge badge-ready">{{ pull_request.repository_changed_file_count }} {{ t('project.preview_files') }}</span>
+</section>
+
+{% if pull_request_error %}<div class="settings-message settings-message-error" role="alert">{{ pull_request_error }}</div>{% endif %}
+{% if result_url %}
+<section class="panel publish-success-panel">
+  <div>
+    <p class="eyebrow">{{ t('pull_request.created_eyebrow') if pull_request_created else t('pull_request.pushed_eyebrow') }}</p>
+    <h2>{{ t('pull_request.created_title') if pull_request_created else t('pull_request.finish_title') }}</h2>
+    <p class="muted">{{ t('pull_request.created_help') if pull_request_created else t('pull_request.finish_help') }}</p>
+    {% if pull_request_warning %}<p class="warning-text">{{ pull_request_warning }}</p>{% endif %}
+  </div>
+  <a class="button-link" href="{{ result_url }}" target="_blank" rel="noreferrer">{{ t('pull_request.open') }} ↗</a>
+</section>
+{% endif %}
+
+{% if scenario.private_only %}
+<div class="settings-message settings-message-warning" role="status">{{ t('project.private_only_active_help') }}</div>
+{% elif not pull_request.repository_changed_files %}
+<div class="empty-state">{{ t('pull_request.no_changes') }}</div>
+{% else %}
+{% if pull_request.staged_changes %}
+<div class="settings-message settings-message-error" role="alert">
+  <strong>{{ t('pull_request.staged_title') }}</strong>
+  <p>{{ t('pull_request.staged_help') }}</p>
+  <code>{{ pull_request.staged_changes|join('\n') }}</code>
+</div>
+{% endif %}
+{% if pull_request.missing_document_count %}
+<div class="settings-message settings-message-warning" role="status">
+  <strong>{{ t('documents.incomplete_title') }}</strong>
+  <p>{{ t('documents.incomplete_help', count=pull_request.missing_document_count) }}</p>
+</div>
+{% endif %}
+<section class="panel pull-request-scope">
+  <p class="eyebrow">{{ t('pull_request.scope_eyebrow') }}</p>
+  <h2>{{ t('pull_request.scope_split_title') }}</h2>
+  <p class="muted">{{ t('pull_request.scope_help') }}</p>
+  <div class="pull-request-scope-groups">
+    {% if not scenario.source_only %}
+    <section class="pull-request-scope-group is-primary">
+      <div>
+        <h3>{{ t('pull_request.translations_title') }}</h3>
+        <p class="small muted">{{ t('pull_request.translations_help') }}</p>
+      </div>
+      <span class="badge badge-ready">{{ pull_request.translation_changed_file_count }} {{ t('project.preview_files') }}</span>
+      {% if pull_request.translation_changed_files %}
+      <ul class="pull-request-file-list">
+        {% for path in pull_request.translation_changed_files|sort %}<li><code>{{ path }}</code></li>{% endfor %}
+      </ul>
+      {% else %}<p class="small muted">{{ t('pull_request.scope_empty') }}</p>{% endif %}
+    </section>
+    {% endif %}
+    <section class="pull-request-scope-group">
+      <div>
+        <h3>{{ t('pull_request.extractions_title') }}</h3>
+        <p class="small muted">{{ t('pull_request.extractions_help') }}</p>
+      </div>
+      <span class="badge">{{ pull_request.extraction_changed_file_count }} {{ t('project.preview_files') }}</span>
+      {% if pull_request.extraction_changed_files %}
+      <ul class="pull-request-file-list">
+        {% for path in pull_request.extraction_changed_files|sort %}<li><code>{{ path }}</code></li>{% endfor %}
+      </ul>
+      {% else %}<p class="small muted">{{ t('pull_request.scope_empty') }}</p>{% endif %}
+    </section>
+  </div>
+</section>
+
+<div class="pull-request-methods">
+  <section class="panel">
+    <p class="eyebrow">{{ t('pull_request.automatic_eyebrow') }}</p>
+    <h2>{{ t('pull_request.automatic_title') }}</h2>
+    <p class="muted">{{ t('pull_request.automatic_help') }}</p>
+    {% if not pull_request.gh_installed %}<div class="settings-message settings-message-warning">{{ t('pull_request.gh_missing') }} <a href="https://cli.github.com/" target="_blank" rel="noreferrer">cli.github.com ↗</a></div>{% endif %}
+    <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/pull-request" class="pull-request-form">
+      <input type="hidden" name="method" value="gh">
+      <label>{{ t('pull_request.upstream_url') }}<input type="url" name="upstream_url" value="{{ pull_request.upstream_url }}" placeholder="https://github.com/owner/repository.git" required></label>
+      {% if not scenario.source_only and pull_request.extraction_changed_files %}<label class="pull-request-include-extractions"><input type="checkbox" name="include_extractions" value="true" checked> <span>{{ t('pull_request.include_extractions') }}</span></label>{% endif %}
+      {% if not scenario.source_only %}<button type="submit" name="contribution_scope" value="translation" {% if not pull_request.can_prepare_translation or not pull_request.gh_installed %}disabled{% endif %}>{{ t('pull_request.create_translation') }}</button>{% endif %}
+      <button type="submit" class="button-secondary" name="contribution_scope" value="extraction" {% if not pull_request.can_prepare_extraction or not pull_request.gh_installed %}disabled{% endif %}>{{ t('pull_request.create_extraction') }}</button>
+      <p class="small muted">{{ t('pull_request.confirm_help') }}</p>
+    </form>
+  </section>
+
+  <section class="panel">
+    <p class="eyebrow">{{ t('pull_request.manual_eyebrow') }}</p>
+    <h2>{{ t('pull_request.manual_title') }}</h2>
+    <p class="muted">{{ t('pull_request.manual_help') }}</p>
+    <form method="post" action="/{{ scenario.game }}/{{ scenario.storage_language }}/{{ scenario.slug }}/pull-request" class="pull-request-form">
+      <input type="hidden" name="method" value="manual">
+      <label>{{ t('pull_request.upstream_url') }}<input type="url" name="upstream_url" value="{{ pull_request.upstream_url }}" placeholder="https://github.com/owner/repository.git" required></label>
+      <label>{{ t('pull_request.fork_url') }}<input type="text" name="fork_url" placeholder="https://github.com/you/repository.git" required></label>
+      {% if not scenario.source_only and pull_request.extraction_changed_files %}<label class="pull-request-include-extractions"><input type="checkbox" name="include_extractions" value="true" checked> <span>{{ t('pull_request.include_extractions') }}</span></label>{% endif %}
+      {% if not scenario.source_only %}<button type="submit" name="contribution_scope" value="translation" {% if not pull_request.can_prepare_translation %}disabled{% endif %}>{{ t('pull_request.push_translation') }}</button>{% endif %}
+      <button type="submit" class="button-secondary" name="contribution_scope" value="extraction" {% if not pull_request.can_prepare_extraction %}disabled{% endif %}>{{ t('pull_request.push_extraction') }}</button>
+      <p class="small muted">{{ t('pull_request.manual_confirm_help') }}</p>
+    </form>
+  </section>
+</div>
+{% endif %}
+{% endblock %}

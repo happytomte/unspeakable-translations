@@ -1,0 +1,399 @@
+{
+  "format": "card-translator-card-extraction",
+  "format_version": 1,
+  "card": {
+    "id": "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink",
+    "key": "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink",
+    "images": {
+      "front": "source/cards/fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink_front_0.png",
+      "back": null
+    },
+    "game_data": {
+      "encounter_set": "",
+      "card_number": null,
+      "printed_quantity": null,
+      "pack_name": "",
+      "artist": "happy tomte",
+      "copyright": "",
+      "project_number": "0",
+      "encounter_number": "-1/6",
+      "stage": null,
+      "index": "",
+      "doom": null,
+      "shroud": null,
+      "clues": null,
+      "clues_per_investigator": "",
+      "health": null,
+      "sanity": null,
+      "fight": null,
+      "damage": null,
+      "horror": null,
+      "evade": null,
+      "cost": null,
+      "xp": null,
+      "slot": "",
+      "willpower": null,
+      "intellect": null,
+      "combat": null,
+      "agility": null,
+      "wild": null,
+      "connection": "",
+      "connections": [],
+      "victory": null,
+      "vengeance": null,
+      "classes": []
+    },
+    "card_type": "treachery",
+    "text": {
+      "en": {
+        "sides": {
+          "front": {
+            "title": "Strange Ink",
+            "subname": "",
+            "traits": [
+              "Hazard"
+            ],
+            "rules": "<b>Revelation</b> — Put Strange Ink into your threat area.\n<b>Forced</b> — At the end of your turn, discard 1 card at random from your hand. If you cannot, take 1 horror.\n{action}: Test {agility} (3). If you succeed, discard Strange Ink.",
+            "flavor": "<i>Perhaps I should have left the bottle closed.</i>"
+          }
+        },
+        "title": "Strange Ink",
+        "subname": "",
+        "traits": [
+          "Hazard"
+        ],
+        "rules": "<b>Revelation</b> — Put Strange Ink into your threat area.\n<b>Forced</b> — At the end of your turn, discard 1 card at random from your hand. If you cannot, take 1 horror.\n{action}: Test {agility} (3). If you succeed, discard Strange Ink.",
+        "flavor": "<i>Perhaps I should have left the bottle closed.</i>"
+      }
+    }
+  },
+  "_meta": {
+    "fields": {
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.card_type": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.encounter_set": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.card_number": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.printed_quantity": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.pack_name": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.artist": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.copyright": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.project_number": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.encounter_number": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.stage": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.index": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.doom": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.shroud": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.clues": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.clues_per_investigator": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.health": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.sanity": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.fight": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.damage": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.horror": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.evade": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.cost": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.xp": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.slot": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.willpower": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.intellect": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.combat": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.agility": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.wild": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.connection": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.connections": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.victory": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.vengeance": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.sides.front.title": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.title": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.sides.front.subname": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.subname": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.sides.front.traits": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false
+          }
+        }
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.traits": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false
+          }
+        }
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.sides.front.rules": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false,
+            "previous": {
+              "source": "manual_source_edit",
+              "confidence": 1.0,
+              "review_required": false,
+              "previous": {
+                "source": "manual_source_edit",
+                "confidence": 1.0,
+                "review_required": false,
+                "previous": {
+                  "source": "manual_source_edit",
+                  "confidence": 1.0,
+                  "review_required": false,
+                  "previous": {
+                    "source": "manual_source_edit",
+                    "confidence": 1.0,
+                    "review_required": false,
+                    "previous": {
+                      "source": "manual_source_edit",
+                      "confidence": 1.0,
+                      "review_required": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.rules": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false,
+          "previous": {
+            "source": "manual_source_edit",
+            "confidence": 1.0,
+            "review_required": false,
+            "previous": {
+              "source": "manual_source_edit",
+              "confidence": 1.0,
+              "review_required": false,
+              "previous": {
+                "source": "manual_source_edit",
+                "confidence": 1.0,
+                "review_required": false,
+                "previous": {
+                  "source": "manual_source_edit",
+                  "confidence": 1.0,
+                  "review_required": false,
+                  "previous": {
+                    "source": "manual_source_edit",
+                    "confidence": 1.0,
+                    "review_required": false,
+                    "previous": {
+                      "source": "manual_source_edit",
+                      "confidence": 1.0,
+                      "review_required": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.sides.front.flavor": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false
+        }
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.text.en.flavor": {
+        "source": "manual_source_edit",
+        "confidence": 1.0,
+        "review_required": false,
+        "previous": {
+          "source": "manual_source_edit",
+          "confidence": 1.0,
+          "review_required": false
+        }
+      },
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink.game_data.classes": {
+        "source": "manual_metadata_edit",
+        "confidence": 1.0,
+        "review_required": false
+      }
+    },
+    "images": {
+      "fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink_front_0.png": {
+        "display_rotation": 0
+      }
+    }
+  }
+}

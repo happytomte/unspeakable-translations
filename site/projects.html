@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" data-i18n-content="projects.meta" content="Progress and downloads for projects published with Unspeakable Translations.">
+  <title data-i18n-title="projects.title">Projects · Unspeakable Translations</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css">
+  <script src="site.js" defer></script>
+</head>
+<body data-page="projects">
+  <a class="skip-link" href="#content" data-i18n="common.skip">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Unspeakable Translations home" data-i18n-aria="common.home_label"><img class="brand-mark" src="assets/brand/unspeakable-mark.png" alt="" width="54" height="45"><span class="brand-name"><strong>Unspeakable</strong><small>Translations</small></span></a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-i18n="common.menu">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation" data-i18n-aria="common.nav_label">
+      <a href="index.html" data-nav="home" data-i18n="common.overview">Overview</a>
+      <a href="guide.html" data-nav="guide" data-i18n="common.guide">Guide</a>
+      <a href="projects.html" data-nav="projects" data-i18n="common.projects">Projects</a>
+      <label class="site-language">
+        <span class="visually-hidden" data-i18n="common.language">Language</span>
+        <select data-language-select aria-label="Language" data-i18n-aria="common.language">
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </label>
+      <a class="nav-github" href="https://github.com/" data-repository-link>GitHub <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="content">
+    <header class="catalog-hero shell">
+      <div>
+        <p class="eyebrow"><span></span> <span data-i18n="projects.eyebrow">Community catalog</span></p>
+        <h1 data-i18n="projects.heading">Translation projects</h1>
+        <p data-i18n="projects.lead">Calculated from the repository: shared source progress, language status, review state, and available downloads.</p>
+      </div>
+      <dl class="catalog-stats" aria-label="Catalog statistics" data-i18n-aria="projects.stats_label">
+        <div><dt data-i18n="projects.stat_projects">Projects</dt><dd id="stat-projects">—</dd></div>
+        <div><dt data-i18n="projects.stat_languages">Languages</dt><dd id="stat-languages">—</dd></div>
+        <div><dt data-i18n="projects.stat_available">Available</dt><dd id="stat-releases">—</dd></div>
+      </dl>
+    </header>
+
+    <section class="catalog-tools shell" aria-label="Filter projects" data-i18n-aria="projects.filter_label">
+      <label class="search-field">
+        <span class="visually-hidden" data-i18n="projects.search_label">Search projects</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg>
+        <input id="project-search" type="search" placeholder="Search by title, author, or language …" data-i18n-placeholder="projects.search_placeholder" autocomplete="off">
+      </label>
+      <div id="game-filters" class="filter-row" aria-label="Filter by game" data-i18n-aria="projects.game_filter"></div>
+      <div class="legend" aria-label="Status legend" data-i18n-aria="projects.legend_label">
+        <span><i class="status-dot released"></i> <span data-i18n="projects.legend_published">Published</span></span>
+        <span><i class="status-dot review"></i> <span data-i18n="projects.legend_review">Review pending</span></span>
+        <span><i class="status-dot progress"></i> <span data-i18n="projects.legend_progress">In progress</span></span>
+      </div>
+    </section>
+
+    <section class="catalog-section shell">
+      <div id="catalog" class="project-grid" aria-live="polite" aria-busy="true">
+        <article class="project-card skeleton"></article>
+        <article class="project-card skeleton"></article>
+        <article class="project-card skeleton"></article>
+      </div>
+      <p id="catalog-count" class="catalog-count" hidden></p>
+    </section>
+  </main>
+
+  <footer class="site-footer shell">
+    <div class="brand footer-brand"><img class="brand-mark" src="assets/brand/unspeakable-mark.png" alt="" width="54" height="45"><span class="brand-name"><strong>Unspeakable</strong><small>Translations</small></span></div>
+    <p data-i18n="common.disclaimer">A community tool for fan translations. Not affiliated with the respective rights holders.</p>
+    <a href="https://github.com/" data-repository-link><span data-i18n="common.source">Source code on GitHub</span> <span aria-hidden="true">↗</span></a>
+  </footer>
+</body>
+</html>

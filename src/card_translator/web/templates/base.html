@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="{{ ui_language }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Unspeakable Translations{% endblock %}</title>
+  <link rel="icon" href="/assets/app/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', path='app.css') }}?v=20261001-3">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">Unspeakable Translations</a>
+    <a class="topbar-link" href="/settings">{{ t('nav.settings') }}</a>
+    <form method="post" action="/ui-language" class="ui-language-form">
+      <input type="hidden" name="next" value="{{ request.url.path }}">
+      <label>
+        <span>{{ t('nav.ui_language') }}</span>
+        <select name="language" onchange="this.form.submit()">
+          {% for code, label in ui_languages.items() %}
+          <option value="{{ code }}" {% if code == ui_language %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </form>
+  </header>
+  <main class="page">{% block content %}{% endblock %}</main>
+</body>
+</html>

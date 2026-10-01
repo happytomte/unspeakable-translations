@@ -1,0 +1,53 @@
+name: Publish reviewed translations
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Project ID, for example ah/the-case-of-charles-dexter-ward"
+        required: true
+        type: string
+      languages:
+        description: "Languages separated by commas; empty builds every reviewed language"
+        required: false
+        type: string
+      version:
+        description: "Project version, for example 1.1.0"
+        required: true
+        type: string
+      prerelease:
+        description: "Publish as a pre-release"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: latest-known
+          enable-cache: true
+      - run: uv sync --locked --no-dev
+      - name: Build selected project
+        env:
+          PROJECT: ${{ inputs.project }}
+          LANGUAGES: ${{ inputs.languages }}
+          VERSION: ${{ inputs.version }}
+        run: uv run --no-sync unspeakable-translations release-bundles --library . --output release --project "$PROJECT" --languages "$LANGUAGES" --version "$VERSION" --require-bundles
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          release_tag="$(jq -r .release_tag release/release-manifest.json)"
+          test -n "$release_tag"
+          test "$release_tag" != "null"
+          release_args=("$release_tag" release/*.zip release/release-manifest.json --generate-notes --title "$release_tag")
+          if [[ "$PRERELEASE" == "true" ]]; then release_args+=(--prerelease); fi
+          gh release create "${release_args[@]}"
