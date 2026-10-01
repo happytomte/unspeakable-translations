@@ -1,6 +1,6 @@
 
 <p align="center">
-   <img src="site/assets/brand/cardlogo.png" width="50%">
+   <img src="site/assets/brand/unspeakabletranslations.png">
 </p>
 
 # Unspeakable Translations
