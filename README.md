@@ -1,6 +1,7 @@
 
-![logo](./site/asset/brand/cardlogo.png)
-
+<p align="center">
+   <img src="site/assets/brand/cardlogo.png" width="50%">
+</p>
 
 # Unspeakable Translations
 
