@@ -26,6 +26,7 @@ from card_translator.project_publication import (
     publication_status,
     publish_extraction,
     publish_translation,
+    save_project_image,
     shared_project_summaries,
     update_campaign_private_only,
     update_scenario_private_only,
@@ -122,6 +123,51 @@ def test_scenario_and_translation_are_created_independently(tmp_path):
     with pytest.raises(ValueError, match="different"):
         create_project_translation(
             tmp_path, game="ah", slug="new-scenario", target_language="fr",
+        )
+
+
+def test_project_images_are_shared_source_files_and_update_metadata(tmp_path):
+    result = create_shared_project(
+        tmp_path,
+        game="ah",
+        slug="new-scenario",
+        title="New Scenario",
+        author="Author",
+        source_url="",
+        source_language="en",
+    )
+
+    mood = save_project_image(
+        tmp_path,
+        game="ah",
+        slug="new-scenario",
+        kind="mood",
+        filename="atmosphere.webp",
+        content=b"mood-image",
+    )
+    cover = save_project_image(
+        tmp_path,
+        game="ah",
+        slug="new-scenario",
+        kind="cover",
+        filename="cover.png",
+        content=b"cover-image",
+    )
+
+    assert mood == result["path"] / "source/media/mood.webp"
+    assert cover == result["path"] / "source/media/cover.png"
+    project = read_json(result["path"] / "project.json")
+    assert project["mood_image"] == "source/media/mood.webp"
+    assert project["cover_image"] == "source/media/cover.png"
+
+    with pytest.raises(ValueError, match="JPG, PNG, or WebP"):
+        save_project_image(
+            tmp_path,
+            game="ah",
+            slug="new-scenario",
+            kind="cover",
+            filename="cover.svg",
+            content=b"<svg/>",
         )
 
 

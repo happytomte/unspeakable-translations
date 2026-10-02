@@ -7,5 +7,7 @@
   "author": "happytomte",
   "source_url": "",
   "source_language": "en",
-  "card_source": "source/cards"
+  "card_source": "source/cards",
+  "use_separate_card_art": false,
+  "mood_image": "source/media/mood.png"
 }

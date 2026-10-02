@@ -427,7 +427,16 @@ function meter(percent) {
   return track;
 }
 
-function languageRow(code, translation) {
+function githubIconLink(url, label) {
+  const link = node("a", "github-icon-link");
+  link.href = url;
+  link.title = label;
+  link.setAttribute("aria-label", label);
+  link.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.57-.29-5.27-1.29-5.27-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.71 5.39-5.29 5.68.42.36.79 1.07.79 2.16v3.2c0 .31.21.68.8.56A11.5 11.5 0 0 0 12 .7Z"/></svg>';
+  return link;
+}
+
+function languageRow(code, translation, repositoryPath, source = false) {
   const row = node("div", "language-row");
   row.append(node("span", "language-code", code));
   const copy = node("div", "language-copy");
@@ -441,7 +450,13 @@ function languageRow(code, translation) {
   })));
   row.append(copy);
 
-  const status = statusFor(translation);
+  const status = source
+    ? {
+        key: translation.cards_reviewed >= translation.cards_total ? "released" : "progress",
+        label: `${translation.translation_percent || 0} %`
+      }
+    : statusFor(translation);
+  const rowActions = node("div", "language-actions");
   if (translation.release_asset) {
     const download = node("a", "download-link", "↗");
     download.href = "#";
@@ -449,13 +464,20 @@ function languageRow(code, translation) {
     download.setAttribute("aria-label", download.title);
     download.dataset.releaseAsset = translation.release_asset;
     download.dataset.languageName = name;
-    row.append(download);
+    rowActions.append(download);
   } else {
     const label = node("span", "language-status");
     label.append(node("i", `status-dot ${status.key}`), document.createTextNode(status.label));
-    row.append(label);
+    rowActions.append(label);
   }
+  if (repositoryPath) rowActions.append(githubIconLink(repositoryPath, text("view_github")));
+  row.append(rowActions);
   return row;
+}
+
+function repositoryFileUrl(repositoryUrl, projectId, relativePath) {
+  if (!repositoryUrl || !relativePath || relativePath.startsWith("/") || relativePath.includes("..")) return "";
+  return `${repositoryUrl}/raw/main/projects/${encodeURI(projectId)}/${encodeURI(relativePath)}`;
 }
 
 function projectCard(project, repositoryUrl) {
@@ -464,6 +486,13 @@ function projectCard(project, repositoryUrl) {
   card.dataset.search = `${project.title} ${project.author || ""} ${Object.keys(project.translations || {}).join(" ")}`.toLocaleLowerCase(siteLanguage);
   const head = node("header", "project-card-head");
   head.style.setProperty("--hue", String(projectHue(project)));
+  const headerImage = repositoryFileUrl(
+    repositoryUrl, project.id, project.mood_image || project.cover_image
+  );
+  if (headerImage) {
+    head.classList.add("has-image");
+    head.style.setProperty("--project-image", `url("${headerImage.replaceAll('"', '%22')}")`);
+  }
   head.append(node("span", "game-label", project.game_name || gameName(project.game)));
   head.append(node("h2", "", project.title));
   card.append(head);
@@ -489,26 +518,34 @@ function projectCard(project, repositoryUrl) {
   body.append(base);
 
   const languages = node("div", "language-list");
+  const repositoryProjectUrl = repositoryUrl
+    ? `${repositoryUrl}/tree/main/projects/${encodeURI(project.id)}`
+    : "";
+  const sourceCode = project.source_language || "en";
+  const source = {
+    cards_translated: project.base.source_text_present || 0,
+    cards_reviewed: project.base.source_reviewed || 0,
+    cards_total: project.base.cards_total || 0,
+    translation_percent: project.base.extraction_percent || 0
+  };
+  languages.append(languageRow(sourceCode, source, repositoryProjectUrl, true));
   Object.entries(project.translations || {})
     .sort(([first], [second]) => first.localeCompare(second))
-    .forEach(([code, translation]) => languages.append(languageRow(code, translation)));
+    .forEach(([code, translation]) => {
+      const translationUrl = repositoryProjectUrl
+        ? `${repositoryProjectUrl}/translations/${encodeURIComponent(code)}`
+        : "";
+      languages.append(languageRow(code, translation, translationUrl));
+    });
   body.append(languages);
 
   const actions = node("div", "card-actions");
   const sourceUrl = safeUrl(project.source_url);
-  const repositoryProjectUrl = repositoryUrl
-    ? `${repositoryUrl}/tree/main/projects/${encodeURI(project.id)}`
-    : "";
   if (sourceUrl) {
     const original = node("a", "card-link", text("original_project"));
     original.href = sourceUrl;
     original.rel = "noreferrer";
     actions.append(original);
-  }
-  if (repositoryProjectUrl) {
-    const contribute = node("a", "card-link primary", text("view_github"));
-    contribute.href = repositoryProjectUrl;
-    actions.append(contribute);
   }
   if (actions.childElementCount) body.append(actions);
   card.append(body);

@@ -96,6 +96,7 @@ from card_translator.project_documents import (
     save_pdf_document,
 )
 from card_translator.project_publication import (
+    MAX_PROJECT_IMAGE_SIZE,
     campaign_summaries,
     contribution_preview,
     create_campaign,
@@ -105,6 +106,7 @@ from card_translator.project_publication import (
     publication_status,
     publish_extraction,
     publish_translation,
+    save_project_image,
     shared_project_summaries,
     update_campaign_private_only,
     update_scenario_private_only,
@@ -1461,6 +1463,27 @@ def create_app() -> FastAPI:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         return RedirectResponse(url=f"/{game}/{project_language}/{slug}", status_code=303)
+
+    @app.post("/{game}/source/{slug}/project-image")
+    async def upload_project_image(
+        game: str,
+        slug: str,
+        kind: str = Form(...),
+        image_file: UploadFile = File(...),
+    ) -> RedirectResponse:
+        content = await image_file.read(MAX_PROJECT_IMAGE_SIZE + 1)
+        try:
+            save_project_image(
+                lib_root,
+                game=game,
+                slug=slug,
+                kind=kind,
+                filename=image_file.filename or "project-image",
+                content=content,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return RedirectResponse(url=f"/{game}/source/{slug}", status_code=303)
 
     @app.post("/{game}/{project_language}/{slug}/private-only")
     def save_scenario_private_only(

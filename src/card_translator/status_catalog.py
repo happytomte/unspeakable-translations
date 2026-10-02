@@ -91,6 +91,8 @@ def build_status_catalog(root: Path) -> dict[str, Any]:
         translations: dict[str, dict[str, Any]] = {}
         for scenario in languages:
             language = scenario["storage_language"]
+            if language == "source":
+                continue
             language_cards = [card for card in scenario["grouped_cards"] if _active_sides(card)]
             states = [_card_text_status(card, field_ids) for card in language_cards]
             translation_dir = (
@@ -129,6 +131,9 @@ def build_status_catalog(root: Path) -> dict[str, Any]:
             "author": str(base_project.get("author") or ""),
             "version": str(base_project.get("version") or ""),
             "source_url": str(base_project.get("source_url") or ""),
+            "source_language": str(base_project.get("source_language") or "en"),
+            "mood_image": str(base_project.get("mood_image") or ""),
+            "cover_image": str(base_project.get("cover_image") or ""),
             "layout": "shared" if shared else "legacy",
             "base": base,
             "translations": translations,

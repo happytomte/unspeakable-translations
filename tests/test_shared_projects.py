@@ -492,6 +492,7 @@ def test_status_catalog_uses_logical_cards_and_separate_review_counts(tmp_path):
     assert project["game_name"] == "Arkham Horror: The Card Game"
     assert project["author"] == ""
     assert project["source_url"] == ""
+    assert project["source_language"] == "en"
     assert project["base"]["cards_total"] == 1
     assert project["base"]["source_text_present"] == 1
     assert project["base"]["source_reviewed"] == 1
@@ -499,6 +500,7 @@ def test_status_catalog_uses_logical_cards_and_separate_review_counts(tmp_path):
     assert project["translations"]["de"]["cards_translated"] == 1
     assert project["translations"]["de"]["cards_reviewed"] == 0
     assert project["translations"]["fr"]["cards_translated"] == 0
+    assert "source" not in project["translations"]
 
 
 def test_shared_shoggoth_export_is_written_below_selected_language(tmp_path):

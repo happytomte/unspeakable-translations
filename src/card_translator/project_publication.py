@@ -33,6 +33,8 @@ from card_translator.shared_projects import (
 
 PROJECT_SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PUBLISH_IGNORED_NAMES = {"logs", "snapshots", "__pycache__", ".DS_Store"}
+PROJECT_IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
+MAX_PROJECT_IMAGE_SIZE = 15 * 1024 * 1024
 
 
 def _normalize_slug(value: str, label: str) -> str:
@@ -75,6 +77,41 @@ def create_campaign(
     write_json(destination / CAMPAIGN_FILENAME, campaign)
     (destination / "scenarios").mkdir(parents=True, exist_ok=True)
     return {"path": destination, **campaign}
+
+
+def save_project_image(
+    root: Path,
+    *,
+    game: str,
+    slug: str,
+    kind: str,
+    filename: str,
+    content: bytes,
+) -> Path:
+    """Store shared project artwork and reference it from the base project."""
+    if kind not in {"mood", "cover"}:
+        raise ValueError("Unknown project image kind")
+    suffix = Path(filename).suffix.lower()
+    if suffix not in PROJECT_IMAGE_SUFFIXES:
+        raise ValueError("Project images must be JPG, PNG, or WebP files")
+    if not content:
+        raise ValueError("Project image is empty")
+    if len(content) > MAX_PROJECT_IMAGE_SIZE:
+        raise ValueError("Project image exceeds the 15 MB limit")
+    scenario = get_scenario(root, game, slug, language="source")
+    if scenario is None or not scenario.get("shared_layout"):
+        raise ValueError("Shared project does not exist")
+    project_path = Path(scenario["path"])
+    media = project_path / "source" / "media"
+    media.mkdir(parents=True, exist_ok=True)
+    for old_suffix in PROJECT_IMAGE_SUFFIXES:
+        (media / f"{kind}{old_suffix}").unlink(missing_ok=True)
+    destination = media / f"{kind}{suffix}"
+    destination.write_bytes(content)
+    project = read_json(project_path / "project.json") or {}
+    project[f"{kind}_image"] = destination.relative_to(project_path).as_posix()
+    write_json(project_path / "project.json", project)
+    return destination
 
 
 def create_campaign_scenario(

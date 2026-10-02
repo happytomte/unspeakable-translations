@@ -179,6 +179,24 @@
 {% endif %}
 
 <section class="project-menus">
+  {% if scenario.shared_layout and scenario.source_only %}
+  <details class="project-menu panel">
+    <summary><strong>{{ t('project.catalog_images') }}</strong></summary>
+    <div class="project-menu-content">
+      <p class="small muted">{{ t('project.catalog_images_help') }}</p>
+      <form method="post" action="/{{ scenario.game }}/source/{{ scenario.slug }}/project-image" enctype="multipart/form-data" class="form-grid">
+        <label>{{ t('project.image_kind') }}
+          <select name="kind">
+            <option value="mood">{{ t('project.mood_image') }}</option>
+            <option value="cover">{{ t('project.cover_image') }}</option>
+          </select>
+        </label>
+        <label>{{ t('project.image_file') }}<input type="file" name="image_file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" required></label>
+        <div class="form-actions"><button type="submit">{{ t('project.upload_image') }}</button></div>
+      </form>
+    </div>
+  </details>
+  {% endif %}
   <details class="project-menu panel">
     <summary><strong>{{ t('project.export_menu') }}</strong></summary>
     <div class="project-menu-content project-export-content">

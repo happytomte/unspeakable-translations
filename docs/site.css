@@ -224,6 +224,7 @@ h1 em, h2 em { color: var(--copper); font-family: inherit; font-weight: 400; }
 .project-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .project-card { display: flex; flex-direction: column; min-height: 490px; overflow: hidden; border: 1px solid var(--line); border-radius: 2px; background: rgba(255,253,248,.62); box-shadow: 0 8px 24px rgba(20,24,21,.07); }
 .project-card-head { position: relative; min-height: 178px; padding: 22px; overflow: hidden; color: white; background: linear-gradient(140deg, hsl(var(--hue) 25% 22%), hsl(calc(var(--hue) + 35) 30% 12%)); }
+.project-card-head.has-image { background-image: linear-gradient(180deg, rgba(10,22,20,.18), rgba(10,22,20,.78)), var(--project-image); background-position: center; background-size: cover; }
 .project-card-head::before, .project-card-head::after { position: absolute; border: 1px solid rgba(255,255,255,.12); border-radius: 50%; content: ""; }
 .project-card-head::before { top: -60px; right: -20px; width: 180px; height: 180px; box-shadow: 0 0 0 25px rgba(255,255,255,.025), 0 0 0 50px rgba(255,255,255,.018); }
 .project-card-head::after { right: 52px; bottom: -65px; width: 125px; height: 125px; }
@@ -245,6 +246,10 @@ h1 em, h2 em { color: var(--copper); font-family: inherit; font-weight: 400; }
 .language-copy strong { display: block; font-size: .76rem; }
 .language-copy small { display: block; overflow: hidden; color: var(--ink-soft); font-size: .63rem; text-overflow: ellipsis; white-space: nowrap; }
 .language-status { display: flex; align-items: center; gap: 6px; color: var(--ink-soft); font-size: .63rem; }
+.language-actions { display: flex; align-items: center; justify-content: end; gap: 8px; }
+.github-icon-link { display: grid; width: 29px; height: 29px; flex: 0 0 auto; place-items: center; border: 1px solid var(--line); border-radius: 7px; color: var(--forest); background: rgba(255,255,255,.35); }
+.github-icon-link:hover { color: white; border-color: var(--forest); background: var(--forest); }
+.github-icon-link svg { width: 15px; height: 15px; fill: currentColor; }
 .download-link { display: grid; width: 31px; height: 31px; place-items: center; border-radius: 7px; color: white; background: var(--forest); text-decoration: none; }
 .download-link:hover { background: var(--forest-light); }
 .card-actions { display: grid; grid-template-columns: 1fr auto; margin-top: auto; padding-top: 17px; gap: 9px; }
