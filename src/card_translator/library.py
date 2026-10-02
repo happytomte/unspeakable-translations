@@ -1503,13 +1503,9 @@ def _gemini_card_image_request(
         f"{shared_prompt if include_shared_context else 'Apply the shared instructions from context.json.'}"
     )
     prompt += (
-        "\n\nInspect the actual card image carefully and rotate it mentally or with an image "
-        "viewer until every printed region is readable. Do not infer content from the filename, "
-        "job name, or an existing translation. Inspect the title area, text box, numerical and "
-        "icon values, and the small-print footer separately. Transcribe every visible field "
-        "represented in the schema, including all rules and flavor text and the illustrator; "
-        "use an empty string only when that field is genuinely absent or unreadable. Do not "
-        "finish the job after recognizing only its title or card type."
+        "\n\nRead the actual image, not its filename. Return every visibly printed field "
+        "represented in the schema, including complete rules/flavor text and footer credits. "
+        "Use an empty string only when a field is absent or unreadable."
     )
     if include_shared_context:
         prompt += (

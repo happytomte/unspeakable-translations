@@ -638,8 +638,8 @@ def test_prepares_llm_batch_for_visible_card_sides(tmp_path):
     assert "clues_per_investigator" not in metadata_schema
     assert "Mandatory glossary" not in front_job["prompt"]
     assert "Return only JSON" in front_job["prompt"]
-    assert "Inspect the actual card image carefully" in front_job["prompt"]
-    assert "small-print footer separately" in front_job["prompt"]
+    assert "Read the actual image, not its filename" in front_job["prompt"]
+    assert "footer credits" in front_job["prompt"]
     assert "rules" in back_job["output_schema"]["properties"]["source"]["properties"]
     assert "flavor" in back_job["output_schema"]["properties"]["source"]["properties"]
     assert "stage" in back_job["output_schema"]["properties"]["metadata"]["properties"]
