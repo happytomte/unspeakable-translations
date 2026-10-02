@@ -168,7 +168,10 @@ def stage_card_source_proposal(
                 if definition is None:
                     continue
                 raw = str(proposed_value or "").strip()
-                if field == "clues" and raw in {"-", "–", "—", "−"}:
+                if (
+                    definition.get("type") == "integer"
+                    or definition.get("value_format") == "scaled_number"
+                ) and raw in _PRINTED_EMPTY_NUMBER_MARKERS:
                     raw = ""
                 if definition.get("value_format") == "scaled_number":
                     proposed_value = _normalize_scaled_number(raw, field_id=field)
@@ -1370,8 +1373,9 @@ def _gemini_card_image_request(
     if card is None or not isinstance(card.get(side), dict):
         raise ValueError("Unknown card side")
     visible = set(card.get("visible_field_ids") or [])
-    detect_card_type = side == "front" and not str(card.get("card_type") or "").strip()
-    if detect_card_type:
+    unknown_card_type = not str(card.get("card_type") or "").strip()
+    detect_card_type = side == "front" and unknown_card_type
+    if unknown_card_type:
         visible.update(
             str(field_id)
             for card_type in scenario.get("card_types") or []
@@ -1429,22 +1433,27 @@ def _gemini_card_image_request(
             "enum": ["", *location_symbols],
         }
     source_only = bool(scenario.get("source_only"))
+    source_properties = string_properties(text_fields, translatable=True)
+
+    def object_schema(properties: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "type": "object",
+            "properties": properties,
+            "required": list(properties),
+            "additionalProperties": False,
+        }
+
     schema = {
         "type": "object",
         "properties": {
-            "source": {
-                "type": "object",
-                "properties": string_properties(text_fields, translatable=True),
-            },
-            "metadata": {"type": "object", "properties": metadata_properties},
+            "source": object_schema(source_properties),
+            "metadata": object_schema(metadata_properties),
         },
         "required": ["source", "metadata"],
+        "additionalProperties": False,
     }
     if not source_only:
-        schema["properties"]["translation"] = {
-            "type": "object",
-            "properties": string_properties(text_fields, translatable=True),
-        }
+        schema["properties"]["translation"] = object_schema(source_properties)
         schema["required"].insert(1, "translation")
     if side == "back":
         schema["properties"]["standard_back"] = {"type": "boolean"}
@@ -1493,6 +1502,15 @@ def _gemini_card_image_request(
         "Preserve paragraph breaks and represent printed game icons as {token_name}.\n\n"
         f"{shared_prompt if include_shared_context else 'Apply the shared instructions from context.json.'}"
     )
+    prompt += (
+        "\n\nInspect the actual card image carefully and rotate it mentally or with an image "
+        "viewer until every printed region is readable. Do not infer content from the filename, "
+        "job name, or an existing translation. Inspect the title area, text box, numerical and "
+        "icon values, and the small-print footer separately. Transcribe every visible field "
+        "represented in the schema, including all rules and flavor text and the illustrator; "
+        "use an empty string only when that field is genuinely absent or unreadable. Do not "
+        "finish the job after recognizing only its title or card type."
+    )
     if include_shared_context:
         prompt += (
             "\n\nReturn only JSON, without a Markdown code fence, using exactly this shape and "
@@ -1517,6 +1535,10 @@ def _gemini_card_image_request(
             "per-investigator symbol is visibly printed beside it, use a compact value such as "
             "1<per>; otherwise use only the number."
         )
+    prompt += (
+        "\nFor every numeric metadata field, a printed standalone dash means no value: return "
+        "an empty string rather than the dash."
+    )
     if {"stage", "index"}.issubset(metadata_by_id):
         prompt += (
             "\nFor Act and Agenda cards, metadata.index is the complete printed designation, "
@@ -1760,9 +1782,12 @@ def prepare_card_image_batch(
                                 }
                                 for field in field_ids
                             },
+                            "required": field_ids,
+                            "additionalProperties": False,
                         }
                     },
                     "required": ["translation"],
+                    "additionalProperties": False,
                 }
                 source_payload = {
                     field: (
@@ -1878,9 +1903,10 @@ def _validate_card_image_batch_result(
     if not isinstance(properties, dict):
         raise ValueError(f"{result_name}: job contains no usable output schema")
     expected = set(properties)
+    required = set(schema.get("required") or [])
     actual = set(result)
-    if actual != expected:
-        missing = sorted(expected - actual)
+    if not required.issubset(actual) or not actual.issubset(expected):
+        missing = sorted(required - actual)
         unknown = sorted(actual - expected)
         detail = []
         if missing:
@@ -1898,9 +1924,10 @@ def _validate_card_image_batch_result(
         if not isinstance(value, dict) or not isinstance(fields, dict):
             raise ValueError(f"{result_name}: {section} must be an object")
         expected_fields = set(fields)
+        required_fields = set(definition.get("required") or [])
         actual_fields = set(value)
-        if actual_fields != expected_fields:
-            missing = sorted(expected_fields - actual_fields)
+        if not required_fields.issubset(actual_fields) or not actual_fields.issubset(expected_fields):
+            missing = sorted(required_fields - actual_fields)
             unknown = sorted(actual_fields - expected_fields)
             detail = []
             if missing:
@@ -2539,6 +2566,7 @@ _SCALED_NUMBER = re.compile(
     r"\{(?:per|per_investigator)\}|\[(?:per|per_investigator)\])?$",
     re.IGNORECASE,
 )
+_PRINTED_EMPTY_NUMBER_MARKERS = {"-", "–", "—", "−"}
 
 
 def _normalize_scaled_number(value: str, *, field_id: str) -> str:
@@ -2577,8 +2605,6 @@ def update_card_game_fields(
     if side not in {"front", "back"}:
         raise ValueError("side must be front or back")
     field_values = dict(field_values)
-    if str(field_values.get("clues") or "").strip() in {"-", "–", "—", "−"}:
-        field_values["clues"] = ""
     if "clues" in field_values and "clues_per_investigator" in field_values:
         legacy_per = str(field_values.pop("clues_per_investigator") or "").casefold() in {
             "1", "true", "yes", "on",
@@ -2606,6 +2632,10 @@ def update_card_game_fields(
             value_format = definition.get("value_format")
         else:
             value_format = None
+        if (
+            field_type == "integer" or value_format == "scaled_number"
+        ) and value in _PRINTED_EMPTY_NUMBER_MARKERS:
+            value = ""
         if value_format == "scaled_number":
             values[field_id] = _normalize_scaled_number(value, field_id=field_id)
         elif field_type == "integer":

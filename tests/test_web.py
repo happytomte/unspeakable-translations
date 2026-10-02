@@ -338,12 +338,11 @@ def test_arkham_scenario_page_renders_card_type_schema(tmp_path, monkeypatch):
     assert "Für LLM nur mit extrahierten Daten vorbereiten" not in body
     assert "Verarbeitungs-Prompt kopieren" in body
     assert (
-        "Verarbeite den vorbereiteten Karten-Batch unter "
+        "Verarbeite jeden Job des vorbereiteten Karten-Batches unter "
         "library/ah/de/scenario/llm-batch/de" in body
     )
-    assert (
-        "Vermeide Zwischenprüfungen und wiederholtes Lesen bereits gelesener Dateien" in body
-    )
+    assert "Öffne für ausnahmslos jeden Job" in body
+    assert "ein erkannter Titel allein ist kein abgeschlossenes Ergebnis" in body
     assert "Batch-Ergebnisse einspielen" in body
     assert 'class="batch-card-error" role="alert" hidden' in body
     assert 'row.classList.add("batch-import-error")' in body

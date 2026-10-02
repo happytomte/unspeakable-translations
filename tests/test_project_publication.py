@@ -175,7 +175,7 @@ def test_campaign_owns_metadata_and_contains_multiple_scenarios(tmp_path):
     campaign = create_campaign(
         tmp_path,
         game="ah",
-        slug="dark-matter",
+        slug="Dark-Matter",
         title="Dark Matter",
         author="Axolotl",
         source_url="https://example.test/dark-matter",
@@ -197,6 +197,7 @@ def test_campaign_owns_metadata_and_contains_multiple_scenarios(tmp_path):
     )
 
     assert campaign["path"] == tmp_path / "projects/ah/dark-matter"
+    assert campaign["slug"] == "dark-matter"
     assert first["path"] == campaign["path"] / "scenarios/the-tatterdemalion"
     assert second["path"] == campaign["path"] / "scenarios/lost-quantum"
     assert read_json(campaign["path"] / "campaign.json")["author"] == "Axolotl"
@@ -847,13 +848,15 @@ def test_workbench_renders_creation_publication_changes_and_art_controls(tmp_pat
     assert "Übersetzung beginnen" in dashboard_body
     assert "lokales Projekt" in dashboard_body
     assert 'class="contribution-legend"' in dashboard_body
+    assert dashboard_body.count(
+        'pattern="[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*"'
+    ) == 2
     assert "Im Repository, bereit für PR" in dashboard_body
     assert "Nur lokal bearbeitet" in dashboard_body
     assert "Noch nicht übersetzt" in dashboard_body
     assert 'name="source_language"' in dashboard_body
     assert 'name="target_language"' in dashboard_body
     assert 'name="private_only" value="true"' in dashboard_body
-
     detail = next(route.endpoint for route in app.routes if route.name == "scenario_detail")
     body = detail(
         request, game="ah", project_language="de", slug="demo-scenario",

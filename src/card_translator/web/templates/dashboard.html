@@ -65,7 +65,7 @@
           <select name="game" required>{% for game in games %}<option value="{{ game.slug }}">{{ game.name }}</option>{% endfor %}</select>
         </label>
         <label>{{ t('campaign.id') }}
-          <input name="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="dark-matter">
+          <input name="slug" required pattern="[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*" placeholder="dark-matter">
           <span class="muted">{{ t('project.id_help') }}</span>
         </label>
         <label>{{ t('campaign.name') }}<input name="title" required></label>
@@ -99,7 +99,7 @@
         <label>{{ t('campaign.campaign') }}
           <select name="campaign_id" required>{% for campaign in campaigns %}<option value="{{ campaign.game }}/{{ campaign.slug }}">{{ campaign.title }} · {{ campaign.game|upper }}</option>{% endfor %}</select>
         </label>
-        <label>{{ t('project.id') }}<input name="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="scenario-one"><span class="muted">{{ t('project.id_help') }}</span></label>
+        <label>{{ t('project.id') }}<input name="slug" required pattern="[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*" placeholder="scenario-one"><span class="muted">{{ t('project.id_help') }}</span></label>
         <label>{{ t('project.original_title') }}<input name="title" required></label>
         <label class="checkbox-field wide">
           <input type="checkbox" name="private_only" value="true">

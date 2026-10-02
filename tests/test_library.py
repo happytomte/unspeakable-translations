@@ -5,6 +5,7 @@ import json
 import pytest
 
 from card_translator.library import (
+    _validate_card_image_batch_result,
     apply_card_image_batch_results,
     apply_card_ocr_text,
     apply_card_source_proposal,
@@ -616,6 +617,7 @@ def test_prepares_llm_batch_for_visible_card_sides(tmp_path):
     assert not (batch / "removed-card.job.json").exists()
     assert not (batch / "legacy-card.txt").exists()
     front_job = json.loads((batch / "location_library-front.job.json").read_text())
+    back_job = json.loads((batch / "location_library-back.job.json").read_text())
     assert front_job["format"] == "card-translator-llm-job"
     assert front_job["format_version"] == 2
     assert front_job["card_key"] == "location_library"
@@ -627,13 +629,21 @@ def test_prepares_llm_batch_for_visible_card_sides(tmp_path):
     assert front_job["output_schema"]["required"] == ["source", "translation", "metadata"]
     source_schema = front_job["output_schema"]["properties"]["source"]["properties"]
     metadata_schema = front_job["output_schema"]["properties"]["metadata"]["properties"]
+    assert front_job["output_schema"]["properties"]["source"]["required"] == list(source_schema)
+    assert front_job["output_schema"]["properties"]["metadata"]["required"] == list(metadata_schema)
+    assert front_job["output_schema"]["additionalProperties"] is False
     assert "no angle-bracket tags" in source_schema["title"]["description"]
     assert "May use only" in source_schema["rules"]["description"]
     assert "1<per>" in metadata_schema["clues"]["description"]
     assert "clues_per_investigator" not in metadata_schema
     assert "Mandatory glossary" not in front_job["prompt"]
     assert "Return only JSON" in front_job["prompt"]
-    assert "small-print footer" not in front_job["prompt"]
+    assert "Inspect the actual card image carefully" in front_job["prompt"]
+    assert "small-print footer separately" in front_job["prompt"]
+    assert "rules" in back_job["output_schema"]["properties"]["source"]["properties"]
+    assert "flavor" in back_job["output_schema"]["properties"]["source"]["properties"]
+    assert "stage" in back_job["output_schema"]["properties"]["metadata"]["properties"]
+    assert "card_type" not in back_job["output_schema"]["properties"]["metadata"]["properties"]
     context = json.loads((batch / "context.json").read_text())
     assert context["format"] == "card-translator-llm-context"
     assert "Mandatory glossary" in context["prompt"]
@@ -656,6 +666,36 @@ def test_prepares_llm_batch_for_visible_card_sides(tmp_path):
             "job": "location_library-back.job.json",
         },
     ]
+
+
+def test_batch_validator_honors_nested_required_fields():
+    legacy_schema = {
+        "type": "object",
+        "properties": {
+            "metadata": {
+                "type": "object",
+                "properties": {
+                    "artist": {"type": "string"},
+                    "card_number": {"type": "string"},
+                },
+            }
+        },
+        "required": ["metadata"],
+    }
+
+    _validate_card_image_batch_result(
+        {"metadata": {}}, legacy_schema, "legacy.result.json"
+    )
+
+    strict_schema = json.loads(json.dumps(legacy_schema))
+    strict_schema["properties"]["metadata"]["required"] = [
+        "artist",
+        "card_number",
+    ]
+    with pytest.raises(ValueError, match="missing artist, card_number"):
+        _validate_card_image_batch_result(
+            {"metadata": {}}, strict_schema, "strict.result.json"
+        )
 
 
 def test_llm_batch_selects_small_official_reference_set_locally(tmp_path):
@@ -902,7 +942,14 @@ def test_gemini_import_treats_printed_clue_dash_as_empty(tmp_path):
     result = {
         "source": {"title": "Through the Looking-Glass"},
         "translation": {"title": "Hinter den Spiegeln"},
-        "metadata": {"card_type": "act", "stage": "3", "index": "3a", "clues": "-"},
+        "metadata": {
+            "card_type": "act",
+            "stage": "3",
+            "index": "3a",
+            "clues": "-",
+            "doom": "–",
+            "printed_quantity": "—",
+        },
     }
 
     invalid = {**result, "metadata": {**result["metadata"], "stage": "three"}}
@@ -940,6 +987,8 @@ def test_gemini_import_treats_printed_clue_dash_as_empty(tmp_path):
         for field in card["metadata_fields_by_side"]["front"]
     }
     assert fields["clues"] == ""
+    assert fields["doom"] == ""
+    assert fields["printed_quantity"] is None
     assert fields["stage"] == 3
     assert fields["index"] == "3a"
     assert card["target_sides"]["front"]["title"] == "Hinter den Spiegeln"
