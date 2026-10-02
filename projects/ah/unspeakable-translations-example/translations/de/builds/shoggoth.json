@@ -1,0 +1,96 @@
+{
+  "name": "Unspeakable Translations Example",
+  "code": "unspeakable-translations-example",
+  "icon": "",
+  "encounter_sets": [
+    {
+      "name": "Unspeakable Translations Example",
+      "icon": "",
+      "cards": [],
+      "id": "unspeakable-translations-example-encounter",
+      "meta": {
+        "tts": {},
+        "location_layouts": []
+      }
+    }
+  ],
+  "cards": [
+    {
+      "id": "unspeakable-translations-example-encounter-23804c9a-085c-47aa-98a6-ce1dde3e7b0c-unspeakable-translation",
+      "name": "Unaussprechliche Übersetzung",
+      "enumerated": "manual",
+      "encounter_set": "unspeakable-translations-example-encounter",
+      "project_number": "0",
+      "encounter_number": "-1",
+      "amount": 3,
+      "front": {
+        "type": "treachery",
+        "illustration": "/home/jo/privat/dev/happytomte/unspeakable-translations/library/projects/ah/unspeakable-translations-example/source/cards/23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation_front_0.png",
+        "name": "Unaussprechliche Übersetzung",
+        "text": "<b>Enthüllung</b> — Lege eine <intellect>-Probe (4) ab. Für jeden Punkt, um den die Probe misslingt, wähle 1 Karte von deiner Hand und lege sie ab. Für jede Karte, die du nicht ablegen kannst, nimm 1 Horror.",
+        "flavor_text": "<i>Die Symbole waren zunächst bedeutungslos. Du wünschst, sie wären es geblieben.</i>",
+        "illustrator": "Illus. happy tomte"
+      },
+      "back": {
+        "type": "encounter"
+      }
+    },
+    {
+      "id": "unspeakable-translations-example-encounter-e5e72a76-a7b0-4446-aa51-fa135749ce50-charles-dexter-card",
+      "name": "Charles Dexter Card",
+      "enumerated": "manual",
+      "project_number": "0",
+      "amount": 2,
+      "front": {
+        "type": "asset",
+        "illustration": "/home/jo/privat/dev/happytomte/unspeakable-translations/library/projects/ah/unspeakable-translations-example/source/cards/e5e72a76-a7b0-4446-aa51-fa135749ce50_charles_dexter_card_front_0.png",
+        "name": "Charles Dexter Card",
+        "subtitle": "Wortspiel beabsichtigt!",
+        "text": "<reaction> Nachdem dir eine Fertigkeitsprobe auf einer Verratskarte gelungen ist, erschöpfe Charles Dexter Card: Ziehe 1 Karte. Falls dir die Probe um 2 oder mehr gelungen ist, darfst du stattdessen 1 Hinweis an deinem Ort entdecken.",
+        "flavor_text": "<i>„Ich versichere dir, die Zeichensetzung ist von Bedeutung.“</i>",
+        "traits": "Verbündeter. Gelehrter",
+        "illustrator": "Illus. happy tomte",
+        "health": "2",
+        "sanity": "1",
+        "classes": [
+          "neutral"
+        ],
+        "cost": "3",
+        "slots": [
+          "ally"
+        ],
+        "icons": "WIQ"
+      },
+      "back": {
+        "type": "player"
+      }
+    },
+    {
+      "id": "unspeakable-translations-example-encounter-fbd47bce-2beb-4a1a-8236-a21a3a692b1b-strange-ink",
+      "name": "Seltsame Tinte",
+      "enumerated": "manual",
+      "encounter_set": "unspeakable-translations-example-encounter",
+      "project_number": "0",
+      "encounter_number": "-1/6",
+      "amount": 3,
+      "front": {
+        "type": "treachery",
+        "illustration": "/home/jo/privat/dev/happytomte/unspeakable-translations/library/projects/ah/unspeakable-translations-example/source/cards/fbd47bce-2beb-4a1a-8236-a21a3a692b1b_strange_ink_front_0.png",
+        "name": "Seltsame Tinte",
+        "text": "<b>Enthüllung</b> — Lege Seltsame Tinte in deine Bedrohungszone.\n<b>Erzwungen</b> — Lege am Ende deines Zuges 1 zufällige Karte von deiner Hand ab. Falls du dies nicht kannst, nimm 1 Horror.\n<action>: Lege eine <agility>-Probe (3) ab. Falls die Probe gelingt, lege Seltsame Tinte ab.",
+        "flavor_text": "<i>Vielleicht hätte ich die Flasche geschlossen lassen sollen.</i>",
+        "traits": "Gefahr",
+        "illustrator": "Illus. happy tomte"
+      },
+      "back": {
+        "type": "encounter"
+      }
+    }
+  ],
+  "id": "unspeakable-translations-example",
+  "meta": {
+    "dirty": [],
+    "french_punctuation": false,
+    "language": "de"
+  }
+}

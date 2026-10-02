@@ -12,14 +12,14 @@
             "subname": "",
             "traits": [],
             "rules": "<b>Enthüllung</b> — Lege eine {intellect}-Probe (4) ab. Für jeden Punkt, um den die Probe misslingt, wähle 1 Karte von deiner Hand und lege sie ab. Für jede Karte, die du nicht ablegen kannst, nimm 1 Horror.",
-            "flavor": "<i>Die Symbole waren zunächst bedeutungslos. Du wünschst, sie wären es geblieben.</i>"
+            "flavor": "Die Symbole waren zunächst bedeutungslos. Du wünschst, sie wären es geblieben."
           }
         },
         "title": "Unaussprechliche Übersetzung",
         "subname": "",
         "traits": [],
         "rules": "<b>Enthüllung</b> — Lege eine {intellect}-Probe (4) ab. Für jeden Punkt, um den die Probe misslingt, wähle 1 Karte von deiner Hand und lege sie ab. Für jede Karte, die du nicht ablegen kannst, nimm 1 Horror.",
-        "flavor": "<i>Die Symbole waren zunächst bedeutungslos. Du wünschst, sie wären es geblieben.</i>"
+        "flavor": "Die Symbole waren zunächst bedeutungslos. Du wünschst, sie wären es geblieben."
       }
     }
   },
@@ -27,15 +27,21 @@
     "fields": {
       "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.title": {
         "source": "manual",
-        "confidence": 1.0
+        "confidence": 1.0,
+        "source_hash": "072bfb1efdf6265bd01af5f6f30f4414b2ed35914241bad6655da2c114f48a6d",
+        "source_value": "Unspeakable Translation"
       },
       "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.subname": {
         "source": "manual",
-        "confidence": 1.0
+        "confidence": 1.0,
+        "source_hash": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+        "source_value": ""
       },
       "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.traits": {
         "source": "manual",
-        "confidence": 1.0
+        "confidence": 1.0,
+        "source_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "source_value": []
       },
       "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.rules": {
         "source": "manual",
@@ -45,7 +51,9 @@
       },
       "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.sides.front.flavor": {
         "source": "manual",
-        "confidence": 1.0
+        "confidence": 1.0,
+        "source_hash": "a981bf610160a83501ab6707dc6e7faa98f57361a88ecf8d419f254ed98f5202",
+        "source_value": "<i>The symbols were meaningless at first. You wish they had stayed that way.</i>"
       },
       "23804c9a-085c-47aa-98a6-ce1dde3e7b0c_unspeakable_translation.text.de.rules": {
         "source": "unknown",
