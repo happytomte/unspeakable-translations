@@ -1,6 +1,6 @@
 
 <p align="center">
-   <img src="site/assets/brand/largelogo.svg" width="50%">
+   <img src="docs/assets/brand/largelogo.svg" width="50%">
 </p>
 
 # Unspeakable Translations
@@ -30,7 +30,7 @@ Open <http://127.0.0.1:8000>.
 
 
 <p align="center">
-   <img src="site/assets/brand/function.svg" width="50%">
+   <img src="docs/assets/brand/function.svg" width="50%">
 </p>
 
 
